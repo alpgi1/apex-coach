@@ -1,0 +1,91 @@
+import * as Crypto from 'expo-crypto';
+import { saveWorkoutSession } from '../services/storage/workoutStorage';
+import { useWorkoutStore } from '../store/workoutStore';
+import { ExerciseLog, RPEScale, WorkoutSet } from '../types/workout.types';
+
+export const useWorkoutSession = () => {
+    const store = useWorkoutStore();
+
+    const startWorkout = (name: string): void => {
+        store.startSession(name);
+    };
+
+    const finishWorkout = async (): Promise<void> => {
+        // We need to capture the active session before ending it, because
+        // endSession mutates the state (sets endTime, volume, averageRPE)
+        // and clears out isWorkoutActive
+
+        // Technically ending the session doesn't "clear" the active session data,
+        // it just finalizes the stats.
+        store.endSession();
+
+        // The store's endSession is synchronous, but React state updates are batched.
+        // However, Zustand allows us to immediately read the updated state right off the store:
+        const finalizedSession = useWorkoutStore.getState().activeSession;
+
+        if (finalizedSession) {
+            await saveWorkoutSession(finalizedSession);
+        }
+    };
+
+    const addExercise = (exerciseId: string): void => {
+        const order = store.activeSession ? store.activeSession.logs.length : 0;
+
+        const newLog: ExerciseLog = {
+            id: Crypto.randomUUID(),
+            exerciseId,
+            order,
+            sets: [],
+        };
+
+        store.addExerciseLog(newLog);
+    };
+
+    const logSet = (
+        exerciseLogId: string,
+        weight: number,
+        reps: number,
+        rpe: RPEScale | number
+    ): void => {
+        // We need to know what setNumber this is going to be
+        const existingLog = store.activeSession?.logs.find((l) => l.id === exerciseLogId);
+        const setNumber = existingLog ? existingLog.sets.length + 1 : 1;
+
+        const newSet: WorkoutSet = {
+            id: Crypto.randomUUID(),
+            setNumber,
+            weightKg: weight,
+            reps,
+            rpe: rpe as RPEScale, // We safely cast because the UI guarantees RPEScale step precision
+            setType: 'WORKING',
+            isCompleted: false,
+        };
+
+        store.addSet(exerciseLogId, newSet);
+    };
+
+    const completeSet = (exerciseLogId: string, setId: string): void => {
+        const existingLog = store.activeSession?.logs.find((l) => l.id === exerciseLogId);
+        if (!existingLog) return;
+
+        const existingSet = existingLog.sets.find((s) => s.id === setId);
+        if (!existingSet) return;
+
+        store.updateSet(exerciseLogId, {
+            ...existingSet,
+            isCompleted: true,
+        });
+    };
+
+    return {
+        // Expose all Zustand state and actions natively
+        ...store,
+
+        // Expose custom hook wrappers that integrate SQLite side effects
+        startWorkout,
+        finishWorkout,
+        addExercise,
+        logSet,
+        completeSet,
+    };
+};

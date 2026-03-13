@@ -68,7 +68,7 @@ export const seedExercises = async (): Promise<void> => {
             name: 'Barbell Squat',
             primaryMuscleGroup: 'LEGS',
             primaryMuscles: ['QUADS', 'GLUTES'],
-            secondaryMuscles: ['HAMSTRINGS', 'LOWER_BACK', 'CORE'],
+            secondaryMuscles: ['HAMSTRINGS', 'LOWER_BACK', 'ABS'],
             equipment: 'BARBELL',
             category: 'COMPOUND',
             isBilateral: true,
@@ -81,7 +81,7 @@ export const seedExercises = async (): Promise<void> => {
             name: 'Barbell Deadlift',
             primaryMuscleGroup: 'BACK',
             primaryMuscles: ['LOWER_BACK', 'GLUTES', 'HAMSTRINGS'],
-            secondaryMuscles: ['TRAPS', 'FOREARMS', 'CORE'],
+            secondaryMuscles: ['TRAPS', 'FOREARMS', 'ABS'],
             equipment: 'BARBELL',
             category: 'COMPOUND',
             isBilateral: true,
@@ -127,7 +127,7 @@ export const getExerciseById = async (id: string): Promise<ExerciseMetadata | nu
 
 export const searchExercises = async (filters: { name?: string; muscleGroup?: MuscleGroup; equipment?: EquipmentType }): Promise<ExerciseMetadata[]> => {
     let query = `SELECT * FROM exercises WHERE 1=1`;
-    const params: any[] = [];
+    const params: (string | number)[] = [];
 
     if (filters.name) {
         query += ` AND name LIKE ?`;
