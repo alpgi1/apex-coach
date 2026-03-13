@@ -1,6 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { useFocusEffect, useRouter } from 'expo-router';
+import { useCallback, useState } from 'react';
 import { ActivityIndicator, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useWorkoutSession } from '../../src/hooks/useWorkoutSession';
@@ -18,20 +18,23 @@ export default function DashboardScreen() {
   const [history, setHistory] = useState<WorkoutSession[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
-  useEffect(() => {
-    const loadHistory = async () => {
-      try {
-        const data = await getWorkoutHistory();
-        setHistory(data);
-      } catch (error) {
-        console.error("Failed to load workout history:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
+  useFocusEffect(
+    useCallback(() => {
+      const loadHistory = async () => {
+        try {
+          setIsLoading(true);
+          const data = await getWorkoutHistory();
+          setHistory(data);
+        } catch (error) {
+          console.error("Failed to load workout history:", error);
+        } finally {
+          setIsLoading(false);
+        }
+      };
 
-    loadHistory();
-  }, []);
+      loadHistory();
+    }, [])
+  );
 
   const lastWorkout = history.length > 0 ? history[0] : null;
   const recentSessions = history.slice(0, 3);

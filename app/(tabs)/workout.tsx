@@ -10,8 +10,10 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import ExercisePickerModal from '../../src/components/workout/ExercisePickerModal';
 import { useProgressiveOverload } from '../../src/hooks/useProgressiveOverload';
 import { useWorkoutSession } from '../../src/hooks/useWorkoutSession';
+import { ExerciseMetadata } from '../../src/types/exercise.types';
 import { RPEScale } from '../../src/types/workout.types';
 
 /* ──────────────────────────── helpers ──────────────────────────── */
@@ -47,6 +49,7 @@ export default function WorkoutScreen() {
     const {
         activeSession,
         isWorkoutActive,
+        addExercise,
         logSet,
         completeSet,
         finishWorkout,
@@ -90,6 +93,8 @@ export default function WorkoutScreen() {
 
     /* ── current exercise index ──────────────────────────────── */
     const [currentExerciseIdx, setCurrentExerciseIdx] = useState<number>(0);
+    const [isPickerVisible, setIsPickerVisible] = useState<boolean>(false);
+    const [exerciseMap, setExerciseMap] = useState<Record<string, ExerciseMetadata>>({});
     const currentLog = activeSession?.logs[currentExerciseIdx] ?? null;
     const nextLog = activeSession?.logs[currentExerciseIdx + 1] ?? null;
 
@@ -145,6 +150,11 @@ export default function WorkoutScreen() {
         if (activeSession && currentExerciseIdx < activeSession.logs.length - 1) {
             setCurrentExerciseIdx((prev) => prev + 1);
         }
+    };
+
+    const handleExerciseSelect = (exercise: ExerciseMetadata) => {
+        addExercise(exercise.id);
+        setExerciseMap((prev) => ({ ...prev, [exercise.id]: exercise }));
     };
 
     const handleFinish = async () => {
@@ -225,7 +235,7 @@ export default function WorkoutScreen() {
                         {/* Exercise header */}
                         <View className="flex-row items-center justify-between mb-2">
                             <Text className="text-white text-lg font-bold flex-1 mr-2">
-                                {currentLog.exerciseId}
+                                {exerciseMap[currentLog.exerciseId]?.name ?? currentLog.exerciseId}
                             </Text>
                             <View className="bg-[#3A3A3C] rounded-full px-3 py-1">
                                 <Text className="text-[#8E8E93] text-xs font-semibold">
@@ -363,6 +373,16 @@ export default function WorkoutScreen() {
                     </View>
                 )}
 
+                {/* ── + Add Exercise button ──────────────────── */}
+                <Pressable
+                    onPress={() => setIsPickerVisible(true)}
+                    className="mt-2 mb-4 border border-[#FF6000] rounded-full py-2.5 items-center active:opacity-70"
+                >
+                    <Text className="text-[#FF6000] font-bold text-sm">
+                        + Add Exercise
+                    </Text>
+                </Pressable>
+
                 {/* ── SECTION 4 — NEXT EXERCISE ─────────────── */}
                 {nextLog && (
                     <Pressable
@@ -370,7 +390,7 @@ export default function WorkoutScreen() {
                         className="flex-row items-center justify-center py-3 mb-2 active:opacity-70"
                     >
                         <Text className="text-[#8E8E93] text-sm">
-                            Next: {nextLog.exerciseId}{' '}
+                            Next: {exerciseMap[nextLog.exerciseId]?.name ?? nextLog.exerciseId}{' '}
                         </Text>
                         <Ionicons
                             name="chevron-forward"
@@ -406,6 +426,13 @@ export default function WorkoutScreen() {
                     </Text>
                 </Pressable>
             </View>
+
+            {/* ── EXERCISE PICKER MODAL ──────────────────────── */}
+            <ExercisePickerModal
+                isVisible={isPickerVisible}
+                onClose={() => setIsPickerVisible(false)}
+                onSelectExercise={handleExerciseSelect}
+            />
         </SafeAreaView>
     );
 }

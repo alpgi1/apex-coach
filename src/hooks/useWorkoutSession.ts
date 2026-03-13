@@ -23,8 +23,13 @@ export const useWorkoutSession = () => {
         // However, Zustand allows us to immediately read the updated state right off the store:
         const finalizedSession = useWorkoutStore.getState().activeSession;
 
-        if (finalizedSession) {
+        if (!finalizedSession) return;
+
+        try {
             await saveWorkoutSession(finalizedSession);
+        } catch (error) {
+            console.error('Failed to save workout:', error);
+            throw error;
         }
     };
 
