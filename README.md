@@ -97,11 +97,17 @@ Phase 1 — Frontend MVP (current)
   ✅ Dashboard screen with workout history
   ✅ Active workout screen with set logging
   ✅ Training history screen with session detail
+  ✅ Session detail screen
   ✅ Progressive overload algorithm (local, rule-based)
-  ✅ Exercise library (26 exercises, all major muscle groups)
+  ✅ Exercise library (26 exercises, ideal rep ranges)
+  ✅ Profile screen (name, weight unit, target RIR)
+  ✅ Onboarding screen (first launch)
+  ✅ Workout naming modal with quick select
+  ✅ Progression rationale display
+  ✅ Target RIR connected to suggestion engine
+  ⏳ Template system
   ⏳ RPESelector component refactor
-  ⏳ Workout naming
-  ⏳ Profile screen
+  ⏳ Personal Records screen
 
 Phase 2 — Backend Integration
   ☐ Java 21 Spring Boot REST API

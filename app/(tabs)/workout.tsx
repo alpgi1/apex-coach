@@ -254,10 +254,15 @@ export default function WorkoutScreen() {
 
                         {/* Progressive overload suggestion */}
                         {suggestion && suggestion.exerciseId === currentLog.exerciseId && (
-                            <Text className="text-[#FF6000] text-sm mb-3">
-                                Suggested: {suggestion.suggestedWeightKg}kg x{' '}
-                                {suggestion.suggestedRepsMin}-{suggestion.suggestedRepsMax} @ RPE {10 - targetRIR}
-                            </Text>
+                            <View className="mb-3">
+                                <Text className="text-[#FF6000] text-sm font-semibold">
+                                    Suggested: {suggestion.suggestedWeightKg}kg x{' '}
+                                    {suggestion.suggestedRepsMin}-{suggestion.suggestedRepsMax} @ RPE {10 - targetRIR}
+                                </Text>
+                                <Text className="text-[#8E8E93] text-xs mt-0.5 italic">
+                                    {suggestion.rationale}
+                                </Text>
+                            </View>
                         )}
 
                         {/* Set table header */}
