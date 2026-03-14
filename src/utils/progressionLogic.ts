@@ -33,8 +33,11 @@ export const calculateProgressionSuggestion = (
     history: WorkoutSession[],
     exerciseId: string,
     targetRpe: RPEScale | number,
-    targetReps: number
-): { suggestedWeightKg: number; rationale: string } | null => {
+    idealRepsMin: number,
+    idealRepsMax: number
+): { suggestedWeightKg: number; rationale: string; suggestedRepsMin: number; suggestedRepsMax: number } | null => {
+
+    const targetReps = Math.round((idealRepsMin + idealRepsMax) / 2);
 
     const lastLog = getLastCompletedSession(history, exerciseId);
     if (!lastLog) return null;
@@ -77,18 +80,27 @@ export const calculateProgressionSuggestion = (
     // Rule-based Stub Rationale
     if (avgRpe < 7) {
         return {
-            suggestedWeightKg: roundedPrediction > avgWeight ? roundedPrediction : avgWeight + 2.5,
-            rationale: `Last time your RPE was very low (${avgRpe.toFixed(1)}). You should comfortably bump the weight up.`
+            suggestedWeightKg: roundedPrediction > avgWeight
+                ? roundedPrediction
+                : avgWeight + 2.5,
+            rationale: `Last time your RPE was very low (${avgRpe.toFixed(1)}). Bumping weight up.`,
+            suggestedRepsMin: idealRepsMin,
+            suggestedRepsMax: idealRepsMax,
         };
     } else if (avgRpe >= 7 && avgRpe <= 8) {
         return {
-            suggestedWeightKg: Math.round(avgWeight / 2.5) * 2.5, // Keep the same weight, snapped to 2.5kg plates
-            rationale: `Last time was the sweet spot (RPE ${avgRpe.toFixed(1)}). Keep the same weight and focus on form.`
+            suggestedWeightKg: roundedPrediction,
+            rationale: `Last time was the sweet spot (RPE ${avgRpe.toFixed(1)}). Adjusted for your target RPE.`,
+            suggestedRepsMin: idealRepsMin,
+            suggestedRepsMax: idealRepsMax,
         };
     } else {
         return {
-            suggestedWeightKg: Math.round(avgWeight / 2.5) * 2.5,
-            rationale: `Last time was brutal (RPE ${avgRpe.toFixed(1)}). Keep the weight the same but be prepared to drop reps if needed.`
+            suggestedWeightKg: roundedPrediction,
+            rationale: `Last time was brutal (RPE ${avgRpe.toFixed(1)}). Adjusted for your target RPE.`,
+            suggestedRepsMin: idealRepsMin,
+            suggestedRepsMax: idealRepsMax,
         };
     }
+
 };

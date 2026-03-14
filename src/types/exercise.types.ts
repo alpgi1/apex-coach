@@ -83,6 +83,8 @@ export interface ExerciseMetadata {
     /** Required equipment to perform the lift */
     equipment: EquipmentType;
     category: ExerciseCategory;
+    idealRepsMin: number;
+    idealRepsMax: number;
     /** True if the lift moves both limbs together symmetrically (e.g., barbell squats).
      *  False if it's independent/unilateral (e.g., dumbbell lunges). */
     isBilateral: boolean;

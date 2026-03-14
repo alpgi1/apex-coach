@@ -3,6 +3,7 @@ import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { ActivityIndicator, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import StartWorkoutModal from '../../src/components/workout/StartWorkoutModal';
 import { useWorkoutSession } from '../../src/hooks/useWorkoutSession';
 
 import { getWorkoutHistory } from '../../src/services/storage/workoutStorage';
@@ -15,6 +16,7 @@ export default function DashboardScreen() {
   const { startWorkout } = useWorkoutSession();
 
   // Local state for history
+  const [isStartModalVisible, setIsStartModalVisible] = useState<boolean>(false);
   const [history, setHistory] = useState<WorkoutSession[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
@@ -35,6 +37,11 @@ export default function DashboardScreen() {
       loadHistory();
     }, [])
   );
+
+  const handleWorkoutStart = (name: string) => {
+    startWorkout(name);
+    router.push('/(tabs)/workout');
+  };
 
   const lastWorkout = history.length > 0 ? history[0] : null;
   const recentSessions = history.slice(0, 3);
@@ -120,10 +127,7 @@ export default function DashboardScreen() {
         {/* SECTION 3 - START WORKOUT BUTTON */}
         <TouchableOpacity
           className="w-full bg-[#FF6000] h-14 rounded-full items-center justify-center flex-row mb-10"
-          onPress={() => {
-            startWorkout('My Workout');
-            router.push('/(tabs)/workout');
-          }}
+          onPress={() => setIsStartModalVisible(true)}
         >
           <Ionicons name="play" size={18} color="white" style={{ marginRight: 8 }} />
           <Text className="text-white font-bold text-lg">Start Workout</Text>
@@ -171,6 +175,11 @@ export default function DashboardScreen() {
         )}
 
       </ScrollView>
+      <StartWorkoutModal
+        isVisible={isStartModalVisible}
+        onClose={() => setIsStartModalVisible(false)}
+        onStart={handleWorkoutStart}
+      />
     </SafeAreaView>
   );
 }

@@ -13,6 +13,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import ExercisePickerModal from '../../src/components/workout/ExercisePickerModal';
 import { useProgressiveOverload } from '../../src/hooks/useProgressiveOverload';
 import { useWorkoutSession } from '../../src/hooks/useWorkoutSession';
+import { useUserStore } from '../../src/store/userStore';
 import { ExerciseMetadata } from '../../src/types/exercise.types';
 import { RPEScale } from '../../src/types/workout.types';
 
@@ -56,6 +57,7 @@ export default function WorkoutScreen() {
     } = useWorkoutSession();
 
     const { suggestion, fetchSuggestion } = useProgressiveOverload();
+    const { targetRIR } = useUserStore();
 
     /* ── timer ────────────────────────────────────────────────── */
     const [elapsed, setElapsed] = useState<number>(0);
@@ -114,10 +116,16 @@ export default function WorkoutScreen() {
     /* ── fetch suggestion when exercise changes ──────────────── */
     useEffect(() => {
         if (currentLog) {
-            fetchSuggestion(currentLog.exerciseId, 8, 5);
+            const exercise = exerciseMap[currentLog.exerciseId];
+            fetchSuggestion(
+                currentLog.exerciseId,
+                10 - targetRIR,
+                exercise?.idealRepsMin ?? 5,
+                exercise?.idealRepsMax ?? 10
+            );
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [currentLog?.exerciseId]);
+    }, [currentLog?.exerciseId, targetRIR]);
 
     /* ── handlers ────────────────────────────────────────────── */
     const handleAddSet = (exerciseLogId: string) => {
@@ -248,7 +256,7 @@ export default function WorkoutScreen() {
                         {suggestion && suggestion.exerciseId === currentLog.exerciseId && (
                             <Text className="text-[#FF6000] text-sm mb-3">
                                 Suggested: {suggestion.suggestedWeightKg}kg x{' '}
-                                {suggestion.suggestedRepsTarget} @ RPE 8
+                                {suggestion.suggestedRepsMin}-{suggestion.suggestedRepsMax} @ RPE {10 - targetRIR}
                             </Text>
                         )}
 

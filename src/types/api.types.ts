@@ -62,7 +62,8 @@ export interface AICoachProgressionRequest {
 export interface AICoachProgressionResponse {
     exerciseId: string;
     suggestedWeightKg: number;
-    suggestedRepsTarget: number;
+    suggestedRepsMin: number;
+    suggestedRepsMax: number;
     confidenceScore: number;    // 0.0 to 1.0 (how sure the algorithm is)
     rationale: string;          // e.g., "RPE dropped to 7 on your last session. Increase weight by 2.5kg."
 }

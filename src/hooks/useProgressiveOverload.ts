@@ -12,7 +12,8 @@ export const useProgressiveOverload = () => {
     const fetchSuggestion = async (
         exerciseId: string,
         targetRpe: RPEScale | number,
-        targetReps: number
+        idealRepsMin: number,
+        idealRepsMax: number
     ): Promise<void> => {
         setIsLoading(true);
         setError(null);
@@ -29,14 +30,16 @@ export const useProgressiveOverload = () => {
                 history,
                 exerciseId,
                 targetRpe,
-                targetReps
+                idealRepsMin,
+                idealRepsMax
             );
 
             if (localSuggestion) {
                 setSuggestion({
                     exerciseId,
                     suggestedWeightKg: localSuggestion.suggestedWeightKg,
-                    suggestedRepsTarget: targetReps,
+                    suggestedRepsMin: localSuggestion.suggestedRepsMin,
+                    suggestedRepsMax: localSuggestion.suggestedRepsMax,
                     confidenceScore: 0.8, // Stubbed local confidence
                     rationale: localSuggestion.rationale,
                 });

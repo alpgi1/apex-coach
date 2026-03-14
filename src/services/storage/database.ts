@@ -27,6 +27,8 @@ export const initializeDatabase = () => {
             secondaryMuscles TEXT,            -- JSON array stored as string
             equipment TEXT NOT NULL,
             category TEXT NOT NULL,           -- 'COMPOUND', 'ISOLATION', etc.
+            idealRepsMin INTEGER NOT NULL DEFAULT 5,
+            idealRepsMax INTEGER NOT NULL DEFAULT 10,
             isBilateral INTEGER NOT NULL,     -- SQLite doesn't have native booleans (0 or 1)
             instructions TEXT,
             videoUrl TEXT,
@@ -100,6 +102,15 @@ export const initializeDatabase = () => {
             dateAchieved TEXT NOT NULL,       -- ISO 8601 string
             FOREIGN KEY (exerciseId) REFERENCES exercises(id) ON DELETE CASCADE
         );
+    `);
+};
+
+export const clearAllData = (): void => {
+    db.execSync(`
+        DELETE FROM workout_sets;
+        DELETE FROM exercise_logs;
+        DELETE FROM workout_sessions;
+        DELETE FROM personal_records;
     `);
 };
 
