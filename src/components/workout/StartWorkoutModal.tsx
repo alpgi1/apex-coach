@@ -1,18 +1,22 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
     KeyboardAvoidingView,
     Modal,
     Platform,
     Pressable,
+    ScrollView,
     Text,
     TextInput,
     View,
 } from 'react-native';
 
+import { getAllTemplates } from '../../services/storage/templateStorage';
+import { WorkoutTemplate } from '../../types/workout.types';
+
 interface Props {
     isVisible: boolean;
     onClose: () => void;
-    onStart: (name: string) => void;
+    onStart: (name: string, template?: WorkoutTemplate) => void;
 }
 
 const QUICK_PICKS = ['Push Day', 'Pull Day', 'Leg Day', 'Upper Body', 'Full Body'];
@@ -20,11 +24,19 @@ const QUICK_PICKS = ['Push Day', 'Pull Day', 'Leg Day', 'Upper Body', 'Full Body
 export default function StartWorkoutModal({ isVisible, onClose, onStart }: Props) {
     const [inputValue, setInputValue] = useState<string>('');
     const [selectedPill, setSelectedPill] = useState<string | null>(null);
+    const [selectedTemplate, setSelectedTemplate] = useState<WorkoutTemplate | null>(null);
     const [isFocused, setIsFocused] = useState<boolean>(false);
+    const [templates, setTemplates] = useState<WorkoutTemplate[]>([]);
+
+    useEffect(() => {
+        if (!isVisible) return;
+        getAllTemplates().then(setTemplates).catch(() => {});
+    }, [isVisible]);
 
     const handleClose = () => {
         setInputValue('');
         setSelectedPill(null);
+        setSelectedTemplate(null);
         setIsFocused(false);
         onClose();
     };
@@ -32,9 +44,10 @@ export default function StartWorkoutModal({ isVisible, onClose, onStart }: Props
     const handleStart = () => {
         const name = inputValue.trim();
         if (!name) return;
-        onStart(name);
+        onStart(name, selectedTemplate ?? undefined);
         setInputValue('');
         setSelectedPill(null);
+        setSelectedTemplate(null);
         setIsFocused(false);
         onClose();
     };
@@ -46,6 +59,13 @@ export default function StartWorkoutModal({ isVisible, onClose, onStart }: Props
 
     const handleTextChange = (text: string) => {
         setInputValue(text);
+        setSelectedPill(null);
+        setSelectedTemplate(null);
+    };
+
+    const handleTemplatePress = (template: WorkoutTemplate) => {
+        setInputValue(template.name);
+        setSelectedTemplate(template);
         setSelectedPill(null);
     };
 
@@ -100,6 +120,41 @@ export default function StartWorkoutModal({ isVisible, onClose, onStart }: Props
                                     isFocused ? 'border border-[#FF6000]' : 'border border-transparent'
                                 }`}
                             />
+
+                            {/* My Templates — only if any exist */}
+                            {templates.length > 0 && (
+                                <View className="mb-5">
+                                    <Text className="text-[#8E8E93] text-xs font-semibold mb-3 uppercase tracking-wider">
+                                        My Templates
+                                    </Text>
+                                    <ScrollView
+                                        horizontal
+                                        showsHorizontalScrollIndicator={false}
+                                        contentContainerStyle={{ gap: 8 }}
+                                    >
+                                        {templates.map((template) => {
+                                            const isSelected = selectedTemplate?.id === template.id;
+                                            return (
+                                                <Pressable
+                                                    key={template.id}
+                                                    onPress={() => handleTemplatePress(template)}
+                                                    className={`bg-[#242424] rounded-xl px-3 py-2.5 active:opacity-80 ${
+                                                        isSelected ? 'border border-[#FF6000]' : 'border border-transparent'
+                                                    }`}
+                                                >
+                                                    <Text className="text-white text-sm font-bold">
+                                                        {template.name}
+                                                    </Text>
+                                                    <Text className="text-[#8E8E93] text-xs mt-0.5">
+                                                        {template.exercises.length} exercise
+                                                        {template.exercises.length !== 1 ? 's' : ''}
+                                                    </Text>
+                                                </Pressable>
+                                            );
+                                        })}
+                                    </ScrollView>
+                                </View>
+                            )}
 
                             {/* Quick select */}
                             <Text className="text-[#8E8E93] text-xs font-semibold mb-3 uppercase tracking-wider">

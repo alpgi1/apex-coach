@@ -6,14 +6,15 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import StartWorkoutModal from '../../src/components/workout/StartWorkoutModal';
 import { useWorkoutSession } from '../../src/hooks/useWorkoutSession';
 
+import { getExerciseById } from '../../src/services/storage/exerciseStorage';
 import { getWorkoutHistory } from '../../src/services/storage/workoutStorage';
 import { useUserStore } from '../../src/store/userStore';
-import { WorkoutSession } from '../../src/types/workout.types';
+import { WorkoutSession, WorkoutTemplate } from '../../src/types/workout.types';
 
 export default function DashboardScreen() {
   const router = useRouter();
   const { name } = useUserStore();
-  const { startWorkout } = useWorkoutSession();
+  const { startWorkout, addExercise, addEmptySets } = useWorkoutSession();
 
   // Local state for history
   const [isStartModalVisible, setIsStartModalVisible] = useState<boolean>(false);
@@ -38,8 +39,14 @@ export default function DashboardScreen() {
     }, [])
   );
 
-  const handleWorkoutStart = (name: string) => {
+  const handleWorkoutStart = async (name: string, template?: WorkoutTemplate) => {
     startWorkout(name);
+    if (template) {
+      for (const te of template.exercises) {
+        const logId = addExercise(te.exerciseId);
+        addEmptySets(logId, te.targetSets);
+      }
+    }
     router.push('/(tabs)/workout');
   };
 

@@ -33,7 +33,7 @@ export const useWorkoutSession = () => {
         }
     };
 
-    const addExercise = (exerciseId: string): void => {
+    const addExercise = (exerciseId: string): string => {
         const order = store.activeSession ? store.activeSession.logs.length : 0;
 
         const newLog: ExerciseLog = {
@@ -44,6 +44,26 @@ export const useWorkoutSession = () => {
         };
 
         store.addExerciseLog(newLog);
+        return newLog.id;
+    };
+
+    const addEmptySets = (exerciseLogId: string, count: number): void => {
+        for (let i = 0; i < count; i++) {
+            const existingLog = store.activeSession?.logs.find(
+                (l) => l.id === exerciseLogId
+            );
+            const setNumber = existingLog ? existingLog.sets.length + 1 : i + 1;
+            const emptySet: WorkoutSet = {
+                id: Crypto.randomUUID(),
+                setNumber,
+                weightKg: 0,
+                reps: 0,
+                rpe: undefined,
+                setType: 'WORKING',
+                isCompleted: false,
+            };
+            store.addSet(exerciseLogId, emptySet);
+        }
     };
 
     const logSet = (
@@ -78,7 +98,28 @@ export const useWorkoutSession = () => {
 
         store.updateSet(exerciseLogId, {
             ...existingSet,
-            isCompleted: true,
+            isCompleted: !existingSet.isCompleted,
+        });
+    };
+
+    const updateSetValues = (
+        exerciseLogId: string,
+        setId: string,
+        weight: number,
+        reps: number,
+        rpe?: number
+    ): void => {
+        const existingLog = store.activeSession?.logs.find((l) => l.id === exerciseLogId);
+        if (!existingLog) return;
+
+        const existingSet = existingLog.sets.find((s) => s.id === setId);
+        if (!existingSet) return;
+
+        store.updateSet(exerciseLogId, {
+            ...existingSet,
+            weightKg: weight,
+            reps,
+            rpe: rpe as RPEScale | undefined,
         });
     };
 
@@ -90,7 +131,9 @@ export const useWorkoutSession = () => {
         startWorkout,
         finishWorkout,
         addExercise,
+        addEmptySets,
         logSet,
         completeSet,
+        updateSetValues,
     };
 };

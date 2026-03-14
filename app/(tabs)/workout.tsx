@@ -13,9 +13,10 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import ExercisePickerModal from '../../src/components/workout/ExercisePickerModal';
 import { useProgressiveOverload } from '../../src/hooks/useProgressiveOverload';
 import { useWorkoutSession } from '../../src/hooks/useWorkoutSession';
+import { getExerciseById } from '../../src/services/storage/exerciseStorage';
 import { useUserStore } from '../../src/store/userStore';
 import { ExerciseMetadata } from '../../src/types/exercise.types';
-import { RPEScale } from '../../src/types/workout.types';
+import { WorkoutSet } from '../../src/types/workout.types';
 
 /* ──────────────────────────── helpers ──────────────────────────── */
 
@@ -51,8 +52,9 @@ export default function WorkoutScreen() {
         activeSession,
         isWorkoutActive,
         addExercise,
-        logSet,
+        addEmptySets,
         completeSet,
+        updateSetValues,
         finishWorkout,
     } = useWorkoutSession();
 
@@ -79,6 +81,11 @@ export default function WorkoutScreen() {
         return () => clearInterval(id);
     }, [isWorkoutActive, activeSession]);
 
+    /* ── reset exercise index when session changes ───────────── */
+    useEffect(() => {
+        setCurrentExerciseIdx(0);
+    }, [activeSession?.id]);
+
     /* ── live volume ─────────────────────────────────────────── */
     const liveVolume = useMemo<number>(() => {
         if (!activeSession) return 0;
@@ -100,18 +107,39 @@ export default function WorkoutScreen() {
     const currentLog = activeSession?.logs[currentExerciseIdx] ?? null;
     const nextLog = activeSession?.logs[currentExerciseIdx + 1] ?? null;
 
-    /* ── draft inputs per exercise-log (keyed by exerciseLog.id) */
+    /* ── draft inputs per set (keyed by set.id) ─────────────── */
     const [drafts, setDrafts] = useState<Record<string, SetRowDraft>>({});
 
-    const getDraft = (logId: string): SetRowDraft =>
-        drafts[logId] ?? { weight: '', reps: '', rpe: '' };
+    const getDraft = (s: WorkoutSet): SetRowDraft =>
+        drafts[s.id] ?? {
+            weight: s.weightKg > 0 ? String(s.weightKg) : '',
+            reps: s.reps > 0 ? String(s.reps) : '',
+            rpe: s.rpe != null ? String(s.rpe) : '',
+        };
 
-    const updateDraft = (logId: string, field: keyof SetRowDraft, value: string) => {
+    const updateDraft = (setId: string, field: keyof SetRowDraft, value: string) => {
         setDrafts((prev) => ({
             ...prev,
-            [logId]: { ...getDraft(logId), [field]: value },
+            [setId]: { ...(prev[setId] ?? { weight: '', reps: '', rpe: '' }), [field]: value },
         }));
     };
+
+    /* ── load missing exercise metadata (e.g. from template) ─── */
+    useEffect(() => {
+        if (!activeSession) return;
+        const loadMissingMeta = async () => {
+            for (const log of activeSession.logs) {
+                if (!exerciseMap[log.exerciseId]) {
+                    const ex = await getExerciseById(log.exerciseId);
+                    if (ex) {
+                        setExerciseMap((prev) => ({ ...prev, [ex.id]: ex }));
+                    }
+                }
+            }
+        };
+        loadMissingMeta();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [activeSession?.logs.length]);
 
     /* ── fetch suggestion when exercise changes ──────────────── */
     useEffect(() => {
@@ -128,32 +156,6 @@ export default function WorkoutScreen() {
     }, [currentLog?.exerciseId, targetRIR]);
 
     /* ── handlers ────────────────────────────────────────────── */
-    const handleAddSet = (exerciseLogId: string) => {
-        const draft = getDraft(exerciseLogId);
-        const weight = parseFloat(draft.weight);
-        const reps = parseInt(draft.reps, 10);
-        const rpe = parseFloat(draft.rpe);
-
-        if (isNaN(weight) || isNaN(reps)) return;
-
-        logSet(
-            exerciseLogId,
-            weight,
-            reps,
-            isNaN(rpe) ? 8 : (rpe as RPEScale)
-        );
-
-        // Clear the draft
-        setDrafts((prev) => ({
-            ...prev,
-            [exerciseLogId]: { weight: '', reps: '', rpe: '' },
-        }));
-    };
-
-    const handleCompleteSet = (exerciseLogId: string, setId: string) => {
-        completeSet(exerciseLogId, setId);
-    };
-
     const handleNextExercise = () => {
         if (activeSession && currentExerciseIdx < activeSession.logs.length - 1) {
             setCurrentExerciseIdx((prev) => prev + 1);
@@ -284,99 +286,96 @@ export default function WorkoutScreen() {
                             </Text>
                         </View>
 
-                        {/* Completed / logged sets */}
-                        {currentLog.sets.map((s) => (
-                            <View
-                                key={s.id}
-                                className="flex-row items-center py-2 px-1 border-b border-[#3A3A3C]"
-                            >
-                                <Text
-                                    className={`w-10 font-bold ${s.isCompleted ? 'text-white' : 'text-[#FF6000]'
-                                        }`}
+                        {/* Inline editable set rows */}
+                        {currentLog.sets.map((s) => {
+                            const draft = getDraft(s);
+                            return (
+                                <View
+                                    key={s.id}
+                                    className={`flex-row items-center py-2 px-1 border-b border-[#3A3A3C] ${s.isCompleted ? 'bg-green-500/5' : ''}`}
                                 >
-                                    {s.setNumber}
-                                </Text>
-                                <Text className="flex-1 text-white text-center">
-                                    {s.weightKg}
-                                </Text>
-                                <Text className="flex-1 text-white text-center">
-                                    {s.reps}
-                                </Text>
-                                <Text
-                                    className={`flex-1 text-center font-semibold ${rpeColor(
-                                        s.rpe
-                                    )}`}
-                                >
-                                    {s.rpe ?? '-'}
-                                </Text>
-
-                                {/* Complete checkbox */}
-                                <Pressable
-                                    onPress={() =>
-                                        !s.isCompleted &&
-                                        handleCompleteSet(currentLog.id, s.id)
-                                    }
-                                    className="w-10 items-center"
-                                >
-                                    <View
-                                        className={`w-7 h-7 rounded-full items-center justify-center ${s.isCompleted
-                                            ? 'bg-[#FF6000]'
-                                            : 'border-2 border-[#3A3A3C]'
-                                            }`}
+                                    <Text
+                                        className={`w-10 font-bold ${s.isCompleted ? 'text-white' : 'text-[#FF6000]'}`}
                                     >
-                                        {s.isCompleted && (
-                                            <Ionicons
-                                                name="checkmark"
-                                                size={16}
-                                                color="#FFFFFF"
-                                            />
-                                        )}
-                                    </View>
-                                </Pressable>
-                            </View>
-                        ))}
-
-                        {/* Active input row for new set */}
-                        <View className="flex-row items-center py-3 px-1">
-                            <Text className="text-[#FF6000] font-bold w-10">
-                                {currentLog.sets.length + 1}
-                            </Text>
-                            <TextInput
-                                className="flex-1 bg-[#1A1A1A] rounded-lg text-white text-center py-2 mx-1"
-                                placeholder="kg"
-                                placeholderTextColor="#8E8E93"
-                                keyboardType="numeric"
-                                value={getDraft(currentLog.id).weight}
-                                onChangeText={(v) =>
-                                    updateDraft(currentLog.id, 'weight', v)
-                                }
-                            />
-                            <TextInput
-                                className="flex-1 bg-[#1A1A1A] rounded-lg text-white text-center py-2 mx-1"
-                                placeholder="reps"
-                                placeholderTextColor="#8E8E93"
-                                keyboardType="numeric"
-                                value={getDraft(currentLog.id).reps}
-                                onChangeText={(v) =>
-                                    updateDraft(currentLog.id, 'reps', v)
-                                }
-                            />
-                            <TextInput
-                                className="flex-1 bg-[#1A1A1A] rounded-lg text-white text-center py-2 mx-1"
-                                placeholder="rpe"
-                                placeholderTextColor="#8E8E93"
-                                keyboardType="numeric"
-                                value={getDraft(currentLog.id).rpe}
-                                onChangeText={(v) =>
-                                    updateDraft(currentLog.id, 'rpe', v)
-                                }
-                            />
-                            <View className="w-10" />
-                        </View>
+                                        {s.setNumber}
+                                    </Text>
+                                    <TextInput
+                                        className="flex-1 bg-[#1A1A1A] rounded-lg text-white text-center py-2 mx-1"
+                                        placeholder="kg"
+                                        placeholderTextColor="#8E8E93"
+                                        keyboardType="numeric"
+                                        value={draft.weight}
+                                        onChangeText={(v) => {
+                                            updateDraft(s.id, 'weight', v);
+                                            const w = parseFloat(v);
+                                            const r = parseInt(draft.reps, 10);
+                                            if (!isNaN(w) && !isNaN(r)) {
+                                                const rpe = parseFloat(draft.rpe);
+                                                updateSetValues(currentLog.id, s.id, w, r, isNaN(rpe) ? undefined : rpe);
+                                            }
+                                        }}
+                                    />
+                                    <TextInput
+                                        className="flex-1 bg-[#1A1A1A] rounded-lg text-white text-center py-2 mx-1"
+                                        placeholder="reps"
+                                        placeholderTextColor="#8E8E93"
+                                        keyboardType="numeric"
+                                        value={draft.reps}
+                                        onChangeText={(v) => {
+                                            updateDraft(s.id, 'reps', v);
+                                            const w = parseFloat(draft.weight);
+                                            const r = parseInt(v, 10);
+                                            if (!isNaN(w) && !isNaN(r)) {
+                                                const rpe = parseFloat(draft.rpe);
+                                                updateSetValues(currentLog.id, s.id, w, r, isNaN(rpe) ? undefined : rpe);
+                                            }
+                                        }}
+                                    />
+                                    <TextInput
+                                        className={`flex-1 bg-[#1A1A1A] rounded-lg text-center py-2 mx-1 ${rpeColor(s.rpe)}`}
+                                        placeholder="rpe"
+                                        placeholderTextColor="#8E8E93"
+                                        keyboardType="numeric"
+                                        value={draft.rpe}
+                                        onChangeText={(v) => {
+                                            updateDraft(s.id, 'rpe', v);
+                                            const w = parseFloat(draft.weight);
+                                            const r = parseInt(draft.reps, 10);
+                                            if (!isNaN(w) && !isNaN(r)) {
+                                                const rpe = parseFloat(v);
+                                                updateSetValues(currentLog.id, s.id, w, r, isNaN(rpe) ? undefined : rpe);
+                                            }
+                                        }}
+                                    />
+                                    <Pressable
+                                        onPress={() => {
+                                            if (!s.isCompleted) {
+                                                const w = parseFloat(draft.weight);
+                                                const r = parseInt(draft.reps, 10);
+                                                if (!isNaN(w) && !isNaN(r)) {
+                                                    const rpe = parseFloat(draft.rpe);
+                                                    updateSetValues(currentLog.id, s.id, w, r, isNaN(rpe) ? undefined : rpe);
+                                                }
+                                            }
+                                            completeSet(currentLog.id, s.id);
+                                        }}
+                                        className="w-10 items-center"
+                                    >
+                                        <View
+                                            className={`w-7 h-7 rounded-full items-center justify-center ${s.isCompleted ? 'bg-[#FF6000]' : 'border-2 border-[#3A3A3C]'}`}
+                                        >
+                                            {s.isCompleted && (
+                                                <Ionicons name="checkmark" size={16} color="#FFFFFF" />
+                                            )}
+                                        </View>
+                                    </Pressable>
+                                </View>
+                            );
+                        })}
 
                         {/* + Add Set button */}
                         <Pressable
-                            onPress={() => handleAddSet(currentLog.id)}
+                            onPress={() => addEmptySets(currentLog.id, 1)}
                             className="mt-2 border border-[#FF6000] rounded-full py-2.5 items-center active:opacity-70"
                         >
                             <Text className="text-[#FF6000] font-bold text-sm">

@@ -102,6 +102,40 @@ export const initializeDatabase = () => {
             dateAchieved TEXT NOT NULL,       -- ISO 8601 string
             FOREIGN KEY (exerciseId) REFERENCES exercises(id) ON DELETE CASCADE
         );
+
+        -- ==========================================
+        -- WORKOUT TEMPLATES
+        -- ==========================================
+        CREATE TABLE IF NOT EXISTS workout_templates (
+            id TEXT PRIMARY KEY,
+            name TEXT NOT NULL,
+            description TEXT,
+            primaryMuscleGroups TEXT NOT NULL,  -- JSON array
+            createdAt TEXT NOT NULL,
+            updatedAt TEXT NOT NULL
+        );
+
+        -- ==========================================
+        -- TEMPLATE EXERCISES
+        -- ==========================================
+        CREATE TABLE IF NOT EXISTS template_exercises (
+            id TEXT PRIMARY KEY,
+            templateId TEXT NOT NULL,
+            exerciseId TEXT NOT NULL,
+            "order" INTEGER NOT NULL,
+            targetSets INTEGER NOT NULL,
+            targetRepsMin INTEGER NOT NULL,
+            targetRepsMax INTEGER NOT NULL,
+            targetRpe REAL,
+            restTargetSeconds INTEGER,
+            FOREIGN KEY (templateId) REFERENCES workout_templates(id)
+                ON DELETE CASCADE,
+            FOREIGN KEY (exerciseId) REFERENCES exercises(id)
+                ON DELETE RESTRICT
+        );
+
+        CREATE INDEX IF NOT EXISTS idx_template_exercises_template_id
+            ON template_exercises(templateId);
     `);
 };
 
