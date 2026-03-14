@@ -141,6 +141,7 @@ export default function DashboardScreen() {
           recentSessions.map((session) => (
             <TouchableOpacity
               key={session.id}
+              onPress={() => router.push(`/workout/${session.id}`)}
               className="bg-[#242424] rounded-2xl p-4 mb-3 flex-row items-center justify-between"
             >
               <View className="flex-row items-center">
