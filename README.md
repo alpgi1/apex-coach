@@ -1,6 +1,6 @@
 # Apex Coach
 
-![Status](https://img.shields.io/badge/status-in%20progress-yellow) ![Platform](https://img.shields.io/badge/platform-iOS%20%7C%20Android-lightgrey) ![License](https://img.shields.io/badge/license-MIT-blue)
+![Status](https://img.shields.io/badge/status-MVP%20in%20progress-orange) ![Platform](https://img.shields.io/badge/platform-iOS%20%7C%20Android-lightgrey) ![License](https://img.shields.io/badge/license-MIT-blue)
 
 > An offline-first, RPE-driven training app for serious weightlifters who track every set with precision.
 
@@ -93,10 +93,15 @@ Scan the QR code with Expo Go (iOS) or the Camera app (Android).
 Phase 1 — Frontend MVP (current)
   ✅ Type system and data contracts
   ✅ SQLite schema and storage layer
-  ⏳ Zustand state management
-  ⏳ Core UI components (RPESelector, SetLogger)
-  ⏳ Dashboard, Workout, History screens
-  ⏳ Progressive overload algorithm
+  ✅ Zustand state management
+  ✅ Dashboard screen with workout history
+  ✅ Active workout screen with set logging
+  ✅ Training history screen with session detail
+  ✅ Progressive overload algorithm (local, rule-based)
+  ✅ Exercise library (26 exercises, all major muscle groups)
+  ⏳ RPESelector component refactor
+  ⏳ Workout naming
+  ⏳ Profile screen
 
 Phase 2 — Backend Integration
   ☐ Java 21 Spring Boot REST API
