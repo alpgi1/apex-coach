@@ -1,8 +1,10 @@
 import { Ionicons } from '@expo/vector-icons';
+import * as ImagePicker from 'expo-image-picker';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useRef, useState } from 'react';
 import {
     Alert,
+    Image,
     Pressable,
     ScrollView,
     Text,
@@ -18,7 +20,7 @@ import { useUserStore } from '../../src/store/userStore';
 import { WorkoutTemplate } from '../../src/types/workout.types';
 
 export default function ProfileScreen() {
-    const { name, weightUnit, targetRIR, setName, setWeightUnit, setTargetRIR } =
+    const { name, weightUnit, targetRIR, profilePhoto, setName, setWeightUnit, setTargetRIR, setProfilePhoto } =
         useUserStore();
 
     const router = useRouter();
@@ -70,6 +72,22 @@ export default function ProfileScreen() {
         );
     };
 
+    const handlePickPhoto = async () => {
+        const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
+        if (!permission.granted) return;
+
+        const result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ['images'],
+            allowsEditing: true,
+            aspect: [1, 1],
+            quality: 0.8,
+        });
+
+        if (!result.canceled) {
+            setProfilePhoto(result.assets[0].uri);
+        }
+    };
+
     const handleClearData = () => {
         Alert.alert(
             'Clear All Data',
@@ -105,9 +123,22 @@ export default function ProfileScreen() {
 
                 {/* ── SECTION 2 — AVATAR + NAME ──────────────── */}
                 <View className="items-center mb-6">
-                    <View className="w-24 h-24 rounded-full bg-[#242424] items-center justify-center mb-4">
-                        <Ionicons name="person" size={48} color="#8E8E93" />
-                    </View>
+                    <Pressable
+                        onPress={handlePickPhoto}
+                        className="w-24 h-24 rounded-full bg-[#242424] items-center justify-center mb-4 overflow-hidden active:opacity-80"
+                    >
+                        {profilePhoto ? (
+                            <Image
+                                source={{ uri: profilePhoto }}
+                                className="w-24 h-24 rounded-full"
+                            />
+                        ) : (
+                            <Ionicons name="person" size={48} color="#8E8E93" />
+                        )}
+                        <View className="absolute bottom-0 left-0 right-0 bg-black/50 py-1 items-center">
+                            <Ionicons name="camera" size={14} color="white" />
+                        </View>
+                    </Pressable>
 
                     {isEditingName ? (
                         <View className="flex-row items-center gap-2">
@@ -156,18 +187,16 @@ export default function ProfileScreen() {
                                 <Pressable
                                     key={unit}
                                     onPress={() => setWeightUnit(unit)}
-                                    className={`px-4 py-1.5 rounded-full active:opacity-80 ${
-                                        weightUnit === unit
+                                    className={`px-4 py-1.5 rounded-full active:opacity-80 ${weightUnit === unit
                                             ? 'bg-[#FF6000]'
                                             : 'bg-[#3A3A3C]'
-                                    }`}
+                                        }`}
                                 >
                                     <Text
-                                        className={`text-sm font-semibold ${
-                                            weightUnit === unit
+                                        className={`text-sm font-semibold ${weightUnit === unit
                                                 ? 'text-white'
                                                 : 'text-[#8E8E93]'
-                                        }`}
+                                            }`}
                                     >
                                         {unit}
                                     </Text>
@@ -207,6 +236,19 @@ export default function ProfileScreen() {
                     <Text className="text-[#8E8E93] text-xs font-semibold uppercase tracking-wider mb-3">
                         Your Stats
                     </Text>
+
+                    <Pressable
+                        onPress={() => router.push('/records')}
+                        className="flex-row items-center justify-between py-3 border-t border-[#3A3A3C] active:opacity-70"
+                    >
+                        <View className="flex-row items-center gap-3">
+                            <Ionicons name="trophy-outline" size={20} color="#FFD60A" />
+                            <Text className="text-white text-base">Personal Records</Text>
+                        </View>
+                        <View className="flex-row items-center gap-2">
+                            <Ionicons name="chevron-forward" size={18} color="#8E8E93" />
+                        </View>
+                    </Pressable>
 
                     <View className="flex-row items-center justify-between py-3 border-b border-[#3A3A3C]">
                         <View className="flex-row items-center gap-3">

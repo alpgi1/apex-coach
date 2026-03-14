@@ -95,7 +95,7 @@ Phase 1 — Frontend MVP (current)
   ✅ SQLite schema and storage layer
   ✅ Zustand state management
   ✅ Dashboard screen with workout history
-  ✅ Active workout screen with set logging
+  ✅ Active workout screen with inline set editing
   ✅ Training history screen with session detail
   ✅ Session detail screen
   ✅ Progressive overload algorithm (local, rule-based)
@@ -105,9 +105,12 @@ Phase 1 — Frontend MVP (current)
   ✅ Workout naming modal with quick select
   ✅ Progression rationale display
   ✅ Target RIR connected to suggestion engine
-  ⏳ Template system
-  ⏳ RPESelector component refactor
-  ⏳ Personal Records screen
+  ✅ Workout template system (create, edit, delete)
+  ✅ Template-based workout start
+  ✅ Personal Records screen (Est. 1RM via Epley)
+  ✅ Profile photo support
+  ⏳ RPESelector component (drum roll)
+  ⏳ Workout screen list view refactor
 
 Phase 2 — Backend Integration
   ☐ Java 21 Spring Boot REST API
