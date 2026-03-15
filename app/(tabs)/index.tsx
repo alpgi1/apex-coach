@@ -1,12 +1,20 @@
 import { Ionicons } from '@expo/vector-icons';
+import { BlurView } from 'expo-blur';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useState } from 'react';
-import { ActivityIndicator, ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import {
+    ActivityIndicator,
+    Pressable,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+
 import StartWorkoutModal from '../../src/components/workout/StartWorkoutModal';
 import { useWorkoutSession } from '../../src/hooks/useWorkoutSession';
-
-import { getExerciseById } from '../../src/services/storage/exerciseStorage';
 import { getWorkoutHistory } from '../../src/services/storage/workoutStorage';
 import { useUserStore } from '../../src/store/userStore';
 import { WorkoutSession, WorkoutTemplate } from '../../src/types/workout.types';
@@ -16,7 +24,6 @@ export default function DashboardScreen() {
   const { name } = useUserStore();
   const { startWorkout, addExercise, addEmptySets } = useWorkoutSession();
 
-  // Local state for history
   const [isStartModalVisible, setIsStartModalVisible] = useState<boolean>(false);
   const [history, setHistory] = useState<WorkoutSession[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -29,18 +36,17 @@ export default function DashboardScreen() {
           const data = await getWorkoutHistory();
           setHistory(data);
         } catch (error) {
-          console.error("Failed to load workout history:", error);
+          console.error('Failed to load workout history:', error);
         } finally {
           setIsLoading(false);
         }
       };
-
       loadHistory();
     }, [])
   );
 
-  const handleWorkoutStart = async (name: string, template?: WorkoutTemplate) => {
-    startWorkout(name);
+  const handleWorkoutStart = async (workoutName: string, template?: WorkoutTemplate) => {
+    startWorkout(workoutName);
     if (template) {
       for (const te of template.exercises) {
         const logId = addExercise(te.exerciseId);
@@ -53,19 +59,19 @@ export default function DashboardScreen() {
   const lastWorkout = history.length > 0 ? history[0] : null;
   const recentSessions = history.slice(0, 3);
 
-  const getRpeColor = (rpe: number | null) => {
+  const getRpeColor = (rpe: number | null): string => {
     if (!rpe) return 'bg-gray-500';
-    if (rpe <= 7) return 'bg-[#34C759]'; // Green
-    if (rpe <= 8.5) return 'bg-[#FFD60A]'; // Yellow
-    return 'bg-[#FF3131]'; // Red
+    if (rpe <= 7) return 'bg-[#34C759]';
+    if (rpe <= 8.5) return 'bg-[#FFD60A]';
+    return 'bg-[#FF3131]';
   };
 
-  const formatDate = (isoString: string) => {
+  const formatDate = (isoString: string): string => {
     const date = new Date(isoString);
     return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
   };
 
-  const calculateDuration = (start: string, end: string | null) => {
+  const calculateDuration = (start: string, end: string | null): string => {
     if (!end) return 'Active';
     const diffMs = new Date(end).getTime() - new Date(start).getTime();
     return `${Math.round(diffMs / 60000)}m`;
@@ -73,120 +79,258 @@ export default function DashboardScreen() {
 
   if (isLoading) {
     return (
-      <SafeAreaView className="flex-1 bg-[#1A1A1A] justify-center items-center">
-        <ActivityIndicator size="large" color="#FF6000" />
-      </SafeAreaView>
+      <View style={styles.root}>
+        <View style={[styles.circle, styles.c1]} />
+        <View style={[styles.circle, styles.c2]} />
+        <View style={[styles.circle, styles.c3]} />
+        <BlurView style={StyleSheet.absoluteFill} intensity={60} tint="dark" />
+        <SafeAreaView className="flex-1 justify-center items-center">
+          <ActivityIndicator size="large" color="#FF6000" />
+        </SafeAreaView>
+      </View>
     );
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-[#1A1A1A]">
-      <ScrollView className="flex-1 px-4" contentContainerStyle={{ paddingBottom: 40 }}>
+    <View style={styles.root}>
+      {/* ── BACKGROUND MESH ─────────────────────────────── */}
+      <View style={[styles.circle, styles.c1]} />
+      <View style={[styles.circle, styles.c2]} />
+      <View style={[styles.circle, styles.c3]} />
+      <BlurView style={StyleSheet.absoluteFill} intensity={60} tint="dark" />
 
-        {/* SECTION 1 - HEADER */}
-        <View className="flex-row justify-between items-center mt-6 mb-8">
-          <View>
-            <Text className="text-[#8E8E93] text-sm font-medium mb-1">Welcome back</Text>
-            <Text className="text-white text-3xl font-bold">Good morning, {name || 'Lifter'}</Text>
-          </View>
-          <TouchableOpacity className="h-10 w-10 bg-[#242424] rounded-full items-center justify-center">
-            <Ionicons name="settings-outline" size={20} color="#FFFFFF" />
-          </TouchableOpacity>
-        </View>
-
-        {/* SECTION 2 - HERO CARD */}
-        <View className="bg-[#242424] rounded-2xl p-4 w-full mb-6">
-          <View className="self-start bg-[#FF6000]/20 rounded-full px-2 py-1 mb-3">
-            <Text className="text-[#FF6000] text-[10px] font-bold tracking-widest uppercase">Last Workout</Text>
-          </View>
-
-          {lastWorkout ? (
-            <>
-              <Text className="text-white text-2xl font-bold mb-1">{lastWorkout.name}</Text>
-              <Text className="text-[#8E8E93] text-sm mb-4">
-                {formatDate(lastWorkout.startTime)} • Duration: {calculateDuration(lastWorkout.startTime, lastWorkout.endTime)}
-              </Text>
-
-              <View className="h-[1px] bg-[#333333] w-full mb-4" />
-
-              <View className="flex-row justify-between pr-4">
-                <View>
-                  <Text className="text-white text-xl font-bold">{lastWorkout.volumeKg.toLocaleString()}</Text>
-                  <Text className="text-[#8E8E93] text-[10px] font-semibold uppercase mt-1 tracking-wider">Total Volume</Text>
-                </View>
-                <View>
-                  <Text className="text-white text-xl font-bold">{lastWorkout.averageRPE?.toFixed(1) || '-'}</Text>
-                  <Text className="text-[#8E8E93] text-[10px] font-semibold uppercase mt-1 tracking-wider">Avg RPE</Text>
-                </View>
-                <View>
-                  <Text className="text-white text-xl font-bold">
-                    {lastWorkout.logs.reduce((total, log) => total + log.sets.length, 0)}
-                  </Text>
-                  <Text className="text-[#8E8E93] text-[10px] font-semibold uppercase mt-1 tracking-wider">Sets</Text>
-                </View>
-              </View>
-            </>
-          ) : (
-            <Text className="text-[#8E8E93] py-4 text-center">No workouts yet. Stop reading, start lifting.</Text>
-          )}
-        </View>
-
-        {/* SECTION 3 - START WORKOUT BUTTON */}
-        <TouchableOpacity
-          className="w-full bg-[#FF6000] h-14 rounded-full items-center justify-center flex-row mb-10"
-          onPress={() => setIsStartModalVisible(true)}
+      {/* ── CONTENT ─────────────────────────────────────── */}
+      <SafeAreaView style={{ flex: 1 }}>
+        <ScrollView
+          className="flex-1 px-4"
+          contentContainerStyle={{ paddingBottom: 40 }}
+          showsVerticalScrollIndicator={false}
         >
-          <Ionicons name="play" size={18} color="white" style={{ marginRight: 8 }} />
-          <Text className="text-white font-bold text-lg">Start Workout</Text>
-        </TouchableOpacity>
-
-        {/* SECTION 4 - RECENT SESSIONS */}
-        <View className="flex-row justify-between items-center mb-4">
-          <Text className="text-white text-xl font-bold">Recent Sessions</Text>
-          <TouchableOpacity onPress={() => router.push('/history')}>
-            <Text className="text-[#FF6000] font-semibold">View All</Text>
-          </TouchableOpacity>
-        </View>
-
-        {recentSessions.length > 0 ? (
-          recentSessions.map((session) => (
-            <TouchableOpacity
-              key={session.id}
-              onPress={() => router.push(`/workout/${session.id}`)}
-              className="bg-[#242424] rounded-2xl p-4 mb-3 flex-row items-center justify-between"
-            >
-              <View className="flex-row items-center">
-                <View className="h-12 w-12 rounded-full bg-[#FF6000]/10 flex items-center justify-center mr-4">
-                  <Ionicons name="barbell" size={24} color="#FF6000" />
-                </View>
-                <View>
-                  <Text className="text-white font-bold text-base mb-1">{session.name}</Text>
-                  <Text className="text-[#8E8E93] text-xs">
-                    {formatDate(session.startTime)} • {calculateDuration(session.startTime, session.endTime)}
-                  </Text>
-                </View>
-              </View>
-
-              <View className="flex-row items-center">
-                {session.averageRPE && (
-                  <View className={`px-2 py-1 rounded-full mr-3 ${getRpeColor(session.averageRPE)}`}>
-                    <Text className="text-[#1A1A1A] text-[10px] font-bold">RPE {session.averageRPE.toFixed(1)}</Text>
-                  </View>
-                )}
-                <Ionicons name="chevron-forward" size={20} color="#8E8E93" />
-              </View>
+          {/* SECTION 1 — HEADER */}
+          <View className="flex-row justify-between items-center mt-6 mb-8">
+            <View>
+              <Text style={styles.welcomeLabel}>Welcome back</Text>
+              <Text className="text-white text-3xl font-bold">
+                {name || 'Lifter'}
+              </Text>
+            </View>
+            <TouchableOpacity style={styles.iconBtn}>
+              <Ionicons name="settings-outline" size={20} color="#FFFFFF" />
             </TouchableOpacity>
-          ))
-        ) : (
-          <Text className="text-[#8E8E93] text-center mt-4">Complete a workout to see history.</Text>
-        )}
+          </View>
 
-      </ScrollView>
+          {/* SECTION 2 — HERO CARD */}
+          <View style={styles.card} className="p-4 w-full mb-6">
+            <View className="self-start bg-[#FF6000]/20 rounded-full px-2 py-1 mb-3">
+              <Text className="text-[#FF6000] text-[10px] font-bold tracking-widest uppercase">
+                Last Workout
+              </Text>
+            </View>
+
+            {lastWorkout ? (
+              <>
+                <Text className="text-white text-2xl font-bold mb-1">
+                  {lastWorkout.name}
+                </Text>
+                <Text style={styles.mutedText} className="text-sm mb-4">
+                  {formatDate(lastWorkout.startTime)} • Duration:{' '}
+                  {calculateDuration(lastWorkout.startTime, lastWorkout.endTime)}
+                </Text>
+
+                <View style={styles.divider} className="w-full mb-4" />
+
+                <View className="flex-row justify-between pr-4">
+                  <View>
+                    <Text className="text-white text-xl font-bold">
+                      {lastWorkout.volumeKg.toLocaleString()}
+                    </Text>
+                    <Text style={styles.statLabel}>Total Volume</Text>
+                  </View>
+                  <View>
+                    <Text className="text-white text-xl font-bold">
+                      {lastWorkout.averageRPE?.toFixed(1) || '-'}
+                    </Text>
+                    <Text style={styles.statLabel}>Avg RPE</Text>
+                  </View>
+                  <View>
+                    <Text className="text-white text-xl font-bold">
+                      {lastWorkout.logs.reduce((total, log) => total + log.sets.length, 0)}
+                    </Text>
+                    <Text style={styles.statLabel}>Sets</Text>
+                  </View>
+                </View>
+              </>
+            ) : (
+              <Text style={styles.mutedText} className="py-4 text-center">
+                No workouts yet. Stop reading, start lifting.
+              </Text>
+            )}
+          </View>
+
+          {/* SECTION 3 — START WORKOUT BUTTON */}
+          <Pressable
+            style={styles.startButton}
+            onPress={() => setIsStartModalVisible(true)}
+          >
+            <Ionicons name="play" size={18} color="white" style={{ marginRight: 8 }} />
+            <Text className="text-white font-bold text-lg">Start Workout</Text>
+          </Pressable>
+
+          {/* SECTION 4 — RECENT SESSIONS */}
+          <View className="flex-row justify-between items-center mb-4">
+            <Text className="text-white text-xl font-bold">Recent Sessions</Text>
+            <TouchableOpacity onPress={() => router.push('/history')}>
+              <Text className="text-[#FF6000] font-semibold">View All</Text>
+            </TouchableOpacity>
+          </View>
+
+          {recentSessions.length > 0 ? (
+            recentSessions.map((session) => (
+              <TouchableOpacity
+                key={session.id}
+                onPress={() => router.push(`/workout/${session.id}`)}
+                style={styles.sessionCard}
+                className="p-4 mb-3 flex-row items-center justify-between"
+              >
+                <View className="flex-row items-center">
+                  <View style={styles.sessionIcon} className="mr-4">
+                    <Ionicons name="barbell" size={22} color="#FF6000" />
+                  </View>
+                  <View>
+                    <Text className="text-white font-bold text-base mb-1">
+                      {session.name}
+                    </Text>
+                    <Text style={styles.mutedText} className="text-xs">
+                      {formatDate(session.startTime)} •{' '}
+                      {calculateDuration(session.startTime, session.endTime)}
+                    </Text>
+                  </View>
+                </View>
+
+                <View className="flex-row items-center">
+                  {session.averageRPE && (
+                    <View className={`px-2 py-1 rounded-full mr-3 ${getRpeColor(session.averageRPE)}`}>
+                      <Text className="text-[#1A1A1A] text-[10px] font-bold">
+                        RPE {session.averageRPE.toFixed(1)}
+                      </Text>
+                    </View>
+                  )}
+                  <Ionicons name="chevron-forward" size={20} color="rgba(255,255,255,0.4)" />
+                </View>
+              </TouchableOpacity>
+            ))
+          ) : (
+            <Text style={styles.mutedText} className="text-center mt-4">
+              Complete a workout to see history.
+            </Text>
+          )}
+        </ScrollView>
+      </SafeAreaView>
+
       <StartWorkoutModal
         isVisible={isStartModalVisible}
         onClose={() => setIsStartModalVisible(false)}
         onStart={handleWorkoutStart}
       />
-    </SafeAreaView>
+    </View>
   );
 }
+
+const styles = StyleSheet.create({
+    root: {
+        flex: 1,
+        backgroundColor: '#0A0A0A',
+    },
+    circle: {
+        position: 'absolute',
+        borderRadius: 999,
+    },
+    c1: {
+        top: -100,
+        right: -80,
+        width: 280,
+        height: 280,
+        backgroundColor: '#FF6000',
+        opacity: 0.35,
+    },
+    c2: {
+        top: 350,
+        left: -60,
+        width: 240,
+        height: 240,
+        backgroundColor: '#CC4400',
+        opacity: 0.25,
+    },
+    c3: {
+        bottom: 100,
+        right: -40,
+        width: 300,
+        height: 300,
+        backgroundColor: '#1A0A00',
+        opacity: 0.8,
+    },
+    welcomeLabel: {
+        color: 'rgba(255,255,255,0.5)',
+        fontSize: 14,
+        fontWeight: '500',
+        marginBottom: 4,
+    },
+    iconBtn: {
+        width: 40,
+        height: 40,
+        borderRadius: 20,
+        backgroundColor: 'rgba(255,255,255,0.1)',
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    card: {
+        backgroundColor: 'rgba(255,255,255,0.07)',
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.1)',
+        borderRadius: 20,
+    },
+    divider: {
+        height: 1,
+        backgroundColor: 'rgba(255,255,255,0.1)',
+    },
+    mutedText: {
+        color: 'rgba(255,255,255,0.5)',
+    },
+    statLabel: {
+        color: 'rgba(255,255,255,0.5)',
+        fontSize: 10,
+        fontWeight: '600',
+        textTransform: 'uppercase',
+        marginTop: 4,
+        letterSpacing: 0.5,
+    },
+    startButton: {
+        width: '100%',
+        backgroundColor: '#FF6000',
+        height: 56,
+        borderRadius: 999,
+        alignItems: 'center',
+        justifyContent: 'center',
+        flexDirection: 'row',
+        marginBottom: 40,
+        shadowColor: '#FF6000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.4,
+        shadowRadius: 12,
+        elevation: 8,
+    },
+    sessionCard: {
+        backgroundColor: 'rgba(255,255,255,0.07)',
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.1)',
+        borderRadius: 20,
+    },
+    sessionIcon: {
+        width: 44,
+        height: 44,
+        borderRadius: 22,
+        backgroundColor: 'rgba(255,96,0,0.15)',
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+});

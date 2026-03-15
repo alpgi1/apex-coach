@@ -1,4 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
+import { BlurView } from 'expo-blur';
 import * as ImagePicker from 'expo-image-picker';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useRef, useState } from 'react';
@@ -7,6 +8,7 @@ import {
     Image,
     Pressable,
     ScrollView,
+    StyleSheet,
     Text,
     TextInput,
     View,
@@ -110,231 +112,389 @@ export default function ProfileScreen() {
     };
 
     return (
-        <SafeAreaView className="flex-1 bg-[#1A1A1A]">
-            <ScrollView
-                className="flex-1"
-                contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 40 }}
-                showsVerticalScrollIndicator={false}
-            >
-                {/* ── SECTION 1 — HEADER ─────────────────────── */}
-                <View className="pt-3 pb-6">
-                    <Text className="text-white text-2xl font-bold">Profile</Text>
-                </View>
+        <View style={styles.root}>
+            {/* ── BACKGROUND MESH ───────────────────────────── */}
+            <View style={[styles.circle, styles.c1]} />
+            <View style={[styles.circle, styles.c2]} />
+            <View style={[styles.circle, styles.c3]} />
+            <BlurView style={StyleSheet.absoluteFill} intensity={80} tint="dark" />
 
-                {/* ── SECTION 2 — AVATAR + NAME ──────────────── */}
-                <View className="items-center mb-6">
-                    <Pressable
-                        onPress={handlePickPhoto}
-                        className="w-24 h-24 rounded-full bg-[#242424] items-center justify-center mb-4 overflow-hidden active:opacity-80"
-                    >
-                        {profilePhoto ? (
-                            <Image
-                                source={{ uri: profilePhoto }}
-                                className="w-24 h-24 rounded-full"
-                            />
-                        ) : (
-                            <Ionicons name="person" size={48} color="#8E8E93" />
-                        )}
-                        <View className="absolute bottom-0 left-0 right-0 bg-black/50 py-1 items-center">
-                            <Ionicons name="camera" size={14} color="white" />
-                        </View>
-                    </Pressable>
-
-                    {isEditingName ? (
-                        <View className="flex-row items-center gap-2">
-                            <TextInput
-                                ref={inputRef}
-                                value={draftName}
-                                onChangeText={setDraftName}
-                                onSubmitEditing={handleConfirmName}
-                                returnKeyType="done"
-                                placeholder="Your name"
-                                placeholderTextColor="#8E8E93"
-                                className="text-white text-xl font-bold border-b border-[#FF6000] pb-1 min-w-[120px] text-center"
-                                autoFocus
-                            />
-                            <Pressable
-                                onPress={handleConfirmName}
-                                className="w-8 h-8 rounded-full bg-[#FF6000] items-center justify-center active:opacity-70"
-                            >
-                                <Ionicons name="checkmark" size={16} color="white" />
-                            </Pressable>
-                        </View>
-                    ) : (
-                        <Pressable onPress={handleStartEdit} className="items-center active:opacity-70">
-                            <Text className="text-white text-xl font-bold mb-1">
-                                {name || 'Lifter'}
-                            </Text>
-                            <Text className="text-[#8E8E93] text-sm">Tap to edit</Text>
+            {/* ── CONTENT ───────────────────────────────────── */}
+            <SafeAreaView style={{ flex: 1 }}>
+                <ScrollView
+                    showsVerticalScrollIndicator={false}
+                    contentContainerStyle={styles.scrollContent}
+                >
+                    {/* ── AVATAR + NAME ─────────────────────── */}
+                    <View className="items-center pt-6 pb-8">
+                        <Pressable onPress={handlePickPhoto} style={styles.avatar}>
+                            {profilePhoto ? (
+                                <Image source={{ uri: profilePhoto }} style={styles.avatarImg} />
+                            ) : (
+                                <Ionicons name="person" size={40} color="rgba(255,255,255,0.5)" />
+                            )}
+                            <View style={styles.cameraOverlay}>
+                                <Ionicons name="camera" size={12} color="white" />
+                            </View>
                         </Pressable>
-                    )}
-                </View>
 
-                {/* ── SECTION 3 — PREFERENCES ────────────────── */}
-                <View className="bg-[#242424] rounded-2xl px-4 py-3 mb-4">
-                    <Text className="text-[#8E8E93] text-xs font-semibold uppercase tracking-wider mb-3">
-                        Preferences
-                    </Text>
-
-                    {/* Weight Unit row */}
-                    <View className="flex-row items-center justify-between py-3 border-b border-[#3A3A3C]">
-                        <View className="flex-row items-center gap-3">
-                            <Ionicons name="barbell-outline" size={20} color="#8E8E93" />
-                            <Text className="text-white text-base">Weight Unit</Text>
-                        </View>
-                        <View className="flex-row gap-2">
-                            {(['KG', 'LBS'] as const).map((unit) => (
+                        {isEditingName ? (
+                            <View className="flex-row items-center gap-2 mt-3">
+                                <TextInput
+                                    ref={inputRef}
+                                    value={draftName}
+                                    onChangeText={setDraftName}
+                                    onSubmitEditing={handleConfirmName}
+                                    returnKeyType="done"
+                                    placeholder="Your name"
+                                    placeholderTextColor="rgba(255,255,255,0.3)"
+                                    style={styles.nameInput}
+                                    autoFocus
+                                />
                                 <Pressable
-                                    key={unit}
-                                    onPress={() => setWeightUnit(unit)}
-                                    className={`px-4 py-1.5 rounded-full active:opacity-80 ${weightUnit === unit
-                                            ? 'bg-[#FF6000]'
-                                            : 'bg-[#3A3A3C]'
-                                        }`}
+                                    onPress={handleConfirmName}
+                                    className="w-8 h-8 rounded-full bg-[#FF6000] items-center justify-center active:opacity-70"
                                 >
-                                    <Text
-                                        className={`text-sm font-semibold ${weightUnit === unit
-                                                ? 'text-white'
-                                                : 'text-[#8E8E93]'
-                                            }`}
-                                    >
-                                        {unit}
-                                    </Text>
-                                </Pressable>
-                            ))}
-                        </View>
-                    </View>
-
-                    {/* Target RIR row */}
-                    <View className="flex-row items-center justify-between py-3">
-                        <View className="flex-row items-center gap-3">
-                            <Ionicons name="flame-outline" size={20} color="#8E8E93" />
-                            <Text className="text-white text-base">Target RIR</Text>
-                        </View>
-                        <View className="flex-row items-center gap-3">
-                            <Pressable
-                                onPress={() => setTargetRIR(Math.max(0, targetRIR - 1))}
-                                className="w-8 h-8 rounded-full bg-[#3A3A3C] items-center justify-center active:opacity-70"
-                            >
-                                <Text className="text-white text-lg font-bold">−</Text>
-                            </Pressable>
-                            <Text className="text-white text-lg font-bold w-6 text-center">
-                                {targetRIR}
-                            </Text>
-                            <Pressable
-                                onPress={() => setTargetRIR(Math.min(5, targetRIR + 1))}
-                                className="w-8 h-8 rounded-full bg-[#3A3A3C] items-center justify-center active:opacity-70"
-                            >
-                                <Text className="text-white text-lg font-bold">+</Text>
-                            </Pressable>
-                        </View>
-                    </View>
-                </View>
-
-                {/* ── SECTION 4 — STATS ──────────────────────── */}
-                <View className="bg-[#242424] rounded-2xl px-4 py-3 mb-4">
-                    <Text className="text-[#8E8E93] text-xs font-semibold uppercase tracking-wider mb-3">
-                        Your Stats
-                    </Text>
-
-                    <Pressable
-                        onPress={() => router.push('/records')}
-                        className="flex-row items-center justify-between py-3 border-t border-[#3A3A3C] active:opacity-70"
-                    >
-                        <View className="flex-row items-center gap-3">
-                            <Ionicons name="trophy-outline" size={20} color="#FFD60A" />
-                            <Text className="text-white text-base">Personal Records</Text>
-                        </View>
-                        <View className="flex-row items-center gap-2">
-                            <Ionicons name="chevron-forward" size={18} color="#8E8E93" />
-                        </View>
-                    </Pressable>
-
-                    <View className="flex-row items-center justify-between py-3 border-b border-[#3A3A3C]">
-                        <View className="flex-row items-center gap-3">
-                            <Ionicons name="calendar-outline" size={20} color="#8E8E93" />
-                            <Text className="text-white text-base">Total Workouts</Text>
-                        </View>
-                        <Text className="text-white font-bold text-base">{totalWorkouts}</Text>
-                    </View>
-
-                    <View className="flex-row items-center justify-between py-3">
-                        <View className="flex-row items-center gap-3">
-                            <Ionicons name="trophy-outline" size={20} color="#8E8E93" />
-                            <Text className="text-white text-base">Favorite Exercise</Text>
-                        </View>
-                        <Text className="text-[#8E8E93] text-sm">Coming soon</Text>
-                    </View>
-                </View>
-
-                {/* ── SECTION 5 — MY TEMPLATES ───────────────── */}
-                <View className="bg-[#242424] rounded-2xl px-4 py-3 mb-4">
-                    <View className="flex-row items-center justify-between mb-3">
-                        <Text className="text-[#8E8E93] text-xs font-semibold uppercase tracking-wider">
-                            My Templates
-                        </Text>
-                        <Pressable
-                            onPress={() => router.push('/template/create')}
-                            className="flex-row items-center gap-1 active:opacity-70"
-                        >
-                            <Ionicons name="add" size={16} color="#FF6000" />
-                            <Text className="text-[#FF6000] text-sm font-semibold">New</Text>
-                        </Pressable>
-                    </View>
-
-                    {templates.length === 0 ? (
-                        <Text className="text-[#8E8E93] text-sm py-2 text-center">
-                            No templates yet. Create your first one.
-                        </Text>
-                    ) : (
-                        templates.map((template) => (
-                            <View
-                                key={template.id}
-                                className="flex-row items-center justify-between py-3 border-b border-[#3A3A3C]"
-                            >
-                                <Pressable
-                                    onPress={() => router.push(('/template/' + template.id) as never)}
-                                    className="flex-1 active:opacity-70"
-                                >
-                                    <Text className="text-white font-semibold text-base">
-                                        {template.name}
-                                    </Text>
-                                    <Text className="text-[#8E8E93] text-xs mt-0.5">
-                                        {template.exercises.length} exercise
-                                        {template.exercises.length !== 1 ? 's' : ''}
-                                    </Text>
-                                </Pressable>
-                                <Pressable
-                                    onPress={() => handleDeleteTemplate(template.id)}
-                                    className="w-8 h-8 items-center justify-center active:opacity-70"
-                                >
-                                    <Ionicons name="trash-outline" size={18} color="#FF3B30" />
+                                    <Ionicons name="checkmark" size={16} color="white" />
                                 </Pressable>
                             </View>
-                        ))
-                    )}
-                </View>
+                        ) : (
+                            <Pressable onPress={handleStartEdit} style={styles.nameRow}>
+                                <Text style={styles.nameText}>{name || 'Lifter'}</Text>
+                                <Ionicons name="pencil" size={14} color="rgba(255,255,255,0.4)" style={{ marginLeft: 6 }} />
+                            </Pressable>
+                        )}
+                        <Text style={styles.nameSub}>Tap name to edit</Text>
+                    </View>
 
-                {/* ── SECTION 6 — DANGER ZONE ────────────────── */}
-                <View className="bg-[#242424] rounded-2xl px-4 py-3">
-                    <Text className="text-[#8E8E93] text-xs font-semibold uppercase tracking-wider mb-3">
-                        Danger Zone
-                    </Text>
+                    {/* ── PREFERENCES ───────────────────────── */}
+                    <View style={styles.card} className="mb-4">
+                        <Text style={styles.sectionLabel} className="mb-3">Preferences</Text>
 
-                    <Pressable
-                        onPress={handleClearData}
-                        className="flex-row items-center justify-between py-3 active:opacity-70"
-                    >
-                        <View className="flex-row items-center gap-3">
-                            <Ionicons name="trash-outline" size={20} color="#FF3B30" />
-                            <Text className="text-[#FF3B30] text-base font-semibold">
-                                Clear All Data
-                            </Text>
+                        <View style={styles.divider} className="flex-row items-center justify-between py-3">
+                            <View className="flex-row items-center gap-3">
+                                <Ionicons name="barbell-outline" size={20} color="rgba(255,255,255,0.5)" />
+                                <Text style={styles.rowLabel}>Weight Unit</Text>
+                            </View>
+                            <View className="flex-row gap-2">
+                                {(['KG', 'LBS'] as const).map((unit) => (
+                                    <Pressable
+                                        key={unit}
+                                        onPress={() => setWeightUnit(unit)}
+                                        style={[
+                                            styles.pill,
+                                            weightUnit === unit ? styles.pillActive : styles.pillInactive,
+                                        ]}
+                                    >
+                                        <Text style={[
+                                            styles.pillText,
+                                            weightUnit === unit ? styles.pillTextActive : styles.pillTextInactive,
+                                        ]}>
+                                            {unit}
+                                        </Text>
+                                    </Pressable>
+                                ))}
+                            </View>
                         </View>
-                        <Ionicons name="chevron-forward" size={18} color="#FF3B30" />
-                    </Pressable>
-                </View>
-            </ScrollView>
-        </SafeAreaView>
+
+                        <View className="flex-row items-center justify-between py-3">
+                            <View className="flex-row items-center gap-3">
+                                <Ionicons name="flame-outline" size={20} color="rgba(255,255,255,0.5)" />
+                                <Text style={styles.rowLabel}>Target RIR</Text>
+                            </View>
+                            <View className="flex-row items-center gap-3">
+                                <Pressable
+                                    onPress={() => setTargetRIR(Math.max(0, targetRIR - 1))}
+                                    style={styles.stepper}
+                                >
+                                    <Text style={styles.stepperText}>−</Text>
+                                </Pressable>
+                                <Text style={styles.stepperValue}>{targetRIR}</Text>
+                                <Pressable
+                                    onPress={() => setTargetRIR(Math.min(5, targetRIR + 1))}
+                                    style={styles.stepper}
+                                >
+                                    <Text style={styles.stepperText}>+</Text>
+                                </Pressable>
+                            </View>
+                        </View>
+                    </View>
+
+                    {/* ── YOUR STATS ────────────────────────── */}
+                    <View style={styles.card} className="mb-4">
+                        <Text style={styles.sectionLabel} className="mb-3">Your Stats</Text>
+
+                        <Pressable
+                            onPress={() => router.push('/records')}
+                            style={styles.topDivider}
+                            className="flex-row items-center justify-between py-3 active:opacity-70"
+                        >
+                            <View className="flex-row items-center gap-3">
+                                <Ionicons name="trophy-outline" size={20} color="#FFD60A" />
+                                <Text style={styles.rowLabel}>Personal Records</Text>
+                            </View>
+                            <Ionicons name="chevron-forward" size={18} color="rgba(255,255,255,0.4)" />
+                        </Pressable>
+
+                        <View style={styles.divider} className="flex-row items-center justify-between py-3">
+                            <View className="flex-row items-center gap-3">
+                                <Ionicons name="calendar-outline" size={20} color="rgba(255,255,255,0.5)" />
+                                <Text style={styles.rowLabel}>Total Workouts</Text>
+                            </View>
+                            <Text style={styles.rowValue}>{totalWorkouts}</Text>
+                        </View>
+
+                        <View className="flex-row items-center justify-between py-3">
+                            <View className="flex-row items-center gap-3">
+                                <Ionicons name="star-outline" size={20} color="rgba(255,255,255,0.5)" />
+                                <Text style={styles.rowLabel}>Favorite Exercise</Text>
+                            </View>
+                            <Text style={styles.rowMuted}>Coming soon</Text>
+                        </View>
+                    </View>
+
+                    {/* ── MY TEMPLATES ──────────────────────── */}
+                    <View style={styles.card} className="mb-4">
+                        <View className="flex-row items-center justify-between mb-3">
+                            <Text style={styles.sectionLabel}>My Templates</Text>
+                            <Pressable
+                                onPress={() => router.push('/template/create')}
+                                className="flex-row items-center gap-1 active:opacity-70"
+                            >
+                                <Ionicons name="add" size={16} color="#FF6000" />
+                                <Text className="text-[#FF6000] text-sm font-semibold">New</Text>
+                            </Pressable>
+                        </View>
+
+                        {templates.length === 0 ? (
+                            <Text style={styles.emptyText} className="py-2 text-center">
+                                No templates yet. Create your first one.
+                            </Text>
+                        ) : (
+                            templates.map((template) => (
+                                <View
+                                    key={template.id}
+                                    style={styles.divider}
+                                    className="flex-row items-center justify-between py-3"
+                                >
+                                    <Pressable
+                                        onPress={() => router.push(('/template/' + template.id) as never)}
+                                        className="flex-1 active:opacity-70"
+                                    >
+                                        <Text style={styles.rowLabel} className="font-semibold">
+                                            {template.name}
+                                        </Text>
+                                        <Text style={styles.rowMuted} className="mt-0.5 text-xs">
+                                            {template.exercises.length} exercise
+                                            {template.exercises.length !== 1 ? 's' : ''}
+                                        </Text>
+                                    </Pressable>
+                                    <Pressable
+                                        onPress={() => handleDeleteTemplate(template.id)}
+                                        className="w-8 h-8 items-center justify-center active:opacity-70"
+                                    >
+                                        <Ionicons name="trash-outline" size={18} color="#FF3B30" />
+                                    </Pressable>
+                                </View>
+                            ))
+                        )}
+                    </View>
+
+                    {/* ── DANGER ZONE ───────────────────────── */}
+                    <View style={styles.card}>
+                        <Text style={styles.sectionLabel} className="mb-3">Danger Zone</Text>
+                        <Pressable
+                            onPress={handleClearData}
+                            className="flex-row items-center justify-between py-3 active:opacity-70"
+                        >
+                            <View className="flex-row items-center gap-3">
+                                <Ionicons name="trash-outline" size={20} color="#FF3B30" />
+                                <Text style={styles.dangerText}>Clear All Data</Text>
+                            </View>
+                            <Ionicons name="chevron-forward" size={18} color="#FF3B30" />
+                        </Pressable>
+                    </View>
+                </ScrollView>
+            </SafeAreaView>
+        </View>
     );
 }
+
+const styles = StyleSheet.create({
+    root: {
+        flex: 1,
+        backgroundColor: '#0A0A0A',
+    },
+    circle: {
+        position: 'absolute',
+        borderRadius: 999,
+    },
+    c1: {
+        top: -80,
+        left: -60,
+        width: 300,
+        height: 300,
+        backgroundColor: '#4B0082',
+        opacity: 0.6,
+    },
+    c2: {
+        top: 300,
+        right: -80,
+        width: 260,
+        height: 260,
+        backgroundColor: '#1a0533',
+        opacity: 0.5,
+    },
+    c3: {
+        bottom: 200,
+        left: -40,
+        width: 320,
+        height: 320,
+        backgroundColor: '#FF6000',
+        opacity: 0.25,
+    },
+    scrollContent: {
+        paddingHorizontal: 16,
+        paddingBottom: 40,
+    },
+    /* avatar */
+    avatar: {
+        width: 88,
+        height: 88,
+        borderRadius: 44,
+        backgroundColor: 'rgba(255,255,255,0.1)',
+        alignItems: 'center',
+        justifyContent: 'center',
+        overflow: 'hidden',
+        borderWidth: 2,
+        borderColor: 'rgba(255,255,255,0.2)',
+    },
+    avatarImg: {
+        width: 88,
+        height: 88,
+        borderRadius: 44,
+    },
+    cameraOverlay: {
+        position: 'absolute',
+        bottom: 0,
+        left: 0,
+        right: 0,
+        height: 26,
+        backgroundColor: 'rgba(0,0,0,0.5)',
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    nameInput: {
+        color: 'white',
+        fontSize: 20,
+        fontWeight: 'bold',
+        borderBottomWidth: 1,
+        borderBottomColor: '#FF6000',
+        paddingBottom: 4,
+        minWidth: 120,
+        textAlign: 'center',
+    },
+    nameRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginTop: 14,
+    },
+    nameText: {
+        color: 'white',
+        fontSize: 24,
+        fontWeight: 'bold',
+    },
+    nameSub: {
+        color: 'rgba(255,255,255,0.4)',
+        fontSize: 12,
+        marginTop: 4,
+    },
+    /* cards */
+    card: {
+        backgroundColor: 'rgba(255,255,255,0.07)',
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.1)',
+        borderRadius: 16,
+        paddingHorizontal: 16,
+        paddingVertical: 12,
+    },
+    sectionLabel: {
+        color: 'rgba(255,255,255,0.4)',
+        fontSize: 11,
+        fontWeight: '600',
+        textTransform: 'uppercase',
+        letterSpacing: 1,
+    },
+    divider: {
+        borderBottomWidth: StyleSheet.hairlineWidth,
+        borderBottomColor: 'rgba(255,255,255,0.1)',
+    },
+    topDivider: {
+        borderTopWidth: StyleSheet.hairlineWidth,
+        borderTopColor: 'rgba(255,255,255,0.1)',
+    },
+    rowLabel: {
+        color: 'white',
+        fontSize: 16,
+    },
+    rowValue: {
+        color: 'white',
+        fontWeight: 'bold',
+        fontSize: 16,
+    },
+    rowMuted: {
+        color: 'rgba(255,255,255,0.5)',
+        fontSize: 14,
+    },
+    emptyText: {
+        color: 'rgba(255,255,255,0.5)',
+        fontSize: 14,
+    },
+    dangerText: {
+        color: '#FF3B30',
+        fontSize: 16,
+        fontWeight: '600',
+    },
+    /* preference controls */
+    pill: {
+        paddingHorizontal: 16,
+        paddingVertical: 6,
+        borderRadius: 999,
+    },
+    pillActive: {
+        backgroundColor: '#FF6000',
+    },
+    pillInactive: {
+        backgroundColor: 'rgba(255,255,255,0.1)',
+    },
+    pillText: {
+        fontSize: 14,
+        fontWeight: '600',
+    },
+    pillTextActive: {
+        color: 'white',
+    },
+    pillTextInactive: {
+        color: 'rgba(255,255,255,0.5)',
+    },
+    stepper: {
+        width: 32,
+        height: 32,
+        borderRadius: 16,
+        backgroundColor: 'rgba(255,255,255,0.1)',
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    stepperText: {
+        color: 'white',
+        fontSize: 18,
+        fontWeight: 'bold',
+    },
+    stepperValue: {
+        color: 'white',
+        fontSize: 18,
+        fontWeight: 'bold',
+        width: 24,
+        textAlign: 'center',
+    },
+});

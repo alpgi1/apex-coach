@@ -1,9 +1,11 @@
 import { Ionicons } from '@expo/vector-icons';
+import { BlurView } from 'expo-blur';
 import { useRouter } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
 import {
     Pressable,
     ScrollView,
+    StyleSheet,
     Text,
     TextInput,
     View,
@@ -71,7 +73,6 @@ export default function WorkoutScreen() {
         }
 
         const start = new Date(activeSession.startTime).getTime();
-        // Initialise immediately so first render is accurate
         setElapsed(Math.floor((Date.now() - start) / 1000));
 
         const id = setInterval(() => {
@@ -175,269 +176,255 @@ export default function WorkoutScreen() {
     /* ══════════════════ NO ACTIVE SESSION STATE ══════════════ */
     if (!isWorkoutActive || !activeSession) {
         return (
-            <SafeAreaView className="flex-1 bg-[#1A1A1A] justify-center items-center px-6">
-                <Ionicons name="barbell-outline" size={64} color="#8E8E93" />
-                <Text className="text-white text-xl font-bold mt-4 text-center">
-                    No Active Session
-                </Text>
-                <Text className="text-[#8E8E93] text-sm mt-2 text-center">
-                    Start a workout from the dashboard
-                </Text>
-                <Pressable
-                    onPress={() => router.replace('/(tabs)')}
-                    className="mt-6 bg-[#FF6000] rounded-full px-8 py-3 active:opacity-80"
-                >
-                    <Text className="text-white font-bold text-base">
-                        Go to Dashboard
+            <View style={styles.root}>
+                <View style={[styles.circle, styles.c1]} />
+                <View style={[styles.circle, styles.c2]} />
+                <View style={[styles.circle, styles.c3]} />
+                <BlurView style={StyleSheet.absoluteFill} intensity={60} tint="dark" />
+                <SafeAreaView style={{ flex: 1, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 24 }}>
+                    <Ionicons name="barbell-outline" size={64} color="#8E8E93" />
+                    <Text className="text-white text-xl font-bold mt-4 text-center">
+                        No Active Session
                     </Text>
-                </Pressable>
-            </SafeAreaView>
+                    <Text className="text-[#8E8E93] text-sm mt-2 text-center">
+                        Start a workout from the dashboard
+                    </Text>
+                    <Pressable
+                        onPress={() => router.replace('/(tabs)')}
+                        className="mt-6 bg-[#FF6000] rounded-full px-8 py-3 active:opacity-80"
+                    >
+                        <Text className="text-white font-bold text-base">
+                            Go to Dashboard
+                        </Text>
+                    </Pressable>
+                </SafeAreaView>
+            </View>
         );
     }
 
     /* ═══════════════════ ACTIVE SESSION UI ═══════════════════ */
     return (
-        <SafeAreaView className="flex-1 bg-[#1A1A1A]">
-            {/* ── SECTION 1 — TOP BAR ───────────────────────── */}
-            <View className="flex-row items-center justify-between px-4 py-3">
-                <Pressable
-                    onPress={() => router.back()}
-                    className="w-10 h-10 items-center justify-center rounded-full bg-[#242424] active:opacity-70"
+        <View style={styles.root}>
+            {/* ── BACKGROUND MESH ───────────────────────────── */}
+            <View style={[styles.circle, styles.c1]} />
+            <View style={[styles.circle, styles.c2]} />
+            <View style={[styles.circle, styles.c3]} />
+            <BlurView style={StyleSheet.absoluteFill} intensity={60} tint="dark" />
+
+            {/* ── CONTENT ───────────────────────────────────── */}
+            <SafeAreaView style={{ flex: 1 }}>
+                {/* ── SECTION 1 — TOP BAR ───────────────────────── */}
+                <View className="flex-row items-center justify-between px-4 py-3">
+                    <Pressable
+                        onPress={() => router.back()}
+                        style={styles.iconBtn}
+                        className="active:opacity-70"
+                    >
+                        <Ionicons name="chevron-back" size={22} color="#FFFFFF" />
+                    </Pressable>
+
+                    <View className="items-center">
+                        <Text className="text-white text-lg font-bold">
+                            {activeSession.name}
+                        </Text>
+                        <Text className="text-[#8E8E93] text-xs tracking-widest mt-0.5">
+                            ACTIVE SESSION
+                        </Text>
+                    </View>
+
+                    <Pressable style={styles.iconBtn} className="active:opacity-70">
+                        <Ionicons name="ellipsis-horizontal" size={22} color="#FFFFFF" />
+                    </Pressable>
+                </View>
+
+                <ScrollView
+                    className="flex-1"
+                    contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 128 }}
+                    showsVerticalScrollIndicator={false}
                 >
-                    <Ionicons name="chevron-back" size={22} color="#FFFFFF" />
-                </Pressable>
+                    {/* ── SECTION 2 — TIMER + VOLUME ────────────── */}
+                    <View className="items-center mt-2 mb-6">
+                        <Text className="text-[#FF6000] text-5xl font-bold tracking-wider">
+                            {formatTimer(elapsed)}
+                        </Text>
+                        <Text className="text-white text-2xl font-bold mt-2">
+                            {formatVolume(liveVolume)}
+                        </Text>
+                        <Text className="text-[#8E8E93] text-xs tracking-widest mt-1">
+                            LIVE TOTAL VOLUME
+                        </Text>
+                    </View>
 
-                <View className="items-center">
-                    <Text className="text-white text-lg font-bold">
-                        {activeSession.name}
-                    </Text>
-                    <Text className="text-[#8E8E93] text-xs tracking-widest mt-0.5">
-                        ACTIVE SESSION
-                    </Text>
-                </View>
-
-                <Pressable className="w-10 h-10 items-center justify-center rounded-full bg-[#242424] active:opacity-70">
-                    <Ionicons name="ellipsis-horizontal" size={22} color="#FFFFFF" />
-                </Pressable>
-            </View>
-
-            <ScrollView
-                className="flex-1"
-                contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 128 }}
-                showsVerticalScrollIndicator={false}
-            >
-                {/* ── SECTION 2 — TIMER + VOLUME ────────────── */}
-                <View className="items-center mt-2 mb-6">
-                    <Text className="text-[#FF6000] text-5xl font-bold tracking-wider">
-                        {formatTimer(elapsed)}
-                    </Text>
-                    <Text className="text-white text-2xl font-bold mt-2">
-                        {formatVolume(liveVolume)}
-                    </Text>
-                    <Text className="text-[#8E8E93] text-xs tracking-widest mt-1">
-                        LIVE TOTAL VOLUME
-                    </Text>
-                </View>
-
-                {/* ── SECTION 3 — EXERCISE CARD ─────────────── */}
-                {currentLog && (
-                    <View className="bg-[#242424] rounded-2xl p-4 mb-4">
-                        {/* Exercise header */}
-                        <View className="flex-row items-center justify-between mb-2">
-                            <Text className="text-white text-lg font-bold flex-1 mr-2">
-                                {exerciseMap[currentLog.exerciseId]?.name ?? currentLog.exerciseId}
-                            </Text>
-                            <View className="bg-[#3A3A3C] rounded-full px-3 py-1">
-                                <Text className="text-[#8E8E93] text-xs font-semibold">
-                                    WORKING
+                    {/* ── SECTION 3 — EXERCISE CARD ─────────────── */}
+                    {currentLog && (
+                        <View style={styles.card} className="p-4 mb-4">
+                            {/* Exercise header */}
+                            <View className="flex-row items-center justify-between mb-2">
+                                <Text className="text-white text-lg font-bold flex-1 mr-2">
+                                    {exerciseMap[currentLog.exerciseId]?.name ?? currentLog.exerciseId}
                                 </Text>
-                            </View>
-                        </View>
-
-                        {/* Progressive overload suggestion */}
-                        {suggestion && suggestion.exerciseId === currentLog.exerciseId && (
-                            <View className="mb-3">
-                                <Text className="text-[#FF6000] text-sm font-semibold">
-                                    Suggested: {suggestion.suggestedWeightKg}kg x{' '}
-                                    {suggestion.suggestedRepsMin}-{suggestion.suggestedRepsMax} @ RPE {10 - targetRIR}
-                                </Text>
-                                <Text className="text-[#8E8E93] text-xs mt-0.5 italic">
-                                    {suggestion.rationale}
-                                </Text>
-                            </View>
-                        )}
-
-                        {/* Set table header */}
-                        <View className="flex-row items-center mb-2 px-1">
-                            <Text className="text-[#8E8E93] text-xs font-semibold w-10">
-                                SET
-                            </Text>
-                            <Text className="text-[#8E8E93] text-xs font-semibold flex-1 text-center">
-                                KG
-                            </Text>
-                            <Text className="text-[#8E8E93] text-xs font-semibold flex-1 text-center">
-                                REPS
-                            </Text>
-                            <Text className="text-[#8E8E93] text-xs font-semibold flex-1 text-center">
-                                RPE
-                            </Text>
-                            <Text className="text-[#8E8E93] text-xs font-semibold w-10 text-center">
-                                ✓
-                            </Text>
-                        </View>
-
-                        {/* Inline editable set rows */}
-                        {currentLog.sets.map((s) => {
-                            const draft = getDraft(s);
-                            return (
-                                <View
-                                    key={s.id}
-                                    className={`flex-row items-center py-2 px-1 border-b border-[#3A3A3C] ${s.isCompleted ? 'bg-green-500/5' : ''}`}
-                                >
-                                    <Text
-                                        className={`w-10 font-bold ${s.isCompleted ? 'text-white' : 'text-[#FF6000]'}`}
-                                    >
-                                        {s.setNumber}
+                                <View style={styles.workingBadge}>
+                                    <Text className="text-[#8E8E93] text-xs font-semibold">
+                                        WORKING
                                     </Text>
-                                    <TextInput
-                                        className="flex-1 bg-[#1A1A1A] rounded-lg text-white text-center py-2 mx-1"
-                                        placeholder="kg"
-                                        placeholderTextColor="#8E8E93"
-                                        keyboardType="numeric"
-                                        value={draft.weight}
-                                        onChangeText={(v) => {
-                                            updateDraft(s.id, 'weight', v);
-                                            const w = parseFloat(v);
-                                            const r = parseInt(draft.reps, 10);
-                                            if (!isNaN(w) && !isNaN(r)) {
-                                                const rpe = parseFloat(draft.rpe);
-                                                updateSetValues(currentLog.id, s.id, w, r, isNaN(rpe) ? undefined : rpe);
-                                            }
-                                        }}
-                                    />
-                                    <TextInput
-                                        className="flex-1 bg-[#1A1A1A] rounded-lg text-white text-center py-2 mx-1"
-                                        placeholder="reps"
-                                        placeholderTextColor="#8E8E93"
-                                        keyboardType="numeric"
-                                        value={draft.reps}
-                                        onChangeText={(v) => {
-                                            updateDraft(s.id, 'reps', v);
-                                            const w = parseFloat(draft.weight);
-                                            const r = parseInt(v, 10);
-                                            if (!isNaN(w) && !isNaN(r)) {
-                                                const rpe = parseFloat(draft.rpe);
-                                                updateSetValues(currentLog.id, s.id, w, r, isNaN(rpe) ? undefined : rpe);
-                                            }
-                                        }}
-                                    />
-                                    <TextInput
-                                        className={`flex-1 bg-[#1A1A1A] rounded-lg text-center py-2 mx-1 ${rpeColor(s.rpe)}`}
-                                        placeholder="rpe"
-                                        placeholderTextColor="#8E8E93"
-                                        keyboardType="numeric"
-                                        value={draft.rpe}
-                                        onChangeText={(v) => {
-                                            updateDraft(s.id, 'rpe', v);
-                                            const w = parseFloat(draft.weight);
-                                            const r = parseInt(draft.reps, 10);
-                                            if (!isNaN(w) && !isNaN(r)) {
-                                                const rpe = parseFloat(v);
-                                                updateSetValues(currentLog.id, s.id, w, r, isNaN(rpe) ? undefined : rpe);
-                                            }
-                                        }}
-                                    />
-                                    <Pressable
-                                        onPress={() => {
-                                            if (!s.isCompleted) {
-                                                const w = parseFloat(draft.weight);
+                                </View>
+                            </View>
+
+                            {/* Progressive overload suggestion */}
+                            {suggestion && suggestion.exerciseId === currentLog.exerciseId && (
+                                <View className="mb-3">
+                                    <Text className="text-[#FF6000] text-sm font-semibold">
+                                        Suggested: {suggestion.suggestedWeightKg}kg x{' '}
+                                        {suggestion.suggestedRepsMin}-{suggestion.suggestedRepsMax} @ RPE {10 - targetRIR}
+                                    </Text>
+                                    <Text className="text-[#8E8E93] text-xs mt-0.5 italic">
+                                        {suggestion.rationale}
+                                    </Text>
+                                </View>
+                            )}
+
+                            {/* Set table header */}
+                            <View className="flex-row items-center mb-2 px-1">
+                                <Text className="text-[#8E8E93] text-xs font-semibold w-10">SET</Text>
+                                <Text className="text-[#8E8E93] text-xs font-semibold flex-1 text-center">KG</Text>
+                                <Text className="text-[#8E8E93] text-xs font-semibold flex-1 text-center">REPS</Text>
+                                <Text className="text-[#8E8E93] text-xs font-semibold flex-1 text-center">RPE</Text>
+                                <Text className="text-[#8E8E93] text-xs font-semibold w-10 text-center">✓</Text>
+                            </View>
+
+                            {/* Inline editable set rows */}
+                            {currentLog.sets.map((s) => {
+                                const draft = getDraft(s);
+                                return (
+                                    <View
+                                        key={s.id}
+                                        className={`flex-row items-center py-2 px-1 border-b border-[#3A3A3C] ${s.isCompleted ? 'bg-green-500/5' : ''}`}
+                                    >
+                                        <Text className={`w-10 font-bold ${s.isCompleted ? 'text-white' : 'text-[#FF6000]'}`}>
+                                            {s.setNumber}
+                                        </Text>
+                                        <TextInput
+                                            style={styles.setInput}
+                                            placeholder="kg"
+                                            placeholderTextColor="#8E8E93"
+                                            keyboardType="numeric"
+                                            value={draft.weight}
+                                            onChangeText={(v) => {
+                                                updateDraft(s.id, 'weight', v);
+                                                const w = parseFloat(v);
                                                 const r = parseInt(draft.reps, 10);
                                                 if (!isNaN(w) && !isNaN(r)) {
                                                     const rpe = parseFloat(draft.rpe);
                                                     updateSetValues(currentLog.id, s.id, w, r, isNaN(rpe) ? undefined : rpe);
                                                 }
-                                            }
-                                            completeSet(currentLog.id, s.id);
-                                        }}
-                                        className="w-10 items-center"
-                                    >
-                                        <View
-                                            className={`w-7 h-7 rounded-full items-center justify-center ${s.isCompleted ? 'bg-[#FF6000]' : 'border-2 border-[#3A3A3C]'}`}
+                                            }}
+                                        />
+                                        <TextInput
+                                            style={styles.setInput}
+                                            placeholder="reps"
+                                            placeholderTextColor="#8E8E93"
+                                            keyboardType="numeric"
+                                            value={draft.reps}
+                                            onChangeText={(v) => {
+                                                updateDraft(s.id, 'reps', v);
+                                                const w = parseFloat(draft.weight);
+                                                const r = parseInt(v, 10);
+                                                if (!isNaN(w) && !isNaN(r)) {
+                                                    const rpe = parseFloat(draft.rpe);
+                                                    updateSetValues(currentLog.id, s.id, w, r, isNaN(rpe) ? undefined : rpe);
+                                                }
+                                            }}
+                                        />
+                                        <TextInput
+                                            style={[styles.setInput, { color: s.rpe === undefined ? 'white' : s.rpe <= 7 ? '#4ade80' : s.rpe <= 8.5 ? '#facc15' : '#f87171' }]}
+                                            className={`flex-1 rounded-lg text-center py-2 mx-1 ${rpeColor(s.rpe)}`}
+                                            placeholder="rpe"
+                                            placeholderTextColor="#8E8E93"
+                                            keyboardType="numeric"
+                                            value={draft.rpe}
+                                            onChangeText={(v) => {
+                                                updateDraft(s.id, 'rpe', v);
+                                                const w = parseFloat(draft.weight);
+                                                const r = parseInt(draft.reps, 10);
+                                                if (!isNaN(w) && !isNaN(r)) {
+                                                    const rpe = parseFloat(v);
+                                                    updateSetValues(currentLog.id, s.id, w, r, isNaN(rpe) ? undefined : rpe);
+                                                }
+                                            }}
+                                        />
+                                        <Pressable
+                                            onPress={() => {
+                                                if (!s.isCompleted) {
+                                                    const w = parseFloat(draft.weight);
+                                                    const r = parseInt(draft.reps, 10);
+                                                    if (!isNaN(w) && !isNaN(r)) {
+                                                        const rpe = parseFloat(draft.rpe);
+                                                        updateSetValues(currentLog.id, s.id, w, r, isNaN(rpe) ? undefined : rpe);
+                                                    }
+                                                }
+                                                completeSet(currentLog.id, s.id);
+                                            }}
+                                            className="w-10 items-center"
                                         >
-                                            {s.isCompleted && (
-                                                <Ionicons name="checkmark" size={16} color="#FFFFFF" />
-                                            )}
-                                        </View>
-                                    </Pressable>
-                                </View>
-                            );
-                        })}
+                                            <View className={`w-7 h-7 rounded-full items-center justify-center ${s.isCompleted ? 'bg-[#FF6000]' : 'border-2 border-[#3A3A3C]'}`}>
+                                                {s.isCompleted && (
+                                                    <Ionicons name="checkmark" size={16} color="#FFFFFF" />
+                                                )}
+                                            </View>
+                                        </Pressable>
+                                    </View>
+                                );
+                            })}
 
-                        {/* + Add Set button */}
+                            {/* + Add Set button */}
+                            <Pressable
+                                onPress={() => addEmptySets(currentLog.id, 1)}
+                                className="mt-2 border border-[#FF6000] rounded-full py-2.5 items-center active:opacity-70"
+                            >
+                                <Text className="text-[#FF6000] font-bold text-sm">+ Add Set</Text>
+                            </Pressable>
+                        </View>
+                    )}
+
+                    {/* ── + Add Exercise button ──────────────────── */}
+                    <Pressable
+                        onPress={() => setIsPickerVisible(true)}
+                        className="mt-2 mb-4 border border-[#FF6000] rounded-full py-2.5 items-center active:opacity-70"
+                    >
+                        <Text className="text-[#FF6000] font-bold text-sm">+ Add Exercise</Text>
+                    </Pressable>
+
+                    {/* ── SECTION 4 — NEXT EXERCISE ─────────────── */}
+                    {nextLog && (
                         <Pressable
-                            onPress={() => addEmptySets(currentLog.id, 1)}
-                            className="mt-2 border border-[#FF6000] rounded-full py-2.5 items-center active:opacity-70"
+                            onPress={handleNextExercise}
+                            className="flex-row items-center justify-center py-3 mb-2 active:opacity-70"
                         >
-                            <Text className="text-[#FF6000] font-bold text-sm">
-                                + Add Set
+                            <Text className="text-[#8E8E93] text-sm">
+                                Next: {exerciseMap[nextLog.exerciseId]?.name ?? nextLog.exerciseId}{' '}
                             </Text>
+                            <Ionicons name="chevron-forward" size={14} color="#8E8E93" />
+                            <Ionicons name="chevron-forward" size={14} color="#8E8E93" style={{ marginLeft: -6 }} />
                         </Pressable>
-                    </View>
-                )}
+                    )}
+                </ScrollView>
 
-                {/* ── + Add Exercise button ──────────────────── */}
-                <Pressable
-                    onPress={() => setIsPickerVisible(true)}
-                    className="mt-2 mb-4 border border-[#FF6000] rounded-full py-2.5 items-center active:opacity-70"
-                >
-                    <Text className="text-[#FF6000] font-bold text-sm">
-                        + Add Exercise
-                    </Text>
-                </Pressable>
-
-                {/* ── SECTION 4 — NEXT EXERCISE ─────────────── */}
-                {nextLog && (
+                {/* ── SECTION 5 — BOTTOM BUTTONS ────────────────── */}
+                <View style={styles.bottomBar} className="flex-row gap-3">
                     <Pressable
                         onPress={handleNextExercise}
-                        className="flex-row items-center justify-center py-3 mb-2 active:opacity-70"
+                        className="flex-1 bg-[#007AFF] rounded-full py-3.5 items-center active:opacity-80"
                     >
-                        <Text className="text-[#8E8E93] text-sm">
-                            Next: {exerciseMap[nextLog.exerciseId]?.name ?? nextLog.exerciseId}{' '}
-                        </Text>
-                        <Ionicons
-                            name="chevron-forward"
-                            size={14}
-                            color="#8E8E93"
-                        />
-                        <Ionicons
-                            name="chevron-forward"
-                            size={14}
-                            color="#8E8E93"
-                            style={{ marginLeft: -6 }}
-                        />
+                        <Text className="text-white font-bold text-base">Next Exercise</Text>
                     </Pressable>
-                )}
-            </ScrollView>
-
-            {/* ── SECTION 5 — BOTTOM BUTTONS ────────────────── */}
-            <View className="absolute bottom-0 left-0 right-0 bg-[#1A1A1A] px-4 pb-8 pt-3 flex-row gap-3">
-                <Pressable
-                    onPress={handleNextExercise}
-                    className="flex-1 bg-[#007AFF] rounded-full py-3.5 items-center active:opacity-80"
-                >
-                    <Text className="text-white font-bold text-base">
-                        Next Exercise
-                    </Text>
-                </Pressable>
-                <Pressable
-                    onPress={handleFinish}
-                    className="flex-1 bg-[#FF6000] rounded-full py-3.5 items-center active:opacity-80"
-                >
-                    <Text className="text-white font-bold text-base">
-                        Finish Workout
-                    </Text>
-                </Pressable>
-            </View>
+                    <Pressable
+                        onPress={handleFinish}
+                        className="flex-1 bg-[#FF6000] rounded-full py-3.5 items-center active:opacity-80"
+                    >
+                        <Text className="text-white font-bold text-base">Finish Workout</Text>
+                    </Pressable>
+                </View>
+            </SafeAreaView>
 
             {/* ── EXERCISE PICKER MODAL ──────────────────────── */}
             <ExercisePickerModal
@@ -445,6 +432,80 @@ export default function WorkoutScreen() {
                 onClose={() => setIsPickerVisible(false)}
                 onSelectExercise={handleExerciseSelect}
             />
-        </SafeAreaView>
+        </View>
     );
 }
+
+const styles = StyleSheet.create({
+    root: {
+        flex: 1,
+        backgroundColor: '#0A0A0A',
+    },
+    circle: {
+        position: 'absolute',
+        borderRadius: 999,
+    },
+    c1: {
+        top: -100,
+        right: -80,
+        width: 280,
+        height: 280,
+        backgroundColor: '#FF6000',
+        opacity: 0.35,
+    },
+    c2: {
+        top: 350,
+        left: -60,
+        width: 240,
+        height: 240,
+        backgroundColor: '#CC4400',
+        opacity: 0.25,
+    },
+    c3: {
+        bottom: 100,
+        right: -40,
+        width: 300,
+        height: 300,
+        backgroundColor: '#1A0A00',
+        opacity: 0.8,
+    },
+    iconBtn: {
+        width: 40,
+        height: 40,
+        borderRadius: 20,
+        backgroundColor: 'rgba(255,255,255,0.1)',
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    card: {
+        backgroundColor: 'rgba(255,255,255,0.07)',
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.08)',
+        borderRadius: 16,
+    },
+    workingBadge: {
+        backgroundColor: 'rgba(255,255,255,0.08)',
+        borderRadius: 999,
+        paddingHorizontal: 12,
+        paddingVertical: 4,
+    },
+    setInput: {
+        flex: 1,
+        backgroundColor: 'rgba(255,255,255,0.06)',
+        borderRadius: 8,
+        color: 'white',
+        textAlign: 'center',
+        paddingVertical: 8,
+        marginHorizontal: 4,
+    },
+    bottomBar: {
+        position: 'absolute',
+        bottom: 0,
+        left: 0,
+        right: 0,
+        backgroundColor: 'rgba(10,10,10,0.9)',
+        paddingHorizontal: 16,
+        paddingBottom: 32,
+        paddingTop: 12,
+    },
+});
