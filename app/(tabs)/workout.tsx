@@ -1,6 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import AnimatedBackground from '../../src/components/layout/AnimatedBackground';
 import { useEffect, useMemo, useState } from 'react';
 import {
     Pressable,
@@ -10,7 +9,8 @@ import {
     TextInput,
     View,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import AnimatedBackground from '../../src/components/layout/AnimatedBackground';
 
 import ExercisePickerModal from '../../src/components/workout/ExercisePickerModal';
 import { useProgressiveOverload } from '../../src/hooks/useProgressiveOverload';
@@ -62,6 +62,7 @@ export default function WorkoutScreen() {
 
     const { suggestion, fetchSuggestion } = useProgressiveOverload();
     const { targetRIR } = useUserStore();
+    const insets = useSafeAreaInsets();
 
     /* ── timer ────────────────────────────────────────────────── */
     const [elapsed, setElapsed] = useState<number>(0);
@@ -206,7 +207,7 @@ export default function WorkoutScreen() {
             <AnimatedBackground />
 
             {/* ── CONTENT ───────────────────────────────────── */}
-            <SafeAreaView style={{ flex: 1 }}>
+            <SafeAreaView edges={['top']} style={{ flex: 1, flexDirection: 'column' }}>
                 {/* ── SECTION 1 — TOP BAR ───────────────────────── */}
                 <View className="flex-row items-center justify-between px-4 py-3">
                     <Pressable
@@ -233,15 +234,15 @@ export default function WorkoutScreen() {
 
                 <ScrollView
                     className="flex-1"
-                    contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 128 }}
+                    contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 80 + insets.bottom }}
                     showsVerticalScrollIndicator={false}
                 >
                     {/* ── SECTION 2 — TIMER + VOLUME ────────────── */}
                     <View className="items-center mt-2 mb-6">
-                        <Text className="text-[#FF6000] text-5xl font-bold tracking-wider">
+                        <Text style={styles.timer}>
                             {formatTimer(elapsed)}
                         </Text>
-                        <Text className="text-white text-2xl font-bold mt-2">
+                        <Text style={styles.volume}>
                             {formatVolume(liveVolume)}
                         </Text>
                         <Text className="text-[#8E8E93] text-xs tracking-widest mt-1">
@@ -403,22 +404,23 @@ export default function WorkoutScreen() {
                     )}
                 </ScrollView>
 
-                {/* ── SECTION 5 — BOTTOM BUTTONS ────────────────── */}
-                <View style={styles.bottomBar} className="flex-row gap-3">
-                    <Pressable
-                        onPress={handleNextExercise}
-                        className="flex-1 bg-[#007AFF] rounded-full py-3.5 items-center active:opacity-80"
-                    >
-                        <Text className="text-white font-bold text-base">Next Exercise</Text>
-                    </Pressable>
-                    <Pressable
-                        onPress={handleFinish}
-                        className="flex-1 bg-[#FF6000] rounded-full py-3.5 items-center active:opacity-80"
-                    >
-                        <Text className="text-white font-bold text-base">Finish Workout</Text>
-                    </Pressable>
-                </View>
             </SafeAreaView>
+
+            {/* ── SECTION 5 — BOTTOM BUTTONS ────────────────── */}
+            <View style={[styles.bottomBar, { paddingBottom: insets.bottom + 16 }]}>
+                <Pressable
+                    onPress={handleNextExercise}
+                    className="flex-1 bg-[#007AFF] rounded-full py-3.5 items-center active:opacity-80"
+                >
+                    <Text className="text-white font-bold text-base">Next Exercise</Text>
+                </Pressable>
+                <Pressable
+                    onPress={handleFinish}
+                    className="flex-1 bg-[#FF6000] rounded-full py-3.5 items-center active:opacity-80"
+                >
+                    <Text className="text-white font-bold text-base">Finish Workout</Text>
+                </Pressable>
+            </View>
 
             {/* ── EXERCISE PICKER MODAL ──────────────────────── */}
             <ExercisePickerModal
@@ -466,12 +468,25 @@ const styles = StyleSheet.create({
     },
     bottomBar: {
         position: 'absolute',
-        bottom: 0,
+        bottom: 20,
         left: 0,
         right: 0,
-        backgroundColor: 'rgba(10,10,10,0.9)',
+        flexDirection: 'row',
+        gap: 12,
         paddingHorizontal: 16,
-        paddingBottom: 32,
         paddingTop: 12,
+        backgroundColor: 'transparent',
+    },
+    timer: {
+        fontSize: 56,
+        fontWeight: 'bold',
+        letterSpacing: 4,
+        color: '#FF6000',
+    },
+    volume: {
+        fontSize: 28,
+        fontWeight: 'bold',
+        color: 'white',
+        marginTop: 8,
     },
 });

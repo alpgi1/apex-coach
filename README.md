@@ -47,22 +47,30 @@ Apex Coach is built around RPE (Rate of Perceived Exertion) — the only metric 
 
 ```
 apex-coach/
-├── app/                    # Expo Router — file-based navigation
-│   ├── (tabs)/             # Tab screens: Dashboard, Workout, History
-│   └── workout/[sessionId] # Dynamic session detail route
+├── app/                        # Expo Router — file-based navigation
+│   ├── (tabs)/
+│   │   ├── _layout.tsx         # Tab bar (BlurView glass, active icon glow)
+│   │   ├── index.tsx           # Dashboard — last workout, recent sessions, start button
+│   │   ├── workout.tsx         # Active workout — timer, set editor, progressive overload
+│   │   ├── history.tsx         # Training history — expandable session cards
+│   │   ├── profile.tsx         # Profile — name, photo, preferences, templates
+│   │   └── records.tsx         # Personal records — Est. 1RM (Epley), best set per exercise
+│   ├── workout/[sessionId].tsx # Session detail view
+│   └── template/
+│       ├── create.tsx          # Create workout template
+│       └── [templateId].tsx    # Edit template
 │
 └── src/
     ├── components/
-    │   ├── ui/             # Atomic primitives: Button, Card, Badge
-    │   ├── workout/        # Domain components: RPESelector, SetLogger, ExerciseCard
-    │   └── layout/         # ScreenWrapper
-    ├── hooks/              # Business logic: useWorkoutSession, useProgressiveOverload
+    │   ├── workout/            # ExercisePickerModal, StartWorkoutModal, RPESelector
+    │   └── layout/             # AnimatedBackground (reusable mesh gradient), OnboardingModal
+    ├── hooks/                  # useWorkoutSession, useProgressiveOverload
     ├── services/
-    │   ├── storage/        # SQLite CRUD: workoutStorage, exerciseStorage, database
-    │   └── api/            # Axios client — points to Spring Boot (future)
-    ├── store/              # Zustand: workoutStore, userStore
-    ├── types/              # Strict interfaces: exercise, workout, api
-    └── utils/              # Pure functions: rpeCalculator, progressionLogic
+    │   ├── storage/            # SQLite CRUD: workoutStorage, exerciseStorage, templateStorage, database
+    │   └── api/                # HTTP client stub — Spring Boot (Phase 2)
+    ├── store/                  # Zustand: workoutStore, userStore (persisted via AsyncStorage)
+    ├── types/                  # Strict interfaces: exercise.types, workout.types, api.types
+    └── utils/                  # Pure functions: rpeCalculator (Epley), progressionLogic, formatters
 ```
 
 ---

@@ -1,17 +1,17 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect, useRouter } from 'expo-router';
-import AnimatedBackground from '../../src/components/layout/AnimatedBackground';
 import { useCallback, useState } from 'react';
 import {
-    ActivityIndicator,
-    Pressable,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  ActivityIndicator,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import AnimatedBackground from '../../src/components/layout/AnimatedBackground';
 
 import StartWorkoutModal from '../../src/components/workout/StartWorkoutModal';
 import { useWorkoutSession } from '../../src/hooks/useWorkoutSession';
@@ -115,7 +115,11 @@ export default function DashboardScreen() {
 
           {/* SECTION 2 — HERO CARD */}
           <View style={styles.card} className="p-4 w-full mb-6">
-            <View className="self-start bg-[#FF6000]/20 rounded-full px-2 py-1 mb-3">
+            <View className="self-start flex-row items-center bg-[#FF6000]/20 border border-[#FF6000]/40 rounded-full px-2 py-1 mb-3">
+              <View style={{
+                width: 6, height: 6, borderRadius: 3,
+                backgroundColor: '#FF6000', marginRight: 6
+              }} />
               <Text className="text-[#FF6000] text-[10px] font-bold tracking-widest uppercase">
                 Last Workout
               </Text>
@@ -135,19 +139,19 @@ export default function DashboardScreen() {
 
                 <View className="flex-row justify-between pr-4">
                   <View>
-                    <Text className="text-white text-xl font-bold">
+                    <Text style={{color:'#FF6000'}} className=" text-xl font-bold">
                       {lastWorkout.volumeKg.toLocaleString()}
                     </Text>
                     <Text style={styles.statLabel}>Total Volume</Text>
                   </View>
                   <View>
-                    <Text className="text-white text-xl font-bold">
+                    <Text style={{color:'#FF6000'}} className="text-xl font-bold">
                       {lastWorkout.averageRPE?.toFixed(1) || '-'}
                     </Text>
                     <Text style={styles.statLabel}>Avg RPE</Text>
                   </View>
                   <View>
-                    <Text className="text-white text-xl font-bold">
+                    <Text style={{color:'#FF6000'}} className="text-xl font-bold">
                       {lastWorkout.logs.reduce((total, log) => total + log.sets.length, 0)}
                     </Text>
                     <Text style={styles.statLabel}>Sets</Text>
@@ -231,72 +235,77 @@ export default function DashboardScreen() {
 }
 
 const styles = StyleSheet.create({
-    root: {
-        flex: 1,
-        backgroundColor: '#0A0A0A',
-    },
-    welcomeLabel: {
-        color: 'rgba(255,255,255,0.5)',
-        fontSize: 14,
-        fontWeight: '500',
-        marginBottom: 4,
-    },
-    iconBtn: {
-        width: 40,
-        height: 40,
-        borderRadius: 20,
-        backgroundColor: 'rgba(255,255,255,0.1)',
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    card: {
-        backgroundColor: 'rgba(255,255,255,0.07)',
-        borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.1)',
-        borderRadius: 20,
-    },
-    divider: {
-        height: 1,
-        backgroundColor: 'rgba(255,255,255,0.1)',
-    },
-    mutedText: {
-        color: 'rgba(255,255,255,0.5)',
-    },
-    statLabel: {
-        color: 'rgba(255,255,255,0.5)',
-        fontSize: 10,
-        fontWeight: '600',
-        textTransform: 'uppercase',
-        marginTop: 4,
-        letterSpacing: 0.5,
-    },
-    startButton: {
-        width: '100%',
-        backgroundColor: '#FF6000',
-        height: 56,
-        borderRadius: 999,
-        alignItems: 'center',
-        justifyContent: 'center',
-        flexDirection: 'row',
-        marginBottom: 40,
-        shadowColor: '#FF6000',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.4,
-        shadowRadius: 12,
-        elevation: 8,
-    },
-    sessionCard: {
-        backgroundColor: 'rgba(255,255,255,0.07)',
-        borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.1)',
-        borderRadius: 20,
-    },
-    sessionIcon: {
-        width: 44,
-        height: 44,
-        borderRadius: 22,
-        backgroundColor: 'rgba(255,96,0,0.15)',
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
+  root: {
+    flex: 1,
+    backgroundColor: '#0A0A0A',
+  },
+  welcomeLabel: {
+    color: 'rgba(255,255,255,0.5)',
+    fontSize: 14,
+    fontWeight: '500',
+    marginBottom: 4,
+  },
+  iconBtn: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: 'rgba(255,255,255,0.1)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  card: {
+    backgroundColor: 'rgba(255,255,255,0.07)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.1)',
+    borderRadius: 20,
+    borderTopColor: 'rgba(255,96,0,0.5)',  // üst kenar turuncu
+    borderTopWidth: 1,
+    borderLeftColor: 'rgba(255,255,255,0.1)',
+    borderRightColor: 'rgba(255,255,255,0.1)',
+    borderBottomColor: 'rgba(255,255,255,0.1)',
+  },
+  divider: {
+    height: 1,
+    backgroundColor: 'rgba(255,255,255,0.1)',
+  },
+  mutedText: {
+    color: 'rgba(255,255,255,0.5)',
+  },
+  statLabel: {
+    color: 'rgba(255,255,255,0.5)',
+    fontSize: 10,
+    fontWeight: '600',
+    textTransform: 'uppercase',
+    marginTop: 4,
+    letterSpacing: 0.5,
+  },
+  startButton: {
+    width: '100%',
+    backgroundColor: '#FF6000',
+    height: 56,
+    borderRadius: 999,
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexDirection: 'row',
+    marginBottom: 40,
+    shadowColor: '#FF6000',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.6,
+    shadowRadius: 20,
+    elevation: 12,
+  },
+  sessionCard: {
+    backgroundColor: 'rgba(255,255,255,0.07)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.1)',
+    borderRadius: 20,
+  },
+  sessionIcon: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: 'rgba(255,96,0,0.15)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
 });
