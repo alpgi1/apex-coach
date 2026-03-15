@@ -1,6 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
-import { BlurView } from 'expo-blur';
 import { useFocusEffect, useRouter } from 'expo-router';
+import AnimatedBackground from '../../src/components/layout/AnimatedBackground';
 import { useCallback, useState } from 'react';
 import {
     ActivityIndicator,
@@ -115,10 +115,7 @@ export default function HistoryScreen() {
     if (isLoading) {
         return (
             <View style={styles.root}>
-                <View style={[styles.circle, styles.c1]} />
-                <View style={[styles.circle, styles.c2]} />
-                <View style={[styles.circle, styles.c3]} />
-                <BlurView style={StyleSheet.absoluteFill} intensity={60} tint="dark" />
+                <AnimatedBackground />
                 <SafeAreaView style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
                     <ActivityIndicator size="large" color="#FF6000" />
                     <Text className="text-[#8E8E93] text-sm mt-3">Loading history...</Text>
@@ -131,10 +128,7 @@ export default function HistoryScreen() {
     if (history.length === 0) {
         return (
             <View style={styles.root}>
-                <View style={[styles.circle, styles.c1]} />
-                <View style={[styles.circle, styles.c2]} />
-                <View style={[styles.circle, styles.c3]} />
-                <BlurView style={StyleSheet.absoluteFill} intensity={60} tint="dark" />
+                <AnimatedBackground />
                 <SafeAreaView style={{ flex: 1, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 24 }}>
                     <Ionicons name="barbell-outline" size={64} color="#3A3A3C" />
                     <Text className="text-white text-xl font-bold mt-4 text-center">No workouts yet</Text>
@@ -148,10 +142,7 @@ export default function HistoryScreen() {
     return (
         <View style={styles.root}>
             {/* ── BACKGROUND MESH ───────────────────────────── */}
-            <View style={[styles.circle, styles.c1]} />
-            <View style={[styles.circle, styles.c2]} />
-            <View style={[styles.circle, styles.c3]} />
-            <BlurView style={StyleSheet.absoluteFill} intensity={60} tint="dark" />
+            <AnimatedBackground />
 
             {/* ── CONTENT ───────────────────────────────────── */}
             <SafeAreaView style={{ flex: 1 }}>
@@ -302,34 +293,6 @@ const styles = StyleSheet.create({
     root: {
         flex: 1,
         backgroundColor: '#0A0A0A',
-    },
-    circle: {
-        position: 'absolute',
-        borderRadius: 999,
-    },
-    c1: {
-        top: -100,
-        right: -80,
-        width: 280,
-        height: 280,
-        backgroundColor: '#FF6000',
-        opacity: 0.35,
-    },
-    c2: {
-        top: 350,
-        left: -60,
-        width: 240,
-        height: 240,
-        backgroundColor: '#CC4400',
-        opacity: 0.25,
-    },
-    c3: {
-        bottom: 100,
-        right: -40,
-        width: 300,
-        height: 300,
-        backgroundColor: '#1A0A00',
-        opacity: 0.8,
     },
     iconBtn: {
         width: 40,

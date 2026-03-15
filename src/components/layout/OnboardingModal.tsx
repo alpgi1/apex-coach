@@ -1,6 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
-import { BlurView } from 'expo-blur';
 import { useEffect, useState } from 'react';
+import AnimatedBackground from './AnimatedBackground';
 import { Modal, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import Animated, {
     useAnimatedStyle,
@@ -63,10 +63,7 @@ export default function OnboardingModal({ isVisible, onComplete }: Props) {
             <View style={styles.root}>
 
                 {/* ── BACKGROUND MESH ───────────────────────── */}
-                <View style={[styles.circle, styles.circle1]} />
-                <View style={[styles.circle, styles.circle2]} />
-                <View style={[styles.circle, styles.circle3]} />
-                <BlurView style={StyleSheet.absoluteFill} intensity={70} tint="dark" />
+                <AnimatedBackground />
 
                 {/* ── CONTENT ───────────────────────────────── */}
                 <Animated.View style={[styles.content, contentStyle]}>
@@ -123,34 +120,6 @@ const styles = StyleSheet.create({
     root: {
         flex: 1,
         backgroundColor: '#0A0A0A',
-    },
-    circle: {
-        position: 'absolute',
-        borderRadius: 999,
-    },
-    circle1: {
-        top: -50,
-        left: -80,
-        width: 320,
-        height: 320,
-        backgroundColor: '#FF6000',
-        opacity: 0.5,
-    },
-    circle2: {
-        top: 200,
-        right: -100,
-        width: 280,
-        height: 280,
-        backgroundColor: '#FF8C00',
-        opacity: 0.35,
-    },
-    circle3: {
-        bottom: 100,
-        left: 20,
-        width: 380,
-        height: 380,
-        backgroundColor: '#CC4400',
-        opacity: 0.3,
     },
     content: {
         flex: 1,

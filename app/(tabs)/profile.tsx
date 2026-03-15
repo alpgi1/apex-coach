@@ -1,6 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
-import { BlurView } from 'expo-blur';
 import * as ImagePicker from 'expo-image-picker';
+import AnimatedBackground from '../../src/components/layout/AnimatedBackground';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useRef, useState } from 'react';
 import {
@@ -114,10 +114,7 @@ export default function ProfileScreen() {
     return (
         <View style={styles.root}>
             {/* ── BACKGROUND MESH ───────────────────────────── */}
-            <View style={[styles.circle, styles.c1]} />
-            <View style={[styles.circle, styles.c2]} />
-            <View style={[styles.circle, styles.c3]} />
-            <BlurView style={StyleSheet.absoluteFill} intensity={80} tint="dark" />
+            <AnimatedBackground />
 
             {/* ── CONTENT ───────────────────────────────────── */}
             <SafeAreaView style={{ flex: 1 }}>
@@ -324,34 +321,6 @@ const styles = StyleSheet.create({
     root: {
         flex: 1,
         backgroundColor: '#0A0A0A',
-    },
-    circle: {
-        position: 'absolute',
-        borderRadius: 999,
-    },
-    c1: {
-        top: -80,
-        left: -60,
-        width: 300,
-        height: 300,
-        backgroundColor: '#4B0082',
-        opacity: 0.6,
-    },
-    c2: {
-        top: 300,
-        right: -80,
-        width: 260,
-        height: 260,
-        backgroundColor: '#1a0533',
-        opacity: 0.5,
-    },
-    c3: {
-        bottom: 200,
-        left: -40,
-        width: 320,
-        height: 320,
-        backgroundColor: '#FF6000',
-        opacity: 0.25,
     },
     scrollContent: {
         paddingHorizontal: 16,
