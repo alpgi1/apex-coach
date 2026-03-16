@@ -102,6 +102,12 @@ export const useWorkoutSession = () => {
         });
     };
 
+    const removeSet = (exerciseLogId: string, setId: string): void => {
+        const log = store.activeSession?.logs.find((l) => l.id === exerciseLogId);
+        if (!log || log.sets.length <= 1) return;
+        store.removeSet(exerciseLogId, setId);
+    };
+
     const updateSetValues = (
         exerciseLogId: string,
         setId: string,
@@ -135,5 +141,6 @@ export const useWorkoutSession = () => {
         logSet,
         completeSet,
         updateSetValues,
+        removeSet,
     };
 };

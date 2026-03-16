@@ -118,6 +118,10 @@ Phase 1 — Frontend MVP (current)
   ✅ Personal Records screen (Est. 1RM via Epley)
   ✅ Profile photo support
   ✅ RPE drum roll picker (iOS-style scroll picker with snap)
+  ✅ Set auto-complete (all 3 values filled → tick fires automatically)
+  ✅ Swipe-to-delete sets (react-native-gesture-handler ReanimatedSwipeable)
+  ✅ Finish workout confirmation modal (summary + animated BlurView sheet)
+  ✅ Redesigned bottom action bar (glass Next / glow Finish buttons)
   ⏳ Workout screen list view refactor (collapsed/expanded exercises)
 
 Phase 2 — Backend Integration

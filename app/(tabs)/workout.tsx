@@ -9,6 +9,14 @@ import {
     TextInput,
     View,
 } from 'react-native';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import ReanimatedSwipeable from 'react-native-gesture-handler/ReanimatedSwipeable';
+import Animated, {
+    type SharedValue,
+    useAnimatedStyle,
+    useSharedValue,
+    withTiming,
+} from 'react-native-reanimated';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import AnimatedBackground from '../../src/components/layout/AnimatedBackground';
 
@@ -40,6 +48,30 @@ interface SetRowDraft {
     rpe: string;
 }
 
+/* ──────────────────── swipe delete action ─────────────────────── */
+
+function RightSwipeAction({ drag }: { drag: SharedValue<number> }) {
+    const animStyle = useAnimatedStyle(() => ({
+        transform: [{ translateX: drag.value + 70 }],
+    }));
+
+    return (
+        <Animated.View
+            style={[
+                {
+                    width: 70,
+                    backgroundColor: '#FF3B30',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                },
+                animStyle,
+            ]}
+        >
+            <Ionicons name="trash-outline" size={22} color="white" />
+        </Animated.View>
+    );
+}
+
 /* ──────────────────────── main screen ─────────────────────────── */
 
 export default function WorkoutScreen() {
@@ -51,6 +83,7 @@ export default function WorkoutScreen() {
         addEmptySets,
         completeSet,
         updateSetValues,
+        removeSet,
         finishWorkout,
     } = useWorkoutSession();
 
@@ -120,6 +153,21 @@ export default function WorkoutScreen() {
         }));
     };
 
+    const tryAutoComplete = (
+        logId: string,
+        setId: string,
+        isAlreadyCompleted: boolean,
+        merged: SetRowDraft
+    ) => {
+        if (isAlreadyCompleted) return;
+        const w = parseFloat(merged.weight);
+        const r = parseInt(merged.reps, 10);
+        const rpe = parseFloat(merged.rpe);
+        if (!isNaN(w) && w > 0 && !isNaN(r) && r > 0 && !isNaN(rpe)) {
+            completeSet(logId, setId);
+        }
+    };
+
     /* ── load missing exercise metadata (e.g. from template) ─── */
     useEffect(() => {
         if (!activeSession) return;
@@ -163,7 +211,30 @@ export default function WorkoutScreen() {
         setExerciseMap((prev) => ({ ...prev, [exercise.id]: exercise }));
     };
 
+    const [isFinishModalVisible, setIsFinishModalVisible] = useState<boolean>(false);
+    const modalOpacity = useSharedValue(0);
+    const modalScale = useSharedValue(0.9);
+
+    const animatedOverlayStyle = useAnimatedStyle(() => ({
+        opacity: modalOpacity.value,
+    }));
+    const animatedCardStyle = useAnimatedStyle(() => ({
+        transform: [{ scale: modalScale.value }],
+        opacity: modalOpacity.value,
+    }));
+
+    useEffect(() => {
+        if (isFinishModalVisible) {
+            modalOpacity.value = withTiming(1, { duration: 200 });
+            modalScale.value = withTiming(1, { duration: 200 });
+        } else {
+            modalOpacity.value = withTiming(0, { duration: 150 });
+            modalScale.value = withTiming(0.9, { duration: 150 });
+        }
+    }, [isFinishModalVisible]);
+
     const handleFinish = async () => {
+        setIsFinishModalVisible(false);
         await finishWorkout();
         router.replace('/(tabs)');
     };
@@ -196,7 +267,7 @@ export default function WorkoutScreen() {
 
     /* ═══════════════════ ACTIVE SESSION UI ═══════════════════ */
     return (
-        <View style={styles.root}>
+        <GestureHandlerRootView style={styles.root}>
             {/* ── BACKGROUND MESH ───────────────────────────── */}
             <AnimatedBackground />
 
@@ -230,6 +301,7 @@ export default function WorkoutScreen() {
                     className="flex-1"
                     contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 80 + insets.bottom }}
                     showsVerticalScrollIndicator={false}
+                    onScrollBeginDrag={() => {}}
                 >
                     {/* ── SECTION 2 — TIMER + VOLUME ────────────── */}
                     <View className="items-center mt-2 mb-6">
@@ -284,79 +356,98 @@ export default function WorkoutScreen() {
                             {/* Inline editable set rows */}
                             {currentLog.sets.map((s) => {
                                 const draft = getDraft(s);
+                                const canDelete = currentLog.sets.length > 1;
                                 return (
-                                    <View
+                                    <ReanimatedSwipeable
                                         key={s.id}
-                                        className={`flex-row items-center py-2 px-1 border-b border-[#3A3A3C] ${s.isCompleted ? 'bg-green-500/5' : ''}`}
+                                        friction={2}
+                                        rightThreshold={40}
+                                        enabled={canDelete && !s.isCompleted}
+                                        onSwipeableOpen={() => {
+                                            removeSet(currentLog.id, s.id);
+                                        }}
+                                        renderRightActions={(_progress: SharedValue<number>, drag: SharedValue<number>) => (
+                                            <RightSwipeAction drag={drag} />
+                                        )}
+                                        overshootRight={false}
                                     >
-                                        <Text className={`w-10 font-bold ${s.isCompleted ? 'text-white' : 'text-[#FF6000]'}`}>
-                                            {s.setNumber}
-                                        </Text>
-                                        <TextInput
-                                            style={styles.setInput}
-                                            placeholder="kg"
-                                            placeholderTextColor="#8E8E93"
-                                            keyboardType="numeric"
-                                            value={draft.weight}
-                                            onChangeText={(v) => {
-                                                updateDraft(s.id, 'weight', v);
-                                                const w = parseFloat(v);
-                                                const r = parseInt(draft.reps, 10);
-                                                if (!isNaN(w) && !isNaN(r)) {
-                                                    const rpe = parseFloat(draft.rpe);
-                                                    updateSetValues(currentLog.id, s.id, w, r, isNaN(rpe) ? undefined : rpe);
-                                                }
-                                            }}
-                                        />
-                                        <TextInput
-                                            style={styles.setInput}
-                                            placeholder="reps"
-                                            placeholderTextColor="#8E8E93"
-                                            keyboardType="numeric"
-                                            value={draft.reps}
-                                            onChangeText={(v) => {
-                                                updateDraft(s.id, 'reps', v);
-                                                const w = parseFloat(draft.weight);
-                                                const r = parseInt(v, 10);
-                                                if (!isNaN(w) && !isNaN(r)) {
-                                                    const rpe = parseFloat(draft.rpe);
-                                                    updateSetValues(currentLog.id, s.id, w, r, isNaN(rpe) ? undefined : rpe);
-                                                }
-                                            }}
-                                        />
-                                        <RPESelector
-                                            value={draft.rpe ? parseFloat(draft.rpe) : s.rpe}
-                                            onChange={(rpe) => {
-                                                updateDraft(s.id, 'rpe', String(rpe));
-                                                const w = parseFloat(draft.weight);
-                                                const r = parseInt(draft.reps, 10);
-                                                if (!isNaN(w) && !isNaN(r)) {
-                                                    updateSetValues(currentLog.id, s.id, w, r, rpe);
-                                                }
-                                            }}
-                                            disabled={s.isCompleted}
-                                        />
-                                        <Pressable
-                                            onPress={() => {
-                                                if (!s.isCompleted) {
-                                                    const w = parseFloat(draft.weight);
+                                        <View
+                                            className={`flex-row items-center py-2 px-1 border-b border-[#3A3A3C] ${s.isCompleted ? 'bg-green-500/5' : ''}`}
+                                            style={{ backgroundColor: 'transparent' }}
+                                        >
+                                            <Text className={`w-10 font-bold ${s.isCompleted ? 'text-white' : 'text-[#FF6000]'}`}>
+                                                {s.setNumber}
+                                            </Text>
+                                            <TextInput
+                                                style={styles.setInput}
+                                                placeholder="kg"
+                                                placeholderTextColor="#8E8E93"
+                                                keyboardType="numeric"
+                                                value={draft.weight}
+                                                onChangeText={(v) => {
+                                                    updateDraft(s.id, 'weight', v);
+                                                    const w = parseFloat(v);
                                                     const r = parseInt(draft.reps, 10);
                                                     if (!isNaN(w) && !isNaN(r)) {
                                                         const rpe = parseFloat(draft.rpe);
                                                         updateSetValues(currentLog.id, s.id, w, r, isNaN(rpe) ? undefined : rpe);
                                                     }
-                                                }
-                                                completeSet(currentLog.id, s.id);
-                                            }}
-                                            className="w-10 items-center"
-                                        >
-                                            <View className={`w-7 h-7 rounded-full items-center justify-center ${s.isCompleted ? 'bg-[#FF6000]' : 'border-2 border-[#3A3A3C]'}`}>
-                                                {s.isCompleted && (
-                                                    <Ionicons name="checkmark" size={16} color="#FFFFFF" />
-                                                )}
-                                            </View>
-                                        </Pressable>
-                                    </View>
+                                                    tryAutoComplete(currentLog.id, s.id, s.isCompleted, { ...draft, weight: v });
+                                                }}
+                                            />
+                                            <TextInput
+                                                style={styles.setInput}
+                                                placeholder="reps"
+                                                placeholderTextColor="#8E8E93"
+                                                keyboardType="numeric"
+                                                value={draft.reps}
+                                                onChangeText={(v) => {
+                                                    updateDraft(s.id, 'reps', v);
+                                                    const w = parseFloat(draft.weight);
+                                                    const r = parseInt(v, 10);
+                                                    if (!isNaN(w) && !isNaN(r)) {
+                                                        const rpe = parseFloat(draft.rpe);
+                                                        updateSetValues(currentLog.id, s.id, w, r, isNaN(rpe) ? undefined : rpe);
+                                                    }
+                                                    tryAutoComplete(currentLog.id, s.id, s.isCompleted, { ...draft, reps: v });
+                                                }}
+                                            />
+                                            <RPESelector
+                                                value={draft.rpe ? parseFloat(draft.rpe) : s.rpe}
+                                                onChange={(rpe) => {
+                                                    const rpeStr = String(rpe);
+                                                    updateDraft(s.id, 'rpe', rpeStr);
+                                                    const w = parseFloat(draft.weight);
+                                                    const r = parseInt(draft.reps, 10);
+                                                    if (!isNaN(w) && !isNaN(r)) {
+                                                        updateSetValues(currentLog.id, s.id, w, r, rpe);
+                                                    }
+                                                    tryAutoComplete(currentLog.id, s.id, s.isCompleted, { ...draft, rpe: rpeStr });
+                                                }}
+                                                disabled={s.isCompleted}
+                                            />
+                                            <Pressable
+                                                onPress={() => {
+                                                    if (!s.isCompleted) {
+                                                        const w = parseFloat(draft.weight);
+                                                        const r = parseInt(draft.reps, 10);
+                                                        if (!isNaN(w) && !isNaN(r)) {
+                                                            const rpe = parseFloat(draft.rpe);
+                                                            updateSetValues(currentLog.id, s.id, w, r, isNaN(rpe) ? undefined : rpe);
+                                                        }
+                                                    }
+                                                    completeSet(currentLog.id, s.id);
+                                                }}
+                                                className="w-10 items-center"
+                                            >
+                                                <View className={`w-7 h-7 rounded-full items-center justify-center ${s.isCompleted ? 'bg-[#FF6000]' : 'border-2 border-[#3A3A3C]'}`}>
+                                                    {s.isCompleted && (
+                                                        <Ionicons name="checkmark" size={16} color="#FFFFFF" />
+                                                    )}
+                                                </View>
+                                            </Pressable>
+                                        </View>
+                                    </ReanimatedSwipeable>
                                 );
                             })}
 
@@ -399,17 +490,57 @@ export default function WorkoutScreen() {
             <View style={[styles.bottomBar, { paddingBottom: insets.bottom + 16 }]}>
                 <Pressable
                     onPress={handleNextExercise}
-                    className="flex-1 bg-[#007AFF] rounded-full py-3.5 items-center active:opacity-80"
+                    style={styles.nextBtn}
+                    className="flex-1 active:opacity-70"
                 >
                     <Text className="text-white font-bold text-base">Next Exercise</Text>
+                    <Ionicons name="arrow-forward" size={18} color="white" style={{ marginLeft: 6 }} />
                 </Pressable>
                 <Pressable
-                    onPress={handleFinish}
-                    className="flex-1 bg-[#FF6000] rounded-full py-3.5 items-center active:opacity-80"
+                    onPress={() => setIsFinishModalVisible(true)}
+                    style={styles.finishBtn}
+                    className="flex-1 active:opacity-80"
                 >
-                    <Text className="text-white font-bold text-base">Finish Workout</Text>
+                    <Ionicons name="checkmark-circle-outline" size={18} color="white" style={{ marginRight: 6 }} />
+                    <Text className="text-white font-bold text-base">Finish</Text>
                 </Pressable>
             </View>
+
+            {/* ── FINISH CONFIRMATION MODAL ──────────────────── */}
+            {isFinishModalVisible && (
+                <Animated.View style={[StyleSheet.absoluteFill, styles.modalOverlay, animatedOverlayStyle]}>
+                    <Animated.View style={[styles.modalCard, animatedCardStyle]}>
+                        <Ionicons name="flag" size={32} color="#FF6000" style={{ marginBottom: 12 }} />
+                        <Text className="text-white text-xl font-bold mb-1">Antrenmanı Bitir?</Text>
+                        <Text className="text-[#8E8E93] text-sm mb-1">{activeSession?.name}</Text>
+                        <View className="flex-row gap-6 mt-2 mb-6">
+                            <View className="items-center">
+                                <Text className="text-[#FF6000] text-lg font-bold">{formatTimer(elapsed)}</Text>
+                                <Text className="text-[#8E8E93] text-xs mt-0.5">Süre</Text>
+                            </View>
+                            <View className="items-center">
+                                <Text className="text-[#FF6000] text-lg font-bold">{formatVolume(liveVolume)}</Text>
+                                <Text className="text-[#8E8E93] text-xs mt-0.5">Toplam Hacim</Text>
+                            </View>
+                        </View>
+                        <Pressable
+                            onPress={handleFinish}
+                            style={styles.finishBtn}
+                            className="w-full active:opacity-80 mb-3"
+                        >
+                            <Ionicons name="checkmark-circle-outline" size={18} color="white" style={{ marginRight: 6 }} />
+                            <Text className="text-white font-bold text-base">Bitir</Text>
+                        </Pressable>
+                        <Pressable
+                            onPress={() => setIsFinishModalVisible(false)}
+                            style={styles.continueBtn}
+                            className="w-full active:opacity-70"
+                        >
+                            <Text className="text-white font-semibold text-base">Devam Et</Text>
+                        </Pressable>
+                    </Animated.View>
+                </Animated.View>
+            )}
 
             {/* ── EXERCISE PICKER MODAL ──────────────────────── */}
             <ExercisePickerModal
@@ -417,7 +548,7 @@ export default function WorkoutScreen() {
                 onClose={() => setIsPickerVisible(false)}
                 onSelectExercise={handleExerciseSelect}
             />
-        </View>
+        </GestureHandlerRootView>
     );
 }
 
@@ -477,5 +608,53 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         color: 'white',
         marginTop: 8,
+    },
+    nextBtn: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderRadius: 999,
+        paddingVertical: 14,
+        backgroundColor: 'rgba(255,255,255,0.1)',
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.18)',
+    },
+    finishBtn: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderRadius: 999,
+        paddingVertical: 14,
+        backgroundColor: '#FF6000',
+        shadowColor: '#FF6000',
+        shadowOffset: { width: 0, height: 0 },
+        shadowOpacity: 0.45,
+        shadowRadius: 14,
+        elevation: 8,
+    },
+    continueBtn: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderRadius: 999,
+        paddingVertical: 14,
+        backgroundColor: 'rgba(255,255,255,0.1)',
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.18)',
+    },
+    modalOverlay: {
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'rgba(0,0,0,0.65)',
+        zIndex: 99,
+    },
+    modalCard: {
+        width: '82%',
+        backgroundColor: 'rgba(28,28,30,0.95)',
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.1)',
+        borderRadius: 24,
+        padding: 28,
+        alignItems: 'center',
     },
 });

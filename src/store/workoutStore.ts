@@ -11,6 +11,7 @@ interface WorkoutStoreState {
     addExerciseLog: (log: ExerciseLog) => void;
     addSet: (exerciseLogId: string, set: WorkoutSet) => void;
     updateSet: (exerciseLogId: string, set: WorkoutSet) => void;
+    removeSet: (exerciseLogId: string, setId: string) => void;
 }
 
 export const useWorkoutStore = create<WorkoutStoreState>((set) => ({
@@ -102,6 +103,22 @@ export const useWorkoutStore = create<WorkoutStoreState>((set) => ({
                     logs: updatedLogs,
                 },
             };
+        });
+    },
+
+    removeSet: (exerciseLogId: string, setId: string) => {
+        set((state) => {
+            if (!state.activeSession) return state;
+
+            const updatedLogs = state.activeSession.logs.map((log) => {
+                if (log.id !== exerciseLogId) return log;
+                const filtered = log.sets
+                    .filter((s) => s.id !== setId)
+                    .map((s, idx) => ({ ...s, setNumber: idx + 1 }));
+                return { ...log, sets: filtered };
+            });
+
+            return { activeSession: { ...state.activeSession, logs: updatedLogs } };
         });
     },
 
