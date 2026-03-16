@@ -117,8 +117,8 @@ Phase 1 — Frontend MVP (current)
   ✅ Template-based workout start
   ✅ Personal Records screen (Est. 1RM via Epley)
   ✅ Profile photo support
-  ⏳ RPESelector component (drum roll)
-  ⏳ Workout screen list view refactor
+  ✅ RPE drum roll picker (iOS-style scroll picker with snap)
+  ⏳ Workout screen list view refactor (collapsed/expanded exercises)
 
 Phase 2 — Backend Integration
   ☐ Java 21 Spring Boot REST API

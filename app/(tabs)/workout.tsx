@@ -13,6 +13,7 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import AnimatedBackground from '../../src/components/layout/AnimatedBackground';
 
 import ExercisePickerModal from '../../src/components/workout/ExercisePickerModal';
+import RPESelector from '../../src/components/workout/RPESelector';
 import { useProgressiveOverload } from '../../src/hooks/useProgressiveOverload';
 import { useWorkoutSession } from '../../src/hooks/useWorkoutSession';
 import { getExerciseById } from '../../src/services/storage/exerciseStorage';
@@ -30,13 +31,6 @@ const formatTimer = (totalSeconds: number): string => {
 
 const formatVolume = (kg: number): string =>
     kg >= 1000 ? `${(kg / 1000).toFixed(1)}k kg` : `${kg.toLocaleString()} kg`;
-
-const rpeColor = (rpe: number | undefined): string => {
-    if (rpe === undefined) return 'text-white';
-    if (rpe <= 7) return 'text-green-400';
-    if (rpe <= 8.5) return 'text-yellow-400';
-    return 'text-red-400';
-};
 
 /* ──────────────────────── set-input row ────────────────────────── */
 
@@ -330,22 +324,17 @@ export default function WorkoutScreen() {
                                                 }
                                             }}
                                         />
-                                        <TextInput
-                                            style={[styles.setInput, { color: s.rpe === undefined ? 'white' : s.rpe <= 7 ? '#4ade80' : s.rpe <= 8.5 ? '#facc15' : '#f87171' }]}
-                                            className={`flex-1 rounded-lg text-center py-2 mx-1 ${rpeColor(s.rpe)}`}
-                                            placeholder="rpe"
-                                            placeholderTextColor="#8E8E93"
-                                            keyboardType="numeric"
-                                            value={draft.rpe}
-                                            onChangeText={(v) => {
-                                                updateDraft(s.id, 'rpe', v);
+                                        <RPESelector
+                                            value={draft.rpe ? parseFloat(draft.rpe) : s.rpe}
+                                            onChange={(rpe) => {
+                                                updateDraft(s.id, 'rpe', String(rpe));
                                                 const w = parseFloat(draft.weight);
                                                 const r = parseInt(draft.reps, 10);
                                                 if (!isNaN(w) && !isNaN(r)) {
-                                                    const rpe = parseFloat(v);
-                                                    updateSetValues(currentLog.id, s.id, w, r, isNaN(rpe) ? undefined : rpe);
+                                                    updateSetValues(currentLog.id, s.id, w, r, rpe);
                                                 }
                                             }}
+                                            disabled={s.isCompleted}
                                         />
                                         <Pressable
                                             onPress={() => {
