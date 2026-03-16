@@ -511,16 +511,16 @@ export default function WorkoutScreen() {
                 <Animated.View style={[StyleSheet.absoluteFill, styles.modalOverlay, animatedOverlayStyle]}>
                     <Animated.View style={[styles.modalCard, animatedCardStyle]}>
                         <Ionicons name="flag" size={32} color="#FF6000" style={{ marginBottom: 12 }} />
-                        <Text className="text-white text-xl font-bold mb-1">Antrenmanı Bitir?</Text>
+                        <Text className="text-white text-xl font-bold mb-1">Finish Workout?</Text>
                         <Text className="text-[#8E8E93] text-sm mb-1">{activeSession?.name}</Text>
                         <View className="flex-row gap-6 mt-2 mb-6">
                             <View className="items-center">
                                 <Text className="text-[#FF6000] text-lg font-bold">{formatTimer(elapsed)}</Text>
-                                <Text className="text-[#8E8E93] text-xs mt-0.5">Süre</Text>
+                                <Text className="text-[#8E8E93] text-xs mt-0.5">Time</Text>
                             </View>
                             <View className="items-center">
                                 <Text className="text-[#FF6000] text-lg font-bold">{formatVolume(liveVolume)}</Text>
-                                <Text className="text-[#8E8E93] text-xs mt-0.5">Toplam Hacim</Text>
+                                <Text className="text-[#8E8E93] text-xs mt-0.5">Total Volume</Text>
                             </View>
                         </View>
                         <Pressable
@@ -529,14 +529,14 @@ export default function WorkoutScreen() {
                             className="w-full active:opacity-80 mb-3"
                         >
                             <Ionicons name="checkmark-circle-outline" size={18} color="white" style={{ marginRight: 6 }} />
-                            <Text className="text-white font-bold text-base">Bitir</Text>
+                            <Text className="text-white font-bold text-base">Finish</Text>
                         </Pressable>
                         <Pressable
                             onPress={() => setIsFinishModalVisible(false)}
                             style={styles.continueBtn}
                             className="w-full active:opacity-70"
                         >
-                            <Text className="text-white font-semibold text-base">Devam Et</Text>
+                            <Text className="text-white font-semibold text-base">Continue</Text>
                         </Pressable>
                     </Animated.View>
                 </Animated.View>

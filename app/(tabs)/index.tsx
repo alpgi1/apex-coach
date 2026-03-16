@@ -1,6 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect, useRouter } from 'expo-router';
-import { useCallback, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
   Pressable,
@@ -18,6 +18,34 @@ import { useWorkoutSession } from '../../src/hooks/useWorkoutSession';
 import { getWorkoutHistory } from '../../src/services/storage/workoutStorage';
 import { useUserStore } from '../../src/store/userStore';
 import { WorkoutSession, WorkoutTemplate } from '../../src/types/workout.types';
+
+/* ────────────────────── week calendar helpers ────────────────────── */
+
+const DAY_NAMES = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+
+const getWeekDays = (): Date[] => {
+  const now = new Date();
+  const dayOfWeek = now.getDay(); // 0=Sun, 1=Mon...
+  const mondayOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+  const monday = new Date(now.getFullYear(), now.getMonth(), now.getDate() + mondayOffset);
+  return Array.from({ length: 7 }, (_, i) => {
+    const d = new Date(monday);
+    d.setDate(monday.getDate() + i);
+    return d;
+  });
+};
+
+const isSameDay = (a: Date, b: Date): boolean =>
+  a.getFullYear() === b.getFullYear() &&
+  a.getMonth() === b.getMonth() &&
+  a.getDate() === b.getDate();
+
+const isToday = (d: Date): boolean => isSameDay(d, new Date());
+
+const hasWorkoutOnDate = (date: Date, sessions: WorkoutSession[]): boolean =>
+  sessions.some((s) => isSameDay(new Date(s.startTime), date));
+
+/* ──────────────────────── main screen ────────────────────────────── */
 
 export default function DashboardScreen() {
   const router = useRouter();
@@ -58,6 +86,8 @@ export default function DashboardScreen() {
 
   const lastWorkout = history.length > 0 ? history[0] : null;
   const recentSessions = history.slice(0, 3);
+  const weekDays = useMemo(() => getWeekDays(), []);
+  const now = useMemo(() => new Date(), []);
 
   const getRpeColor = (rpe: number | null): string => {
     if (!rpe) return 'bg-gray-500';
@@ -111,6 +141,36 @@ export default function DashboardScreen() {
             <TouchableOpacity style={styles.iconBtn}>
               <Ionicons name="settings-outline" size={20} color="#FFFFFF" />
             </TouchableOpacity>
+          </View>
+
+          {/* SECTION 1.5 — WEEKLY CALENDAR */}
+          <View style={styles.weekCard} className="flex-row justify-between px-3 py-3 mb-4">
+            {weekDays.map((day, idx) => {
+              const today = isToday(day);
+              const worked = hasWorkoutOnDate(day, history);
+              const isPast = day < now && !today;
+              return (
+                <View key={idx} className="items-center flex-1">
+                  <Text className={`text-[10px] font-semibold mb-1 ${today ? 'text-[#FF6000]' : isPast ? 'text-white/35' : 'text-white/50'}`}>
+                    {DAY_NAMES[idx]}
+                  </Text>
+                  {today ? (
+                    <View style={styles.todayCircle}>
+                      <Text className="text-white text-sm font-bold">{day.getDate()}</Text>
+                    </View>
+                  ) : (
+                    <Text className={`text-sm font-semibold ${isPast ? 'text-white/35' : 'text-white/50'}`}>
+                      {day.getDate()}
+                    </Text>
+                  )}
+                  {worked ? (
+                    <View style={styles.workoutDot} />
+                  ) : (
+                    <View style={{ width: 6, height: 6, marginTop: 4 }} />
+                  )}
+                </View>
+              );
+            })}
           </View>
 
           {/* SECTION 2 — HERO CARD */}
@@ -307,5 +367,26 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255,96,0,0.15)',
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  weekCard: {
+    backgroundColor: 'rgba(255,255,255,0.07)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.1)',
+    borderRadius: 16,
+  },
+  todayCircle: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: '#FF6000',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  workoutDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: '#FF6000',
+    marginTop: 4,
   },
 });
