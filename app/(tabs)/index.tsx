@@ -237,7 +237,7 @@ export default function DashboardScreen() {
           {/* SECTION 4 — RECENT SESSIONS */}
           <View className="flex-row justify-between items-center mb-4">
             <Text className="text-white text-xl font-bold">Recent Sessions</Text>
-            <TouchableOpacity onPress={() => router.push('/history')}>
+            <TouchableOpacity onPress={() => router.push('/analyse')}>
               <Text className="text-[#FF6000] font-semibold">View All</Text>
             </TouchableOpacity>
           </View>

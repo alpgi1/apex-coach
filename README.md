@@ -39,6 +39,7 @@ Apex Coach is built around RPE (Rate of Perceived Exertion) — the only metric 
 | Local Database | SQLite via `expo-sqlite` |
 | State Management | Zustand |
 | Navigation | Expo Router (file-based) |
+| Charts | react-native-gifted-charts + react-native-svg (custom radar chart) |
 | Future Backend | Java 21 (Spring Boot) + PostgreSQL |
 
 ---
@@ -52,7 +53,7 @@ apex-coach/
 │   │   ├── _layout.tsx         # Tab bar (BlurView glass, active icon glow)
 │   │   ├── index.tsx           # Dashboard — last workout, recent sessions, start button
 │   │   ├── workout.tsx         # Active workout — timer, set editor, progressive overload
-│   │   ├── history.tsx         # Training history — expandable session cards
+│   │   ├── analyse.tsx         # Analyse tab — volume trend, muscle group split, history
 │   │   ├── profile.tsx         # Profile — name, photo, preferences, templates
 │   │   └── records.tsx         # Personal records — Est. 1RM (Epley), best set per exercise
 │   ├── workout/[sessionId].tsx # Session detail view
@@ -62,11 +63,13 @@ apex-coach/
 │
 └── src/
     ├── components/
-    │   ├── workout/            # ExercisePickerModal, StartWorkoutModal, RPESelector
+    │   ├── workout/            # ExercisePickerModal, StartWorkoutModal, RPESelector, ExerciseCard, CollapsedExerciseCard
+    │   ├── charts/             # SpiderChart (SVG radar), VolumeBarChart (gifted-charts)
     │   └── layout/             # AnimatedBackground (reusable mesh gradient), OnboardingModal
     ├── hooks/                  # useWorkoutSession, useProgressiveOverload
     ├── services/
     │   ├── storage/            # SQLite CRUD: workoutStorage, exerciseStorage, templateStorage, database
+    │   ├── analytics/          # computeAnalytics.ts — pure functions: weekly volume, muscle group split
     │   └── api/                # HTTP client stub — Spring Boot (Phase 2)
     ├── store/                  # Zustand: workoutStore, userStore (persisted via AsyncStorage)
     ├── types/                  # Strict interfaces: exercise.types, workout.types, api.types
@@ -122,7 +125,10 @@ Phase 1 — Frontend MVP (current)
   ✅ Swipe-to-delete sets (react-native-gesture-handler ReanimatedSwipeable)
   ✅ Finish workout confirmation modal (summary + animated BlurView sheet)
   ✅ Redesigned bottom action bar (glass Next / glow Finish buttons)
-  ⏳ Workout screen list view refactor (collapsed/expanded exercises)
+  ✅ Workout screen list view refactor (collapsed/expanded exercises)
+  ✅ Analyse tab — Volume Trend bar chart (8-week, react-native-gifted-charts)
+  ✅ Analyse tab — Muscle Group Split spider/radar chart (custom SVG, 6-axis)
+  ✅ History merged into Analyse tab (analytics above, history list below)
 
 Phase 2 — Backend Integration
   ☐ Java 21 Spring Boot REST API

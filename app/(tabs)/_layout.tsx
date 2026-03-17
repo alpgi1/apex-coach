@@ -69,11 +69,11 @@ export default function TabLayout() {
                 }}
             />
             <Tabs.Screen
-                name="history"
+                name="analyse"
                 options={{
-                    title: 'HISTORY',
+                    title: 'ANALYSE',
                     tabBarIcon: ({ color, size, focused }) => (
-                        <TabIcon name="time-outline" color={color} size={size} focused={focused} />
+                        <TabIcon name="analytics-outline" color={color} size={size} focused={focused} />
                     ),
                 }}
             />
