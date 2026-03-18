@@ -1,0 +1,18 @@
+spring:
+  # ── Production DB (Supabase PostgreSQL) ────────────────
+  datasource:
+    url: ${DATABASE_URL}
+    username: ${DATABASE_USER}
+    password: ${DATABASE_PASSWORD}
+
+  jpa:
+    show-sql: false
+
+  # ── Flyway ─────────────────────────────────────────────
+  flyway:
+    baseline-on-migrate: false
+
+logging:
+  level:
+    com.apexcoach: INFO
+    org.hibernate.SQL: WARN

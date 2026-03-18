@@ -31,6 +31,8 @@ Apex Coach is built around RPE (Rate of Perceived Exertion) — the only metric 
 
 ## Tech Stack
 
+### Frontend
+
 | Layer | Technology |
 |---|---|
 | Framework | React Native + Expo Go |
@@ -40,7 +42,77 @@ Apex Coach is built around RPE (Rate of Perceived Exertion) — the only metric 
 | State Management | Zustand |
 | Navigation | Expo Router (file-based) |
 | Charts | react-native-gifted-charts + react-native-svg (custom radar chart) |
-| Future Backend | Java 21 (Spring Boot) + PostgreSQL |
+| Font | Outfit (Google Fonts) |
+
+### Backend
+
+| Layer | Technology |
+|---|---|
+| Framework | Spring Boot 4.0.3 |
+| Language | Java 21 |
+| Database | PostgreSQL 17 (Docker local / Supabase prod) |
+| ORM | Spring Data JPA + Hibernate 7 |
+| Migrations | Flyway |
+| Auth | Supabase Auth (JWT) + Spring Security |
+| Validation | Jakarta Bean Validation |
+| Deployment | Railway (Docker) |
+
+---
+
+## Architecture
+
+```
+┌──────────────────────┐        ┌──────────────────────┐
+│   React Native App   │  HTTP  │  Spring Boot 4 API   │
+│   (Expo / TypeScript) ├───────►│  (Java 21)           │
+│                      │  JSON  │                      │
+│  SQLite (offline)    │◄───────┤  PostgreSQL 17       │
+└──────────────────────┘        └──────────┬───────────┘
+                                           │
+                                ┌──────────▼───────────┐
+                                │   Supabase           │
+                                │   - Auth (JWT)       │
+                                │   - PostgreSQL (prod)│
+                                └──────────────────────┘
+```
+
+### Backend Architecture
+
+```
+com.apexcoach.api
+├── config/          # SecurityConfig, CorsConfig
+├── controller/      # REST endpoints (@RestController)
+├── service/         # Business logic
+├── repository/      # Spring Data JPA interfaces
+├── entity/          # JPA entities + enums
+├── dto/             # Request/Response records + validation
+├── mapper/          # Entity ↔ DTO mapping
+└── exception/       # @ControllerAdvice global error handling
+```
+
+### API Endpoints
+
+```
+POST   /api/v1/auth/register         Create user profile
+GET    /api/v1/users/me               Get own profile
+PUT    /api/v1/users/me               Update profile
+
+GET    /api/v1/exercises               List exercises
+GET    /api/v1/exercises/{id}          Exercise detail
+POST   /api/v1/exercises               Create custom exercise
+
+POST   /api/v1/workouts                Save workout session
+GET    /api/v1/workouts                History (paginated)
+GET    /api/v1/workouts/{id}           Session detail
+DELETE /api/v1/workouts/{id}           Delete session
+
+GET    /api/v1/templates               List templates
+POST   /api/v1/templates               Create template
+PUT    /api/v1/templates/{id}          Update template
+DELETE /api/v1/templates/{id}          Delete template
+
+GET    /api/v1/records/{exerciseId}    Personal record
+```
 
 ---
 
@@ -61,40 +133,76 @@ apex-coach/
 │       ├── create.tsx          # Create workout template
 │       └── [templateId].tsx    # Edit template
 │
-└── src/
-    ├── components/
-    │   ├── workout/            # ExercisePickerModal, StartWorkoutModal, RPESelector, ExerciseCard, CollapsedExerciseCard
-    │   ├── charts/             # SpiderChart (SVG radar), VolumeBarChart (gifted-charts)
-    │   └── layout/             # AnimatedBackground (reusable mesh gradient), OnboardingModal
-    ├── hooks/                  # useWorkoutSession, useProgressiveOverload
-    ├── services/
-    │   ├── storage/            # SQLite CRUD: workoutStorage, exerciseStorage, templateStorage, database
-    │   ├── analytics/          # computeAnalytics.ts — pure functions: weekly volume, muscle group split
-    │   └── api/                # HTTP client stub — Spring Boot (Phase 2)
-    ├── store/                  # Zustand: workoutStore, userStore (persisted via AsyncStorage)
-    ├── types/                  # Strict interfaces: exercise.types, workout.types, api.types
-    └── utils/                  # Pure functions: rpeCalculator (Epley), progressionLogic, formatters
+├── src/
+│   ├── components/
+│   │   ├── workout/            # ExercisePickerModal, StartWorkoutModal, RPESelector, ExerciseCard
+│   │   ├── charts/             # SpiderChart (SVG radar), VolumeBarChart (gifted-charts)
+│   │   └── layout/             # AnimatedBackground (reusable mesh gradient), OnboardingModal
+│   ├── hooks/                  # useWorkoutSession, useProgressiveOverload
+│   ├── services/
+│   │   ├── storage/            # SQLite CRUD: workoutStorage, exerciseStorage, templateStorage
+│   │   ├── analytics/          # computeAnalytics.ts — weekly volume, muscle group split
+│   │   └── api/                # HTTP client stub — Spring Boot (Phase 2)
+│   ├── store/                  # Zustand: workoutStore, userStore (persisted via AsyncStorage)
+│   ├── types/                  # Strict interfaces: exercise.types, workout.types, api.types
+│   └── utils/                  # rpeCalculator (Epley), progressionLogic, formatters
+│
+└── backend/                    # Spring Boot 4 API
+    ├── docker-compose.yml      # PostgreSQL 17 + pgAdmin (local dev)
+    ├── Dockerfile              # Production container (Railway)
+    ├── pom.xml                 # Maven — Spring Boot 4.0.3, Java 21
+    └── src/main/
+        ├── java/com/apexcoach/api/
+        │   ├── config/         # Security, CORS
+        │   ├── controller/     # REST controllers
+        │   ├── service/        # Business logic
+        │   ├── repository/     # JPA repositories
+        │   ├── entity/         # JPA entities + enums
+        │   ├── dto/            # Request/Response DTOs
+        │   ├── mapper/         # MapStruct mappers
+        │   └── exception/      # Global exception handler
+        └── resources/
+            ├── application.yml          # Base config
+            ├── application-dev.yml      # Local DB (Docker)
+            ├── application-prod.yml     # Supabase (env vars)
+            └── db/migration/            # Flyway SQL migrations
 ```
 
 ---
 
 ## Getting Started
 
+### Frontend
+
 **Prerequisites:** Node.js 18+, Expo Go app on your device or simulator.
 
 ```bash
-# Clone the repo
 git clone https://github.com/alpgi1/apex-coach.git
 cd apex-coach
-
-# Install dependencies
 npm install
-
-# Start the dev server
 npx expo start
 ```
 
 Scan the QR code with Expo Go (iOS) or the Camera app (Android).
+
+### Backend
+
+**Prerequisites:** Java 21+, Docker Desktop.
+
+```bash
+cd backend
+
+# Start PostgreSQL
+docker compose up -d
+
+# Run the API (dev profile)
+./mvnw spring-boot:run -Dspring-boot.run.profiles=dev
+
+# Health check
+curl http://localhost:8080/api/v1/health
+```
+
+**pgAdmin:** http://localhost:5050 (admin@apexcoach.com / admin)
 
 ---
 
@@ -126,18 +234,24 @@ Phase 1 — Frontend MVP (current)
   ✅ Finish workout confirmation modal (summary + animated BlurView sheet)
   ✅ Redesigned bottom action bar (glass Next / glow Finish buttons)
   ✅ Workout screen list view refactor (collapsed/expanded exercises)
-  ✅ Analyse tab — Volume Trend bar chart (8-week, react-native-gifted-charts)
-  ✅ Analyse tab — Muscle Group Split spider/radar chart (custom SVG, 6-axis)
-  ✅ History merged into Analyse tab (analytics above, history list below)
+  ✅ Analyse tab — Volume Trend bar chart + Muscle Group Split radar chart
+  ✅ UI polish — Outfit font, floating tab bar, card hierarchy, animations
 
-Phase 2 — Backend Integration
-  ☐ Java 21 Spring Boot REST API
-  ☐ PostgreSQL schema (mirrors SQLite)
-  ☐ Offline sync with conflict resolution
-  ☐ JWT authentication
+Phase 2 — Backend Integration (in progress)
+  ✅ Spring Boot 4.0.3 project scaffold
+  ✅ PostgreSQL schema (Flyway V1 — 8 tables)
+  ✅ Docker Compose (PostgreSQL 17 + pgAdmin)
+  ✅ Security + CORS + global exception handling
+  ☐ JPA entities + repositories
+  ☐ Exercise CRUD (Controller → Service → Repository)
+  ☐ Workout CRUD (nested save with logs + sets)
+  ☐ Supabase Auth JWT integration
+  ☐ DTO validation layer
+  ☐ Template + Personal Record endpoints
+  ☐ Railway deployment
 
 Phase 3 — AI Coach
-  ☐ LLM integration via Spring Boot
+  ☐ LLM integration via Spring Boot endpoint
   ☐ Natural language rationale for progression suggestions
   ☐ Fatigue pattern detection across training blocks
 ```
@@ -152,7 +266,8 @@ User logs set → RPESelector UI → useWorkoutSession hook
   → Zustand store update
   → UI re-renders
 
-[Phase 2] → workoutApi.ts → Spring Boot sync → PostgreSQL
+[Phase 2] → workoutApi.ts → Spring Boot API → PostgreSQL
+         ← JWT auth via Supabase
 ```
 
 ---
