@@ -127,7 +127,7 @@ export default function DashboardScreen() {
       <SafeAreaView style={{ flex: 1 }}>
         <ScrollView
           className="flex-1 px-4"
-          contentContainerStyle={{ paddingBottom: 40 }}
+          contentContainerStyle={{ paddingBottom: 110 }}
           showsVerticalScrollIndicator={false}
         >
           {/* SECTION 1 — HEADER */}

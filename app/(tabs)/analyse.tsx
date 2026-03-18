@@ -166,7 +166,7 @@ export default function AnalyseScreen() {
                             Muscle Group Split
                         </Text>
                         <View className="rounded-2xl border border-white/10 bg-white/[0.07] p-4 items-center">
-                            <SpiderChart data={muscleGroupSplit} size={260} />
+                            <SpiderChart data={muscleGroupSplit} />
                         </View>
                     </View>
 

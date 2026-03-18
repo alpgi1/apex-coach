@@ -324,7 +324,7 @@ const styles = StyleSheet.create({
     },
     scrollContent: {
         paddingHorizontal: 16,
-        paddingBottom: 40,
+        paddingBottom: 110,
     },
     /* avatar */
     avatar: {

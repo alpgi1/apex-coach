@@ -12,7 +12,7 @@ interface SpiderChartProps {
 
 export default function SpiderChart({
     data,
-    size = 260,
+    size = 320,
     rings = 4,
     fillColor = '#FF6000',
     fillOpacity = 0.25,
@@ -20,7 +20,7 @@ export default function SpiderChart({
 }: SpiderChartProps) {
     const cx = size / 2;
     const cy = size / 2;
-    const radius = size / 2 - 35; // padding for labels
+    const radius = size / 2 - 65; // padding for labels
     const sides = data.length;
 
     if (sides === 0) return null;
