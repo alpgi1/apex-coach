@@ -125,7 +125,7 @@ export default function AnalyseScreen() {
                 <AnimatedBackground />
                 <SafeAreaView style={{ flex: 1, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 24 }}>
                     <Ionicons name="analytics-outline" size={64} color="#3A3A3C" />
-                    <Text className="text-white text-xl font-bold mt-4 text-center">No data yet</Text>
+                    <Text className="text-white text-xl font-outfit-bold mt-4 text-center">No data yet</Text>
                     <Text className="text-[#8E8E93] text-sm mt-2 text-center">
                         Complete your first workout to see analytics here.
                     </Text>
@@ -147,12 +147,12 @@ export default function AnalyseScreen() {
                 >
                     {/* ── HEADER ───────────────────────────────────── */}
                     <View className="flex-row items-center justify-between px-5 pt-3 pb-4">
-                        <Text className="text-white text-2xl font-bold">Analyse</Text>
+                        <Text className="text-white text-2xl font-outfit-bold">Analyse</Text>
                     </View>
 
                     {/* ── VOLUME TREND ─────────────────────────────── */}
                     <View className="px-4 mb-4">
-                        <Text className="text-white text-base font-semibold mb-3 px-1">
+                        <Text className="text-white text-base font-outfit-semibold mb-3 px-1">
                             Volume Trend
                         </Text>
                         <View className="rounded-2xl border border-white/10 bg-white/[0.07] p-4">
@@ -162,7 +162,7 @@ export default function AnalyseScreen() {
 
                     {/* ── MUSCLE GROUP SPLIT ───────────────────────── */}
                     <View className="px-4 mb-6">
-                        <Text className="text-white text-base font-semibold mb-3 px-1">
+                        <Text className="text-white text-base font-outfit-semibold mb-3 px-1">
                             Muscle Group Split
                         </Text>
                         <View className="rounded-2xl border border-white/10 bg-white/[0.07] p-4 items-center">
@@ -175,7 +175,7 @@ export default function AnalyseScreen() {
 
                     {/* ── HISTORY HEADER ───────────────────────────── */}
                     <View className="px-5 mb-3">
-                        <Text className="text-white text-base font-semibold">
+                        <Text className="text-white text-base font-outfit-semibold">
                             Workout History
                         </Text>
                     </View>
@@ -206,7 +206,7 @@ export default function AnalyseScreen() {
                                                     {formatDate(session.startTime)}
                                                 </Text>
                                                 <View className="bg-[#FF6000]/15 rounded-full px-2.5 py-0.5">
-                                                    <Text className="text-[#FF6000] text-xs font-semibold">
+                                                    <Text className="text-[#FF6000] text-xs font-outfit-semibold">
                                                         {session.logs.length} exercise
                                                         {session.logs.length !== 1 ? 's' : ''}
                                                     </Text>
@@ -214,7 +214,7 @@ export default function AnalyseScreen() {
                                             </View>
 
                                             {/* Workout name */}
-                                            <Text className="text-white text-lg font-bold mb-2">
+                                            <Text className="text-white text-lg font-outfit-bold mb-2">
                                                 {session.name}
                                             </Text>
 
@@ -247,15 +247,15 @@ export default function AnalyseScreen() {
                                                 <View className="mt-4 border-t border-[#3A3A3C] pt-3">
                                                     {session.logs.map((log) => (
                                                         <View key={log.id} className="mb-4">
-                                                            <Text className="text-[#FF6000] font-bold text-base mb-2">
+                                                            <Text className="text-[#FF6000] font-outfit-bold text-base mb-2">
                                                                 {exerciseMap.get(log.exerciseId)?.name ?? log.exerciseId}
                                                             </Text>
 
                                                             <View className="flex-row mb-1 px-1">
-                                                                <Text className="text-[#8E8E93] text-xs font-semibold w-10">SET</Text>
-                                                                <Text className="text-[#8E8E93] text-xs font-semibold flex-1 text-center">WEIGHT</Text>
-                                                                <Text className="text-[#8E8E93] text-xs font-semibold flex-1 text-center">REPS</Text>
-                                                                <Text className="text-[#8E8E93] text-xs font-semibold flex-1 text-center">RPE</Text>
+                                                                <Text className="text-[#8E8E93] text-xs font-outfit-semibold w-10">SET</Text>
+                                                                <Text className="text-[#8E8E93] text-xs font-outfit-semibold flex-1 text-center">WEIGHT</Text>
+                                                                <Text className="text-[#8E8E93] text-xs font-outfit-semibold flex-1 text-center">REPS</Text>
+                                                                <Text className="text-[#8E8E93] text-xs font-outfit-semibold flex-1 text-center">RPE</Text>
                                                             </View>
 
                                                             {log.sets.map((s) => {
@@ -268,7 +268,7 @@ export default function AnalyseScreen() {
                                                                         <Text className="text-[#8E8E93] w-10 text-sm">{s.setNumber}</Text>
                                                                         <Text className="text-white flex-1 text-center text-sm">{s.weightKg} kg</Text>
                                                                         <Text className="text-white flex-1 text-center text-sm">{s.reps}</Text>
-                                                                        <Text className={`flex-1 text-center text-sm font-semibold ${rpeColor(s.rpe)}`}>
+                                                                        <Text className={`flex-1 text-center text-sm font-outfit-semibold ${rpeColor(s.rpe)}`}>
                                                                             {s.rpe ?? '-'}
                                                                         </Text>
                                                                     </View>
@@ -283,7 +283,7 @@ export default function AnalyseScreen() {
                                                     onPress={() => router.push(`/workout/${session.id}` as never)}
                                                     className="mt-4 border border-[#FF6000] rounded-full py-2.5 items-center flex-row justify-center active:opacity-70"
                                                 >
-                                                    <Text className="text-[#FF6000] font-bold text-sm mr-2">
+                                                    <Text className="text-[#FF6000] font-outfit-bold text-sm mr-2">
                                                         View Full Details
                                                     </Text>
                                                     <Ionicons name="arrow-forward" size={14} color="#FF6000" />

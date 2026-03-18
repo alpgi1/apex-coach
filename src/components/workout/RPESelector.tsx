@@ -171,7 +171,7 @@ export default function RPESelector({ value, onChange, disabled }: RPESelectorPr
                 >
                     {/* header */}
                     <View className="flex-row items-center justify-between mb-4">
-                        <Text className="text-white text-lg font-bold">Select RPE</Text>
+                        <Text className="text-white text-lg font-outfit-bold">Select RPE</Text>
                         <Pressable onPress={() => setIsOpen(false)}>
                             <Text className="text-[#8E8E93] text-sm">Cancel</Text>
                         </Pressable>
@@ -242,7 +242,7 @@ export default function RPESelector({ value, onChange, disabled }: RPESelectorPr
                         className="mt-5 rounded-full py-3.5 items-center active:opacity-80"
                         style={{ backgroundColor: getRpeColor(previewValue) }}
                     >
-                        <Text className="text-black font-bold text-base">
+                        <Text className="text-black font-outfit-bold text-base">
                             Select RPE {previewValue}
                         </Text>
                     </Pressable>

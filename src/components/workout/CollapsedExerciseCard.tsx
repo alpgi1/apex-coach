@@ -20,13 +20,13 @@ export default function CollapsedExerciseCard({ log, exerciseName, onExpand }: C
         >
             <View className="flex-row items-center flex-1 mr-3">
                 <Ionicons name="chevron-down" size={16} color="rgba(255,255,255,0.35)" style={{ marginRight: 8 }} />
-                <Text className="text-white font-bold text-base" numberOfLines={1}>
+                <Text className="text-white font-outfit-bold text-base" numberOfLines={1}>
                     {exerciseName}
                 </Text>
             </View>
 
             <View className="flex-row items-center">
-                <Text className="text-[#8E8E93] text-sm font-semibold mr-2">
+                <Text className="text-[#8E8E93] text-sm font-outfit-semibold mr-2">
                     {completedSets}/{totalSets} sets
                 </Text>
                 {allDone && (

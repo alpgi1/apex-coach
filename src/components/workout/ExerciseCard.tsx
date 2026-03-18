@@ -89,12 +89,12 @@ export default function ExerciseCard({
                 >
                     <View className="flex-row items-center flex-1 mr-2">
                         <Ionicons name="chevron-up" size={16} color="rgba(255,255,255,0.35)" style={{ marginRight: 8 }} />
-                        <Text className="text-white text-lg font-bold" numberOfLines={1}>
+                        <Text className="text-white text-lg font-outfit-bold" numberOfLines={1}>
                             {exerciseName}
                         </Text>
                     </View>
                     <View className="rounded-full px-3 py-1 bg-white/[0.08]">
-                        <Text className="text-[#8E8E93] text-xs font-semibold">
+                        <Text className="text-[#8E8E93] text-xs font-outfit-semibold">
                             WORKING
                         </Text>
                     </View>
@@ -103,7 +103,7 @@ export default function ExerciseCard({
                 {/* Progressive overload suggestion */}
                 {suggestion && suggestion.exerciseId === log.exerciseId && (
                     <View className="mb-3">
-                        <Text className="text-[#FF6000] text-sm font-semibold">
+                        <Text className="text-[#FF6000] text-sm font-outfit-semibold">
                             Suggested: {suggestion.suggestedWeightKg}kg x{' '}
                             {suggestion.suggestedRepsMin}-{suggestion.suggestedRepsMax} @ RPE {10 - targetRIR}
                         </Text>
@@ -115,11 +115,11 @@ export default function ExerciseCard({
 
                 {/* Set table header */}
                 <View className="flex-row items-center mb-2 px-1">
-                    <Text className="text-[#8E8E93] text-xs font-semibold w-10">SET</Text>
-                    <Text className="text-[#8E8E93] text-xs font-semibold flex-1 text-center">KG</Text>
-                    <Text className="text-[#8E8E93] text-xs font-semibold flex-1 text-center">REPS</Text>
-                    <Text className="text-[#8E8E93] text-xs font-semibold flex-1 text-center">RPE</Text>
-                    <Text className="text-[#8E8E93] text-xs font-semibold w-10 text-center">✓</Text>
+                    <Text className="text-[#8E8E93] text-xs font-outfit-semibold w-10">SET</Text>
+                    <Text className="text-[#8E8E93] text-xs font-outfit-semibold flex-1 text-center">KG</Text>
+                    <Text className="text-[#8E8E93] text-xs font-outfit-semibold flex-1 text-center">REPS</Text>
+                    <Text className="text-[#8E8E93] text-xs font-outfit-semibold flex-1 text-center">RPE</Text>
+                    <Text className="text-[#8E8E93] text-xs font-outfit-semibold w-10 text-center">✓</Text>
                 </View>
 
                 {/* Set rows */}
@@ -144,7 +144,7 @@ export default function ExerciseCard({
                                 className={`flex-row items-center py-2 px-1 border-b border-[#3A3A3C] ${s.isCompleted ? 'bg-green-500/5' : ''}`}
                                 style={{ backgroundColor: 'transparent' }}
                             >
-                                <Text className={`w-10 font-bold ${s.isCompleted ? 'text-white' : 'text-[#FF6000]'}`}>
+                                <Text className={`w-10 font-outfit-bold ${s.isCompleted ? 'text-white' : 'text-[#FF6000]'}`}>
                                     {s.setNumber}
                                 </Text>
                                 <TextInput
@@ -225,7 +225,7 @@ export default function ExerciseCard({
                     onPress={() => addEmptySets(log.id, 1)}
                     className="mt-2 border border-[#FF6000] rounded-full py-2.5 items-center active:opacity-70"
                 >
-                    <Text className="text-[#FF6000] font-bold text-sm">+ Add Set</Text>
+                    <Text className="text-[#FF6000] font-outfit-bold text-sm">+ Add Set</Text>
                 </Pressable>
             </View>
         </GestureHandlerRootView>

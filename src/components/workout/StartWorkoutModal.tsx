@@ -98,7 +98,7 @@ export default function StartWorkoutModal({ isVisible, onClose, onStart }: Props
 
                         <View className="px-5 pt-2">
                             {/* Header */}
-                            <Text className="text-white text-xl font-bold mb-1">
+                            <Text className="text-white text-xl font-outfit-bold mb-1">
                                 Start New Workout
                             </Text>
                             <Text className="text-[#8E8E93] text-sm mb-5">
@@ -124,7 +124,7 @@ export default function StartWorkoutModal({ isVisible, onClose, onStart }: Props
                             {/* My Templates — only if any exist */}
                             {templates.length > 0 && (
                                 <View className="mb-5">
-                                    <Text className="text-[#8E8E93] text-xs font-semibold mb-3 uppercase tracking-wider">
+                                    <Text className="text-[#8E8E93] text-xs font-outfit-semibold mb-3 uppercase tracking-wider">
                                         My Templates
                                     </Text>
                                     <ScrollView
@@ -142,7 +142,7 @@ export default function StartWorkoutModal({ isVisible, onClose, onStart }: Props
                                                         isSelected ? 'border border-[#FF6000]' : 'border border-transparent'
                                                     }`}
                                                 >
-                                                    <Text className="text-white text-sm font-bold">
+                                                    <Text className="text-white text-sm font-outfit-bold">
                                                         {template.name}
                                                     </Text>
                                                     <Text className="text-[#8E8E93] text-xs mt-0.5">
@@ -157,7 +157,7 @@ export default function StartWorkoutModal({ isVisible, onClose, onStart }: Props
                             )}
 
                             {/* Quick select */}
-                            <Text className="text-[#8E8E93] text-xs font-semibold mb-3 uppercase tracking-wider">
+                            <Text className="text-[#8E8E93] text-xs font-outfit-semibold mb-3 uppercase tracking-wider">
                                 Quick Select
                             </Text>
                             <View className="flex-row flex-wrap gap-2 mb-6">
@@ -193,7 +193,7 @@ export default function StartWorkoutModal({ isVisible, onClose, onStart }: Props
                                     onPress={handleClose}
                                     className="flex-1 bg-[#242424] rounded-full h-[52px] items-center justify-center active:opacity-70"
                                 >
-                                    <Text className="text-white text-base font-semibold">
+                                    <Text className="text-white text-base font-outfit-semibold">
                                         Cancel
                                     </Text>
                                 </Pressable>
@@ -205,10 +205,10 @@ export default function StartWorkoutModal({ isVisible, onClose, onStart }: Props
                                         !canStart ? 'opacity-50' : ''
                                     }`}
                                 >
-                                    <Text className="text-white text-base font-bold mr-1">
+                                    <Text className="text-white text-base font-outfit-bold mr-1">
                                         Start Workout
                                     </Text>
-                                    <Text className="text-white text-base font-bold">→</Text>
+                                    <Text className="text-white text-base font-outfit-bold">→</Text>
                                 </Pressable>
                             </View>
                         </View>

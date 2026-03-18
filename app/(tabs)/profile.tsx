@@ -259,7 +259,7 @@ export default function ProfileScreen() {
                                 className="flex-row items-center gap-1 active:opacity-70"
                             >
                                 <Ionicons name="add" size={16} color="#FF6000" />
-                                <Text className="text-[#FF6000] text-sm font-semibold">New</Text>
+                                <Text className="text-[#FF6000] text-sm font-outfit-semibold">New</Text>
                             </Pressable>
                         </View>
 
@@ -278,7 +278,7 @@ export default function ProfileScreen() {
                                         onPress={() => router.push(('/template/' + template.id) as never)}
                                         className="flex-1 active:opacity-70"
                                     >
-                                        <Text style={styles.rowLabel} className="font-semibold">
+                                        <Text style={styles.rowLabel} className="font-outfit-semibold">
                                             {template.name}
                                         </Text>
                                         <Text style={styles.rowMuted} className="mt-0.5 text-xs">

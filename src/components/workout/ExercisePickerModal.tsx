@@ -114,17 +114,17 @@ export default function ExercisePickerModal({
             className="flex-row items-center py-4 px-4 active:bg-[#2A2A2A]"
         >
             <View className="flex-1 mr-3">
-                <Text className="text-white text-base font-bold mb-1.5">
+                <Text className="text-white text-base font-outfit-bold mb-1.5">
                     {item.name}
                 </Text>
                 <View className="flex-row flex-wrap gap-2">
                     <View className="bg-[#3A3A3C] rounded-full px-2.5 py-0.5">
-                        <Text className="text-[#8E8E93] text-xs font-semibold">
+                        <Text className="text-[#8E8E93] text-xs font-outfit-semibold">
                             {formatLabel(item.primaryMuscleGroup)}
                         </Text>
                     </View>
                     <View className="bg-[#3A3A3C] rounded-full px-2.5 py-0.5">
-                        <Text className="text-[#8E8E93] text-xs font-semibold">
+                        <Text className="text-[#8E8E93] text-xs font-outfit-semibold">
                             {formatLabel(item.equipment)}
                         </Text>
                     </View>
@@ -162,7 +162,7 @@ export default function ExercisePickerModal({
 
                 {/* Header */}
                 <View className="flex-row items-center justify-between px-5 pb-3">
-                    <Text className="text-white text-xl font-bold">
+                    <Text className="text-white text-xl font-outfit-bold">
                         Add Exercise
                     </Text>
                     <Pressable

@@ -224,7 +224,7 @@ export default function WorkoutScreen() {
                 <AnimatedBackground />
                 <SafeAreaView style={{ flex: 1, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 24 }}>
                     <Ionicons name="barbell-outline" size={64} color="#8E8E93" />
-                    <Text className="text-white text-xl font-bold mt-4 text-center">
+                    <Text className="text-white text-xl font-outfit-bold mt-4 text-center">
                         No Active Session
                     </Text>
                     <Text className="text-[#8E8E93] text-sm mt-2 text-center">
@@ -234,7 +234,7 @@ export default function WorkoutScreen() {
                         onPress={() => router.replace('/(tabs)')}
                         className="mt-6 bg-[#FF6000] rounded-full px-8 py-3 active:opacity-80"
                     >
-                        <Text className="text-white font-bold text-base">
+                        <Text className="text-white font-outfit-bold text-base">
                             Go to Dashboard
                         </Text>
                     </Pressable>
@@ -262,7 +262,7 @@ export default function WorkoutScreen() {
                     </Pressable>
 
                     <View className="items-center">
-                        <Text className="text-white text-lg font-bold">
+                        <Text className="text-white text-lg font-outfit-bold">
                             {activeSession.name}
                         </Text>
                         <Text className="text-[#8E8E93] text-xs tracking-widest mt-0.5">
@@ -422,13 +422,13 @@ const styles = StyleSheet.create({
     },
     timer: {
         fontSize: 56,
-        fontWeight: 'bold',
+        fontFamily: 'Outfit_700Bold',
         letterSpacing: 4,
         color: '#FF6000',
     },
     volume: {
         fontSize: 28,
-        fontWeight: 'bold',
+        fontFamily: 'Outfit_700Bold',
         color: 'white',
         marginTop: 8,
     },

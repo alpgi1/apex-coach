@@ -134,7 +134,7 @@ export default function DashboardScreen() {
           <View className="flex-row justify-between items-center mt-6 mb-8">
             <View>
               <Text style={styles.welcomeLabel}>Welcome back</Text>
-              <Text className="text-white text-3xl font-bold">
+              <Text className="text-white text-3xl font-outfit-bold">
                 {name || 'Lifter'}
               </Text>
             </View>
@@ -151,15 +151,15 @@ export default function DashboardScreen() {
               const isPast = day < now && !today;
               return (
                 <View key={idx} className="items-center flex-1">
-                  <Text className={`text-[10px] font-semibold mb-1 ${today ? 'text-[#FF6000]' : isPast ? 'text-white/35' : 'text-white/50'}`}>
+                  <Text className={`text-[10px] font-outfit-semibold mb-1 ${today ? 'text-[#FF6000]' : isPast ? 'text-white/35' : 'text-white/50'}`}>
                     {DAY_NAMES[idx]}
                   </Text>
                   {today ? (
                     <View style={styles.todayCircle}>
-                      <Text className="text-white text-sm font-bold">{day.getDate()}</Text>
+                      <Text className="text-white text-sm font-outfit-bold">{day.getDate()}</Text>
                     </View>
                   ) : (
-                    <Text className={`text-sm font-semibold ${isPast ? 'text-white/35' : 'text-white/50'}`}>
+                    <Text className={`text-sm font-outfit-semibold ${isPast ? 'text-white/35' : 'text-white/50'}`}>
                       {day.getDate()}
                     </Text>
                   )}
@@ -180,14 +180,14 @@ export default function DashboardScreen() {
                 width: 6, height: 6, borderRadius: 3,
                 backgroundColor: '#FF6000', marginRight: 6
               }} />
-              <Text className="text-[#FF6000] text-[10px] font-bold tracking-widest uppercase">
+              <Text className="text-[#FF6000] text-[10px] font-outfit-bold tracking-widest uppercase">
                 Last Workout
               </Text>
             </View>
 
             {lastWorkout ? (
               <>
-                <Text className="text-white text-2xl font-bold mb-1">
+                <Text className="text-white text-2xl font-outfit-bold mb-1">
                   {lastWorkout.name}
                 </Text>
                 <Text style={styles.mutedText} className="text-sm mb-4">
@@ -199,19 +199,19 @@ export default function DashboardScreen() {
 
                 <View className="flex-row justify-between pr-4">
                   <View>
-                    <Text style={{color:'#FF6000'}} className=" text-xl font-bold">
+                    <Text style={{color:'#FF6000'}} className=" text-xl font-outfit-bold">
                       {lastWorkout.volumeKg.toLocaleString()}
                     </Text>
                     <Text style={styles.statLabel}>Total Volume</Text>
                   </View>
                   <View>
-                    <Text style={{color:'#FF6000'}} className="text-xl font-bold">
+                    <Text style={{color:'#FF6000'}} className="text-xl font-outfit-bold">
                       {lastWorkout.averageRPE?.toFixed(1) || '-'}
                     </Text>
                     <Text style={styles.statLabel}>Avg RPE</Text>
                   </View>
                   <View>
-                    <Text style={{color:'#FF6000'}} className="text-xl font-bold">
+                    <Text style={{color:'#FF6000'}} className="text-xl font-outfit-bold">
                       {lastWorkout.logs.reduce((total, log) => total + log.sets.length, 0)}
                     </Text>
                     <Text style={styles.statLabel}>Sets</Text>
@@ -231,14 +231,14 @@ export default function DashboardScreen() {
             onPress={() => setIsStartModalVisible(true)}
           >
             <Ionicons name="play" size={18} color="white" style={{ marginRight: 8 }} />
-            <Text className="text-white font-bold text-lg">Start Workout</Text>
+            <Text className="text-white font-outfit-bold text-lg">Start Workout</Text>
           </Pressable>
 
           {/* SECTION 4 — RECENT SESSIONS */}
           <View className="flex-row justify-between items-center mb-4">
-            <Text className="text-white text-xl font-bold">Recent Sessions</Text>
+            <Text className="text-white text-xl font-outfit-bold">Recent Sessions</Text>
             <TouchableOpacity onPress={() => router.push('/analyse')}>
-              <Text className="text-[#FF6000] font-semibold">View All</Text>
+              <Text className="text-[#FF6000] font-outfit-semibold">View All</Text>
             </TouchableOpacity>
           </View>
 
@@ -255,7 +255,7 @@ export default function DashboardScreen() {
                     <Ionicons name="barbell" size={22} color="#FF6000" />
                   </View>
                   <View>
-                    <Text className="text-white font-bold text-base mb-1">
+                    <Text className="text-white font-outfit-semibold text-base mb-1">
                       {session.name}
                     </Text>
                     <Text style={styles.mutedText} className="text-xs">
@@ -268,7 +268,7 @@ export default function DashboardScreen() {
                 <View className="flex-row items-center">
                   {session.averageRPE && (
                     <View className={`px-2 py-1 rounded-full mr-3 ${getRpeColor(session.averageRPE)}`}>
-                      <Text className="text-[#1A1A1A] text-[10px] font-bold">
+                      <Text className="text-[#1A1A1A] text-[10px] font-outfit-bold">
                         RPE {session.averageRPE.toFixed(1)}
                       </Text>
                     </View>
