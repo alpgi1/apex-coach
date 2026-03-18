@@ -1,6 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect, useRouter } from 'expo-router';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
   Pressable,
@@ -10,6 +10,13 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withRepeat,
+  withSequence,
+  withTiming,
+} from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AnimatedBackground from '../../src/components/layout/AnimatedBackground';
 
@@ -55,6 +62,22 @@ export default function DashboardScreen() {
   const [isStartModalVisible, setIsStartModalVisible] = useState<boolean>(false);
   const [history, setHistory] = useState<WorkoutSession[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+
+  /* ── start button pulse ────────────────────────────── */
+  const pulseScale = useSharedValue(1);
+  useEffect(() => {
+    pulseScale.value = withRepeat(
+      withSequence(
+        withTiming(1.025, { duration: 1200 }),
+        withTiming(1, { duration: 1200 }),
+      ),
+      -1, // infinite
+      true, // reverse — creates seamless back-and-forth
+    );
+  }, []);
+  const pulseStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: pulseScale.value }],
+  }));
 
   useFocusEffect(
     useCallback(() => {
@@ -226,13 +249,15 @@ export default function DashboardScreen() {
           </View>
 
           {/* SECTION 3 — START WORKOUT BUTTON */}
-          <Pressable
-            style={styles.startButton}
-            onPress={() => setIsStartModalVisible(true)}
-          >
-            <Ionicons name="play" size={18} color="white" style={{ marginRight: 8 }} />
-            <Text className="text-white font-outfit-bold text-lg">Start Workout</Text>
-          </Pressable>
+          <Animated.View style={[styles.startButton, pulseStyle]}>
+            <Pressable
+              onPress={() => setIsStartModalVisible(true)}
+              style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', width: '100%', height: '100%' }}
+            >
+              <Ionicons name="play" size={18} color="white" style={{ marginRight: 8 }} />
+              <Text className="text-white font-outfit-bold text-lg">Start Workout</Text>
+            </Pressable>
+          </Animated.View>
 
           {/* SECTION 4 — RECENT SESSIONS */}
           <View className="flex-row justify-between items-center mb-4">
@@ -314,15 +339,15 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   card: {
-    backgroundColor: 'rgba(255,255,255,0.07)',
+    backgroundColor: 'rgba(255,255,255,0.09)',
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.1)',
+    borderColor: 'rgba(255,255,255,0.12)',
     borderRadius: 20,
-    borderTopColor: 'rgba(255,96,0,0.5)',  // üst kenar turuncu
+    borderTopColor: 'rgba(255,96,0,0.5)',
     borderTopWidth: 1,
-    borderLeftColor: 'rgba(255,255,255,0.1)',
-    borderRightColor: 'rgba(255,255,255,0.1)',
-    borderBottomColor: 'rgba(255,255,255,0.1)',
+    borderLeftColor: 'rgba(255,255,255,0.12)',
+    borderRightColor: 'rgba(255,255,255,0.12)',
+    borderBottomColor: 'rgba(255,255,255,0.12)',
   },
   divider: {
     height: 1,
@@ -355,9 +380,9 @@ const styles = StyleSheet.create({
     elevation: 12,
   },
   sessionCard: {
-    backgroundColor: 'rgba(255,255,255,0.07)',
+    backgroundColor: 'rgba(255,255,255,0.04)',
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.1)',
+    borderColor: 'rgba(255,255,255,0.08)',
     borderRadius: 20,
   },
   sessionIcon: {

@@ -1,4 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
+import { useEffect } from 'react';
 import {
     Pressable,
     StyleSheet,
@@ -11,6 +12,9 @@ import ReanimatedSwipeable from 'react-native-gesture-handler/ReanimatedSwipeabl
 import Animated, {
     type SharedValue,
     useAnimatedStyle,
+    useSharedValue,
+    withSequence,
+    withSpring,
 } from 'react-native-reanimated';
 import { AICoachProgressionResponse } from '../../types/api.types';
 import { ExerciseLog, WorkoutSet } from '../../types/workout.types';
@@ -59,6 +63,49 @@ function RightSwipeAction({ drag }: { drag: SharedValue<number> }) {
             ]}
         >
             <Ionicons name="trash-outline" size={22} color="white" />
+        </Animated.View>
+    );
+}
+
+/* ──────────────── animated checkmark ─────────────────────────── */
+
+function AnimatedCheckmark({ isCompleted }: { isCompleted: boolean }) {
+    const scale = useSharedValue(1);
+
+    useEffect(() => {
+        if (isCompleted) {
+            scale.value = withSequence(
+                withSpring(1.3, { damping: 6, stiffness: 200 }),
+                withSpring(1, { damping: 8, stiffness: 200 }),
+            );
+        } else {
+            scale.value = 1;
+        }
+    }, [isCompleted]);
+
+    const animStyle = useAnimatedStyle(() => ({
+        transform: [{ scale: scale.value }],
+    }));
+
+    return (
+        <Animated.View
+            style={[
+                {
+                    width: 28,
+                    height: 28,
+                    borderRadius: 14,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    backgroundColor: isCompleted ? '#FF6000' : 'transparent',
+                    borderWidth: isCompleted ? 0 : 2,
+                    borderColor: '#3A3A3C',
+                },
+                animStyle,
+            ]}
+        >
+            {isCompleted && (
+                <Ionicons name="checkmark" size={16} color="#FFFFFF" />
+            )}
         </Animated.View>
     );
 }
@@ -209,11 +256,7 @@ export default function ExerciseCard({
                                     }}
                                     className="w-10 items-center"
                                 >
-                                    <View className={`w-7 h-7 rounded-full items-center justify-center ${s.isCompleted ? 'bg-[#FF6000]' : 'border-2 border-[#3A3A3C]'}`}>
-                                        {s.isCompleted && (
-                                            <Ionicons name="checkmark" size={16} color="#FFFFFF" />
-                                        )}
-                                    </View>
+                                    <AnimatedCheckmark isCompleted={s.isCompleted} />
                                 </Pressable>
                             </View>
                         </ReanimatedSwipeable>

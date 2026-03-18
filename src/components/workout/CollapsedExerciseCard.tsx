@@ -16,7 +16,7 @@ export default function CollapsedExerciseCard({ log, exerciseName, onExpand }: C
     return (
         <Pressable
             onPress={onExpand}
-            className="flex-row items-center justify-between p-4 mb-2 rounded-2xl border border-white/10 bg-white/[0.05] active:opacity-70"
+            className="flex-row items-center justify-between p-4 mb-2 rounded-2xl border border-white/[0.08] bg-white/[0.04] active:opacity-70"
         >
             <View className="flex-row items-center flex-1 mr-3">
                 <Ionicons name="chevron-down" size={16} color="rgba(255,255,255,0.35)" style={{ marginRight: 8 }} />

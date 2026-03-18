@@ -278,7 +278,7 @@ export default function WorkoutScreen() {
                 <ScrollView
                     ref={scrollRef}
                     className="flex-1"
-                    contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 80 + insets.bottom }}
+                    contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 160 + insets.bottom }}
                     showsVerticalScrollIndicator={false}
                 >
                     {/* ── SECTION 2 — TIMER + VOLUME ────────────── */}
@@ -339,7 +339,7 @@ export default function WorkoutScreen() {
             </SafeAreaView>
 
             {/* ── SECTION 5 — BOTTOM BUTTON ───────────────────── */}
-            <View style={[styles.bottomBar, { paddingBottom: insets.bottom + 16 }]}>
+            <View style={[styles.bottomBar, { bottom: insets.bottom + 90 }]}>
                 <Pressable
                     onPress={() => setIsFinishModalVisible(true)}
                     style={styles.finishBtn}
@@ -411,13 +411,9 @@ const styles = StyleSheet.create({
     },
     bottomBar: {
         position: 'absolute',
-        bottom: 20,
-        left: 0,
-        right: 0,
+        left: 16,
+        right: 16,
         flexDirection: 'row',
-        gap: 12,
-        paddingHorizontal: 16,
-        paddingTop: 12,
         backgroundColor: 'transparent',
     },
     timer: {
