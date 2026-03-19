@@ -1,7 +1,8 @@
 import { Ionicons } from '@expo/vector-icons';
 import { BlurView } from 'expo-blur';
 import { Tabs } from 'expo-router';
-import { StyleSheet, useWindowDimensions, View } from 'react-native';
+import { useRef } from 'react';
+import { Animated, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 /* ── constants ─────────────────────────────────────── */
@@ -16,17 +17,46 @@ type IoniconsName = React.ComponentProps<typeof Ionicons>['name'];
 
 interface TabIconProps {
     name: IoniconsName;
+    label: string;
     color: string;
     size: number;
     focused: boolean;
 }
 
+/* ── animated tab button ───────────────────────────── */
+
+function AnimatedTabButton({ children, onPress, onLongPress, style, ...rest }: any) {
+    const scale = useRef(new Animated.Value(1)).current;
+
+    const handlePress = (e: any) => {
+        scale.setValue(0.82);
+        Animated.spring(scale, {
+            toValue: 1,
+            friction: 4,
+            tension: 300,
+            useNativeDriver: true,
+        }).start();
+        onPress?.(e);
+    };
+
+    return (
+        <Pressable onPress={handlePress} onLongPress={onLongPress} style={style} {...rest}>
+            <Animated.View style={{ transform: [{ scale }], flex: 1 }}>
+                {children}
+            </Animated.View>
+        </Pressable>
+    );
+}
+
 /* ── tab icon with glow ────────────────────────────── */
 
-function TabIcon({ name, color, size, focused }: TabIconProps) {
+function TabIcon({ name, label, color, size, focused }: TabIconProps) {
     return (
-        <View style={focused ? styles.activeIconWrapper : styles.iconWrapper}>
-            <Ionicons name={name} size={size} color={color} />
+        <View style={styles.tabItem}>
+            <View style={focused ? styles.activeIconWrapper : styles.iconWrapper}>
+                <Ionicons name={name} size={size} color={color} />
+            </View>
+            <Text style={[styles.tabLabel, { color }]} numberOfLines={1}>{label}</Text>
         </View>
     );
 }
@@ -35,14 +65,13 @@ function TabIcon({ name, color, size, focused }: TabIconProps) {
 
 export default function TabLayout() {
     const insets = useSafeAreaInsets();
-    const { width: screenWidth } = useWindowDimensions();
     const bottomOffset = insets.bottom > 0 ? insets.bottom : 20;
-    const barWidth = screenWidth - TAB_MARGIN * 2;
 
     return (
         <Tabs
             screenOptions={{
                 headerShown: false,
+                tabBarButton: (props) => <AnimatedTabButton {...props} />,
                 tabBarBackground: () => (
                     <View style={[StyleSheet.absoluteFill, styles.bgWrapper]}>
                         <BlurView
@@ -58,7 +87,6 @@ export default function TabLayout() {
                     bottom: bottomOffset,
                     left: TAB_MARGIN,
                     right: TAB_MARGIN,
-                    //width: barWidth,
                     width: '100%',
                     height: TAB_HEIGHT,
                     borderRadius: TAB_RADIUS,
@@ -71,9 +99,13 @@ export default function TabLayout() {
                     elevation: 20,
                 },
                 tabBarItemStyle: {
-                    paddingTop: 8,
-                    justifyContent: 'center',
+                    justifyContent: 'flex-start',
                     alignItems: 'center',
+                    paddingTop: 15,
+                },
+                tabBarIconStyle: {
+                    width: '100%',
+                    overflow: 'visible',
                 },
                 tabBarActiveTintColor: '#FF6000',
                 tabBarInactiveTintColor: '#A0A0A0',
@@ -83,6 +115,7 @@ export default function TabLayout() {
                     includeFontPadding: false,
                     marginTop: 1,
                 },
+                tabBarShowLabel: false,
                 tabBarActiveBackgroundColor: 'transparent',
                 sceneStyle: { backgroundColor: '#0A0A0A' },
             }}
@@ -92,7 +125,7 @@ export default function TabLayout() {
                 options={{
                     title: 'Home',
                     tabBarIcon: ({ color, focused }) => (
-                        <TabIcon name="home-outline" color={color} size={22} focused={focused} />
+                        <TabIcon name="home-outline" label="Home" color={color} size={22} focused={focused} />
                     ),
                 }}
             />
@@ -101,7 +134,7 @@ export default function TabLayout() {
                 options={{
                     title: 'Workout',
                     tabBarIcon: ({ color, focused }) => (
-                        <TabIcon name="barbell-outline" color={color} size={22} focused={focused} />
+                        <TabIcon name="barbell-outline" label="Workout" color={color} size={22} focused={focused} />
                     ),
                 }}
             />
@@ -110,7 +143,7 @@ export default function TabLayout() {
                 options={{
                     title: 'Analyse',
                     tabBarIcon: ({ color, focused }) => (
-                        <TabIcon name="analytics-outline" color={color} size={22} focused={focused} />
+                        <TabIcon name="analytics-outline" label="Analyse" color={color} size={22} focused={focused} />
                     ),
                 }}
             />
@@ -119,7 +152,7 @@ export default function TabLayout() {
                 options={{
                     title: 'Profile',
                     tabBarIcon: ({ color, focused }) => (
-                        <TabIcon name="person-outline" color={color} size={22} focused={focused} />
+                        <TabIcon name="person-outline" label="Profile" color={color} size={22} focused={focused} />
                     ),
                 }}
             />
@@ -138,6 +171,16 @@ const styles = StyleSheet.create({
     },
     bgOverlay: {
         backgroundColor: 'rgba(12, 12, 12, 0.70)',
+    },
+    tabItem: {
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 3,
+    },
+    tabLabel: {
+        fontSize: 11,
+        fontFamily: 'Outfit_500Medium',
+        includeFontPadding: false,
     },
     iconWrapper: {
         alignItems: 'center',
