@@ -12,6 +12,11 @@ spring:
   flyway:
     baseline-on-migrate: false
 
+# ── CORS (production) ───────────────────────────────────
+app:
+  cors:
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:https://apex-coach.onrender.com}
+
 logging:
   level:
     com.apexcoach: INFO

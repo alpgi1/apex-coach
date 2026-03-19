@@ -32,6 +32,11 @@ spring:
   jackson:
     default-property-inclusion: non_null
 
+# ── CORS ──────────────────────────────────────────────
+app:
+  cors:
+    allowed-origins: http://localhost:8081,http://localhost:19006,exp://localhost:8081
+
 # ── Server ─────────────────────────────────────────────
 server:
   port: 8080
