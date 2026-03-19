@@ -1,6 +1,8 @@
 spring:
   application:
     name: apex-coach-api
+  profiles:
+    active: dev
 
   # ── JPA / Hibernate ────────────────────────────────────
   jpa:
