@@ -64,7 +64,7 @@ Apex Coach is built around RPE (Rate of Perceived Exertion) — the only metric 
 ```
 ┌──────────────────────┐        ┌──────────────────────┐
 │   React Native App   │  HTTP  │  Spring Boot 4 API   │
-│   (Expo / TypeScript) ├───────►│  (Java 21)           │
+│   (Expo / TypeScript)├───────►│  (Java 21)           │
 │                      │  JSON  │                      │
 │  SQLite (offline)    │◄───────┤  PostgreSQL 17       │
 └──────────────────────┘        └──────────┬───────────┘
@@ -86,7 +86,7 @@ com.apexcoach.api
 ├── repository/      # Spring Data JPA interfaces
 ├── entity/          # JPA entities + enums
 ├── dto/             # Request/Response records + validation
-├── mapper/          # Entity ↔ DTO mapping
+├── dto/             # Request/Response records with static from() factories
 └── exception/       # @ControllerAdvice global error handling
 ```
 
@@ -159,7 +159,7 @@ apex-coach/
         │   ├── repository/     # JPA repositories
         │   ├── entity/         # JPA entities + enums
         │   ├── dto/            # Request/Response DTOs
-        │   ├── mapper/         # MapStruct mappers
+        │   ├── dto/            # Request/Response records with static from() factories
         │   └── exception/      # Global exception handler
         └── resources/
             ├── application.yml          # Base config
@@ -195,8 +195,8 @@ cd backend
 # Start PostgreSQL
 docker compose up -d
 
-# Run the API (dev profile)
-./mvnw spring-boot:run -Dspring-boot.run.profiles=dev
+# Run the API (dev profile active by default)
+./mvnw spring-boot:run
 
 # Health check
 curl http://localhost:8080/api/v1/health
@@ -239,14 +239,14 @@ Phase 1 — Frontend MVP (current)
 
 Phase 2 — Backend Integration (in progress)
   ✅ Spring Boot 4.0.3 project scaffold
-  ✅ PostgreSQL schema (Flyway V1 — 8 tables)
+  ✅ PostgreSQL schema (Flyway V1–V4 — 8 tables + seed data + casts + dev user)
   ✅ Docker Compose (PostgreSQL 17 + pgAdmin)
   ✅ Security + CORS + global exception handling
-  ☐ JPA entities + repositories
-  ☐ Exercise CRUD (Controller → Service → Repository)
-  ☐ Workout CRUD (nested save with logs + sets)
+  ✅ JPA entities + repositories (WorkoutSession, ExerciseLog, WorkoutSet, Exercise, User, ...)
+  ✅ Exercise CRUD — GET (filter by name/muscleGroup/equipment), GET /{id}, POST custom
+  ✅ DTO validation layer (Jakarta Bean Validation, @ControllerAdvice, ApiResponse<T>)
+  ✅ Workout CRUD — nested POST (session → logs → sets), GET paginated, GET /{id}, DELETE
   ☐ Supabase Auth JWT integration
-  ☐ DTO validation layer
   ☐ Template + Personal Record endpoints
   ☐ Railway deployment
 
