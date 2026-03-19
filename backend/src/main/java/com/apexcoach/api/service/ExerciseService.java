@@ -20,6 +20,7 @@ import java.util.UUID;
 public class ExerciseService {
 
     private final ExerciseRepository exerciseRepository;
+    private final AuthenticatedUserService authenticatedUserService;
 
     public List<ExerciseResponse> getAll(String name, MuscleGroup muscleGroup, EquipmentType equipment) {
         List<Exercise> exercises;
@@ -58,6 +59,7 @@ public class ExerciseService {
                 .instructions(req.instructions())
                 .videoUrl(req.videoUrl())
                 .isCustom(true)
+                .createdBy(authenticatedUserService.getCurrentUser())
                 .build();
 
         return ExerciseResponse.from(exerciseRepository.save(exercise));

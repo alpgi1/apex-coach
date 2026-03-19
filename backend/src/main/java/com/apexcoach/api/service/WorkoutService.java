@@ -8,7 +8,6 @@ import com.apexcoach.api.entity.*;
 import com.apexcoach.api.entity.enums.SetType;
 import com.apexcoach.api.exception.ResourceNotFoundException;
 import com.apexcoach.api.repository.ExerciseRepository;
-import com.apexcoach.api.repository.UserRepository;
 import com.apexcoach.api.repository.WorkoutSessionRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -19,26 +18,21 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class WorkoutService {
 
-    // TODO: Replace with authenticated user from SecurityContext (Adım 6)
-    private static final UUID DEV_USER_ID = UUID.fromString("00000000-0000-0000-0000-000000000001");
-
     private final WorkoutSessionRepository workoutSessionRepository;
     private final ExerciseRepository exerciseRepository;
-    private final UserRepository userRepository;
+    private final AuthenticatedUserService authenticatedUserService;
 
     // ── CREATE ───────────────────────────────────────────────
 
     @Transactional
     public WorkoutResponse create(CreateWorkoutRequest request) {
-        User user = userRepository.findById(DEV_USER_ID)
-                .orElseThrow(() -> new ResourceNotFoundException("User", "id", DEV_USER_ID));
+        User user = authenticatedUserService.getCurrentUser();
 
         WorkoutSession session = WorkoutSession.builder()
                 .user(user)
@@ -84,29 +78,33 @@ public class WorkoutService {
         return WorkoutResponse.from(saved);
     }
 
-    // ── READ (paginated list) ────────────────────────────────
+    // ── READ (paginated list — user-scoped) ────────────────────
 
     public Page<WorkoutResponse> getAll(Pageable pageable) {
-        return workoutSessionRepository.findAllByOrderByStartTimeDesc(pageable)
+        User user = authenticatedUserService.getCurrentUser();
+        return workoutSessionRepository.findByUserOrderByStartTimeDesc(user, pageable)
                 .map(WorkoutResponse::from);
     }
 
-    // ── READ (single) ────────────────────────────────────────
+    // ── READ (single — ownership check) ────────────────────────
 
-    public WorkoutResponse getById(UUID id) {
+    public WorkoutResponse getById(java.util.UUID id) {
+        User user = authenticatedUserService.getCurrentUser();
         WorkoutSession session = workoutSessionRepository.findById(id)
+                .filter(s -> s.getUser().getId().equals(user.getId()))
                 .orElseThrow(() -> new ResourceNotFoundException("WorkoutSession", "id", id));
         return WorkoutResponse.from(session);
     }
 
-    // ── DELETE ───────────────────────────────────────────────
+    // ── DELETE (ownership check) ───────────────────────────────
 
     @Transactional
-    public void delete(UUID id) {
-        if (!workoutSessionRepository.existsById(id)) {
-            throw new ResourceNotFoundException("WorkoutSession", "id", id);
-        }
-        workoutSessionRepository.deleteById(id);
+    public void delete(java.util.UUID id) {
+        User user = authenticatedUserService.getCurrentUser();
+        WorkoutSession session = workoutSessionRepository.findById(id)
+                .filter(s -> s.getUser().getId().equals(user.getId()))
+                .orElseThrow(() -> new ResourceNotFoundException("WorkoutSession", "id", id));
+        workoutSessionRepository.delete(session);
     }
 
     // ── PRIVATE HELPERS ─────────────────────────────────────

@@ -21,6 +21,13 @@ spring:
     locations: classpath:db/migration
     baseline-on-migrate: true
 
+  # ── OAuth2 Resource Server (Supabase JWT) ──────────────
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: https://fiafmmecijtjxifbgweb.supabase.co/auth/v1/.well-known/jwks.json
+
   # ── Jackson ────────────────────────────────────────────
   jackson:
     default-property-inclusion: non_null
