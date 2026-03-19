@@ -96,7 +96,10 @@ export default function StartWorkoutModal({ isVisible, onClose, onStart }: Props
                             <View className="w-10 h-1 rounded-full bg-[#3A3A3C]" />
                         </View>
 
-                        <View className="px-5 pt-2">
+                        <ScrollView
+                            keyboardShouldPersistTaps="handled"
+                            className="px-5 pt-2"
+                        >
                             {/* Header */}
                             <Text className="text-white text-xl font-outfit-bold mb-1">
                                 Start New Workout
@@ -130,6 +133,7 @@ export default function StartWorkoutModal({ isVisible, onClose, onStart }: Props
                                     <ScrollView
                                         horizontal
                                         showsHorizontalScrollIndicator={false}
+                                        keyboardShouldPersistTaps="handled"
                                         contentContainerStyle={{ gap: 8 }}
                                     >
                                         {templates.map((template) => {
@@ -211,7 +215,7 @@ export default function StartWorkoutModal({ isVisible, onClose, onStart }: Props
                                     <Text className="text-white text-base font-outfit-bold">→</Text>
                                 </Pressable>
                             </View>
-                        </View>
+                        </ScrollView>
                     </View>
                 </KeyboardAvoidingView>
             </View>
