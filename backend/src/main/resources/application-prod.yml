@@ -11,6 +11,7 @@ spring:
   # ── Flyway ─────────────────────────────────────────────
   flyway:
     baseline-on-migrate: true
+    baseline-version: 0
 
 # ── CORS (production) ───────────────────────────────────
 app:
