@@ -1,9 +1,9 @@
 spring:
-  # ── Production DB (Supabase PostgreSQL) ────────────────
+  # ── Production DB (Supabase PostgreSQL via Supavisor pooler) ──
+  # Credentials embedded in URL — user/pass NOT set separately
+  # to avoid HikariCP overriding the URL-embedded username (postgres.PROJECT_REF)
   datasource:
     url: ${DATABASE_URL}
-    username: ${DATABASE_USER}
-    password: ${DATABASE_PASSWORD}
 
   jpa:
     show-sql: false
