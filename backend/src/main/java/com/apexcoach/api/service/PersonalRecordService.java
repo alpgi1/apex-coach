@@ -58,7 +58,7 @@ public class PersonalRecordService {
     public List<PersonalRecordResponse> getAllForUser() {
         User user = authenticatedUserService.getCurrentUser();
 
-        List<WorkoutSet> allSets = workoutSetRepository.findByExerciseLogSessionUser(user)
+        List<WorkoutSet> allSets = workoutSetRepository.findAllWithExerciseByUser(user)
                 .stream()
                 .filter(s -> s.getSetType() == SetType.WORKING
                         && s.isCompleted()
