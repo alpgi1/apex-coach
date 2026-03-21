@@ -6,6 +6,7 @@ import com.apexcoach.api.service.PersonalRecordService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -14,6 +15,11 @@ import java.util.UUID;
 public class PersonalRecordController {
 
     private final PersonalRecordService personalRecordService;
+
+    @GetMapping
+    public ApiResponse<List<PersonalRecordResponse>> getAll() {
+        return ApiResponse.ok(personalRecordService.getAllForUser());
+    }
 
     @GetMapping("/{exerciseId}")
     public ApiResponse<PersonalRecordResponse> getForExercise(@PathVariable UUID exerciseId) {

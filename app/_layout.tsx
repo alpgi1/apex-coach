@@ -10,6 +10,8 @@ import { fetchWorkouts } from '../src/services/api/workoutApi';
 import { fetchTemplates } from '../src/services/api/templateApi';
 import { upsertWorkoutsFromBackend } from '../src/services/storage/workoutStorage';
 import { upsertTemplatesFromBackend } from '../src/services/storage/templateStorage';
+import { fetchAllRecords } from '../src/services/api/recordsApi';
+import { upsertPersonalRecord } from '../src/services/storage/exerciseStorage';
 import OnboardingModal from '../src/components/layout/OnboardingModal';
 import { useUserStore } from '../src/store/userStore';
 import { useAuthStore } from '../src/store/authStore';
@@ -70,7 +72,7 @@ export default function RootLayout() {
     }
   }, [session, isInitialized, isDbInitialized]);
 
-  // Sync chain when user logs in: exercises → workouts + templates
+  // Sync chain when user logs in: exercises → workouts + templates + records
   useEffect(() => {
     if (session?.access_token) {
       syncExercisesFromBackend(session.access_token)
@@ -80,6 +82,21 @@ export default function RootLayout() {
           }),
           fetchTemplates().then((res) => {
             if (res?.data) return upsertTemplatesFromBackend(res.data);
+          }),
+          fetchAllRecords().then((res) => {
+            if (!res?.data) return;
+            return Promise.all(res.data.map((r) =>
+              upsertPersonalRecord({
+                exerciseId: r.exerciseId,
+                estimatedOneRepMax: r.estimated1rm,
+                maxWeightKg: r.maxWeightKg,
+                repsAtMaxWeight: r.repsAtMaxWeight,
+                maxReps: r.repsAtMaxWeight,
+                weightAtMaxRepsKg: r.maxWeightKg,
+                maxSessionVolumeKg: 0,
+                dateAchieved: new Date().toISOString(),
+              })
+            ));
           }),
         ]))
         .catch(console.error);

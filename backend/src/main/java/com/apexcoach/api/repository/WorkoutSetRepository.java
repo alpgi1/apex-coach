@@ -11,4 +11,5 @@ import java.util.UUID;
 @Repository
 public interface WorkoutSetRepository extends JpaRepository<WorkoutSet, UUID> {
     List<WorkoutSet> findByExerciseLogExerciseIdAndExerciseLogSessionUser(UUID exerciseId, User user);
+    List<WorkoutSet> findByExerciseLogSessionUser(User user);
 }
