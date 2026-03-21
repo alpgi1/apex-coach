@@ -69,7 +69,18 @@ export default function ProfileScreen() {
                     text: 'Delete',
                     style: 'destructive',
                     onPress: async () => {
-                        await deleteTemplateApi(id).catch(() => {});
+                        try {
+                            await deleteTemplateApi(id);
+                        } catch (err: any) {
+                            // Network error (offline) → proceed with local delete
+                            // Server error (4xx/5xx) → abort to prevent re-sync restoring it
+                            const isNetworkError = err?.message?.toLowerCase().includes('network') ||
+                                err?.message?.toLowerCase().includes('fetch');
+                            if (!isNetworkError) {
+                                Alert.alert('Error', 'Could not delete template. Please try again.');
+                                return;
+                            }
+                        }
                         await deleteTemplateLocal(id).catch(() => {});
                         setTemplates((prev) => prev.filter((t) => t.id !== id));
                     },

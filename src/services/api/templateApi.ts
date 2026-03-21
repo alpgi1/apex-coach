@@ -28,8 +28,8 @@ export const fetchTemplates = (): Promise<ApiResponse<any[]>> =>
 export const createTemplate = (template: Omit<WorkoutTemplate, 'id' | 'createdAt' | 'updatedAt'>): Promise<ApiResponse<WorkoutTemplate>> =>
     apiRequest('POST', '/api/v1/templates', mapTemplateToBackend(template));
 
-export const updateTemplate = (id: string, template: Partial<WorkoutTemplate>): Promise<ApiResponse<WorkoutTemplate>> =>
-    apiRequest('PUT', `/api/v1/templates/${id}`, template);
+export const updateTemplate = (id: string, template: WorkoutTemplate): Promise<ApiResponse<WorkoutTemplate>> =>
+    apiRequest('PUT', `/api/v1/templates/${id}`, mapTemplateToBackend(template));
 
 export const deleteTemplate = (id: string): Promise<ApiResponse<void>> =>
     apiRequest('DELETE', `/api/v1/templates/${id}`);

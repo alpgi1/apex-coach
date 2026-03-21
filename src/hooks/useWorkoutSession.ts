@@ -58,9 +58,8 @@ export const useWorkoutSession = () => {
 
     const addEmptySets = (exerciseLogId: string, count: number): void => {
         for (let i = 0; i < count; i++) {
-            const existingLog = store.activeSession?.logs.find(
-                (l) => l.id === exerciseLogId
-            );
+            const fresh = useWorkoutStore.getState().activeSession;
+            const existingLog = fresh?.logs.find((l) => l.id === exerciseLogId);
             const setNumber = existingLog ? existingLog.sets.length + 1 : i + 1;
             const emptySet: WorkoutSet = {
                 id: Crypto.randomUUID(),

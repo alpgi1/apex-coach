@@ -1,6 +1,8 @@
-import { Session } from '@supabase/supabase-js';
+import { Session, Subscription } from '@supabase/supabase-js';
 import { create } from 'zustand';
 import { supabase } from '../lib/supabase';
+
+let authSubscription: Subscription | null = null;
 
 interface AuthState {
     session: Session | null;
@@ -21,9 +23,11 @@ export const useAuthStore = create<AuthState>((set) => ({
         const { data: { session } } = await supabase.auth.getSession();
         set({ session, isInitialized: true });
 
-        supabase.auth.onAuthStateChange((_event, session) => {
+        authSubscription?.unsubscribe();
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
             set({ session });
         });
+        authSubscription = subscription;
     },
 
     signIn: async (email: string, password: string) => {

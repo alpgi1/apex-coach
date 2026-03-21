@@ -2,6 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import {
+    Alert,
     Pressable,
     ScrollView,
     StyleSheet,
@@ -213,8 +214,17 @@ export default function WorkoutScreen() {
 
     const handleFinish = async () => {
         setIsFinishModalVisible(false);
-        await finishWorkout();
-        router.replace('/(tabs)');
+        try {
+            await finishWorkout();
+            router.replace('/(tabs)');
+        } catch (error) {
+            console.error('Failed to save workout:', error);
+            Alert.alert(
+                'Save Failed',
+                'Your workout could not be saved. Please try again.',
+                [{ text: 'OK', onPress: () => setIsFinishModalVisible(true) }]
+            );
+        }
     };
 
     /* ══════════════════ NO ACTIVE SESSION STATE ══════════════ */
