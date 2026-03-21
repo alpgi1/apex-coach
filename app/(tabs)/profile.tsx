@@ -16,7 +16,8 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { clearAllData } from '../../src/services/storage/database';
-import { deleteTemplate, getAllTemplates } from '../../src/services/storage/templateStorage';
+import { getAllTemplates } from '../../src/services/storage/templateStorage';
+import { fetchTemplates, deleteTemplate as deleteTemplateApi } from '../../src/services/api/templateApi';
 import { getWorkoutHistory } from '../../src/services/storage/workoutStorage';
 import { useUserStore } from '../../src/store/userStore';
 import { WorkoutTemplate } from '../../src/types/workout.types';
@@ -38,9 +39,13 @@ export default function ProfileScreen() {
             getWorkoutHistory()
                 .then((h) => setTotalWorkouts(h.length))
                 .catch(() => setTotalWorkouts(0));
-            getAllTemplates()
-                .then((t) => setTemplates(t))
-                .catch(() => setTemplates([]));
+            fetchTemplates()
+                .then((res) => setTemplates(res.data ?? []))
+                .catch(() =>
+                    getAllTemplates()
+                        .then((t) => setTemplates(t))
+                        .catch(() => setTemplates([]))
+                );
         }, [])
     );
 
@@ -66,7 +71,7 @@ export default function ProfileScreen() {
                     text: 'Delete',
                     style: 'destructive',
                     onPress: async () => {
-                        await deleteTemplate(id);
+                        await deleteTemplateApi(id).catch(() => {});
                         setTemplates((prev) => prev.filter((t) => t.id !== id));
                     },
                 },

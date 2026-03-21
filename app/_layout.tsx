@@ -1,12 +1,14 @@
-import { Stack } from 'expo-router';
+import { Stack, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, Text, View } from 'react-native';
 import '../global.css';
 import { initializeDatabase } from '../src/services/storage/database';
 import { seedExercises } from '../src/services/storage/exerciseStorage';
+import { syncExercisesFromBackend } from '../src/services/api/exerciseApi';
 import OnboardingModal from '../src/components/layout/OnboardingModal';
 import { useUserStore } from '../src/store/userStore';
+import { useAuthStore } from '../src/store/authStore';
 import {
   useFonts,
   Outfit_300Light,
@@ -21,7 +23,9 @@ import {
 (Text as any).defaultProps.style = [{ fontFamily: 'Outfit_400Regular' }];
 
 export default function RootLayout() {
+  const router = useRouter();
   const { name, setName } = useUserStore();
+  const { session, isInitialized, initialize } = useAuthStore();
   const [isDbInitialized, setIsDbInitialized] = useState<boolean>(false);
   const [showOnboarding, setShowOnboarding] = useState<boolean>(false);
 
@@ -38,6 +42,7 @@ export default function RootLayout() {
       try {
         initializeDatabase();
         await seedExercises();
+        await initialize();
         if (!name || name.trim().length === 0) {
           setShowOnboarding(true);
         }
@@ -51,12 +56,29 @@ export default function RootLayout() {
     setupDatabase();
   }, []);
 
+  // Navigate based on auth state
+  useEffect(() => {
+    if (!isInitialized || !isDbInitialized) return;
+    if (session) {
+      router.replace('/(tabs)' as any);
+    } else {
+      router.replace('/(auth)/login' as any);
+    }
+  }, [session, isInitialized, isDbInitialized]);
+
+  // Exercise ID sync when user logs in
+  useEffect(() => {
+    if (session?.access_token) {
+      syncExercisesFromBackend(session.access_token).catch(console.error);
+    }
+  }, [session?.user?.id]);
+
   const handleOnboardingComplete = (userName: string) => {
     setName(userName);
     setShowOnboarding(false);
   };
 
-  if (!isDbInitialized || !fontsLoaded) {
+  if (!isDbInitialized || !isInitialized || !fontsLoaded) {
     return (
       <View style={{ flex: 1, backgroundColor: '#1A1A1A', justifyContent: 'center', alignItems: 'center' }}>
         <StatusBar style="light" />

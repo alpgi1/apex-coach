@@ -1,6 +1,8 @@
 import * as Crypto from 'expo-crypto';
 import { saveWorkoutSession } from '../services/storage/workoutStorage';
+import { postWorkout } from '../services/api/workoutApi';
 import { useWorkoutStore } from '../store/workoutStore';
+import { useAuthStore } from '../store/authStore';
 import { ExerciseLog, RPEScale, WorkoutSet } from '../types/workout.types';
 
 export const useWorkoutSession = () => {
@@ -30,6 +32,13 @@ export const useWorkoutSession = () => {
         } catch (error) {
             console.error('Failed to save workout:', error);
             throw error;
+        }
+
+        // Fire-and-forget backend sync — does not block UX
+        if (useAuthStore.getState().session) {
+            postWorkout(finalizedSession).catch((err) =>
+                console.warn('Backend workout sync failed (non-blocking):', err)
+            );
         }
     };
 
