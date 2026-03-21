@@ -55,6 +55,7 @@ export default function StartWorkoutModal({ isVisible, onClose, onStart }: Props
     const handlePillPress = (name: string) => {
         setInputValue(name);
         setSelectedPill(name);
+        setSelectedTemplate(null);
     };
 
     const handleTextChange = (text: string) => {
