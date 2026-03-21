@@ -12,7 +12,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import ExercisePickerModal from '../../src/components/workout/ExercisePickerModal';
-import { saveTemplate, deleteTemplate as deleteTemplateLocal } from '../../src/services/storage/templateStorage';
+import { saveTemplate } from '../../src/services/storage/templateStorage';
 import { createTemplate as createTemplateApi } from '../../src/services/api/templateApi';
 import { useAuthStore } from '../../src/store/authStore';
 import { ExerciseMetadata, MuscleGroup } from '../../src/types/exercise.types';
@@ -112,12 +112,6 @@ export default function CreateTemplateScreen() {
                 description: template.description,
                 exercises: template.exercises,
                 primaryMuscleGroups: template.primaryMuscleGroups,
-            }).then(async (res) => {
-                const backendId = res?.data?.id;
-                if (backendId && backendId !== template.id) {
-                    await deleteTemplateLocal(template.id);
-                    await saveTemplate({ ...template, id: backendId });
-                }
             }).catch((err) =>
                 console.warn('Backend template sync failed (non-blocking):', err)
             );

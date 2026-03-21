@@ -3,7 +3,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import {
     ActivityIndicator,
     FlatList,
-    Keyboard,
+    KeyboardAvoidingView,
     Modal,
     Platform,
     Pressable,
@@ -41,16 +41,7 @@ export default function ExercisePickerModal({
     const [exercises, setExercises] = useState<ExerciseMetadata[]>([]);
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [query, setQuery] = useState<string>('');
-    const [keyboardHeight, setKeyboardHeight] = useState(0);
     const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-    useEffect(() => {
-        const showEvent = Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow';
-        const hideEvent = Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide';
-        const show = Keyboard.addListener(showEvent, (e) => setKeyboardHeight(e.endCoordinates.height));
-        const hide = Keyboard.addListener(hideEvent, () => setKeyboardHeight(0));
-        return () => { show.remove(); hide.remove(); };
-    }, []);
 
     /* ── load all exercises on mount / open ─────────────────── */
     useEffect(() => {
@@ -158,7 +149,10 @@ export default function ExercisePickerModal({
             transparent
             onRequestClose={onClose}
         >
-            <View className="flex-1">
+            <KeyboardAvoidingView
+                behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+                style={{ flex: 1 }}
+            >
             {/* Backdrop */}
             <Pressable
                 onPress={onClose}
@@ -166,7 +160,7 @@ export default function ExercisePickerModal({
             />
 
             {/* Bottom sheet */}
-            <View className="bg-[#1A1A1A] rounded-t-3xl pb-10 max-h-[85%]" style={{ marginBottom: keyboardHeight }}>
+            <View className="bg-[#1A1A1A] rounded-t-3xl pb-10 max-h-[85%]">
                 {/* Handle bar */}
                 <View className="items-center pt-3 pb-2">
                     <View className="w-10 h-1 rounded-full bg-[#3A3A3C]" />
@@ -238,7 +232,7 @@ export default function ExercisePickerModal({
                     />
                 )}
             </View>
-            </View>
+            </KeyboardAvoidingView>
         </Modal>
     );
 }

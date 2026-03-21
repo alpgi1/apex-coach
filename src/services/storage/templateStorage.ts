@@ -176,11 +176,18 @@ interface BackendTemplate {
 
 export const upsertTemplatesFromBackend = async (templates: BackendTemplate[]): Promise<void> => {
     for (const t of templates) {
-        const existing = await db.getFirstAsync<{ id: string }>(
+        const existingById = await db.getFirstAsync<{ id: string }>(
             'SELECT id FROM workout_templates WHERE id = ?',
             [t.id]
         );
-        if (existing) continue;
+        if (existingById) continue;
+
+        // Also skip if a template with the same name exists locally (local UUID ≠ backend UUID)
+        const existingByName = await db.getFirstAsync<{ id: string }>(
+            'SELECT id FROM workout_templates WHERE name = ?',
+            [t.name]
+        );
+        if (existingByName) continue;
 
         const mapped: WorkoutTemplate = {
             id: t.id,
