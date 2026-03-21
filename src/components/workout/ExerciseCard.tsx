@@ -235,9 +235,13 @@ export default function ExerciseCard({
                                         updateDraft(s.id, 'rpe', rpeStr);
                                         const w = parseFloat(draft.weight);
                                         const r = parseInt(draft.reps, 10);
-                                        if (!isNaN(w) && !isNaN(r)) {
-                                            updateSetValues(log.id, s.id, w, r, rpe);
-                                        }
+                                        updateSetValues(
+                                            log.id,
+                                            s.id,
+                                            isNaN(w) ? s.weightKg : w,
+                                            isNaN(r) ? s.reps : r,
+                                            rpe
+                                        );
                                         tryAutoComplete(log.id, s.id, s.isCompleted, { ...draft, rpe: rpeStr });
                                     }}
                                     disabled={s.isCompleted}

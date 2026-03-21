@@ -13,6 +13,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import ExercisePickerModal from '../../src/components/workout/ExercisePickerModal';
 import { saveTemplate } from '../../src/services/storage/templateStorage';
+import { createTemplate as createTemplateApi } from '../../src/services/api/templateApi';
+import { useAuthStore } from '../../src/store/authStore';
 import { ExerciseMetadata, MuscleGroup } from '../../src/types/exercise.types';
 import { TemplateExercise, WorkoutTemplate } from '../../src/types/workout.types';
 
@@ -103,6 +105,18 @@ export default function CreateTemplateScreen() {
         };
 
         await saveTemplate(template);
+
+        if (useAuthStore.getState().session) {
+            createTemplateApi({
+                name: template.name,
+                description: template.description,
+                exercises: template.exercises,
+                primaryMuscleGroups: template.primaryMuscleGroups,
+            }).catch((err) =>
+                console.warn('Backend template sync failed (non-blocking):', err)
+            );
+        }
+
         router.back();
     };
 

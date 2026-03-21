@@ -16,8 +16,9 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { clearAllData } from '../../src/services/storage/database';
-import { getAllTemplates } from '../../src/services/storage/templateStorage';
-import { fetchTemplates, deleteTemplate as deleteTemplateApi } from '../../src/services/api/templateApi';
+import { getAllTemplates, deleteTemplate as deleteTemplateLocal } from '../../src/services/storage/templateStorage';
+import { deleteTemplate as deleteTemplateApi } from '../../src/services/api/templateApi';
+import { useAuthStore } from '../../src/store/authStore';
 import { getWorkoutHistory } from '../../src/services/storage/workoutStorage';
 import { useUserStore } from '../../src/store/userStore';
 import { WorkoutTemplate } from '../../src/types/workout.types';
@@ -25,6 +26,7 @@ import { WorkoutTemplate } from '../../src/types/workout.types';
 export default function ProfileScreen() {
     const { name, weightUnit, targetRIR, profilePhoto, setName, setWeightUnit, setTargetRIR, setProfilePhoto } =
         useUserStore();
+    const { signOut } = useAuthStore();
 
     const router = useRouter();
     const [isEditingName, setIsEditingName] = useState<boolean>(false);
@@ -39,13 +41,9 @@ export default function ProfileScreen() {
             getWorkoutHistory()
                 .then((h) => setTotalWorkouts(h.length))
                 .catch(() => setTotalWorkouts(0));
-            fetchTemplates()
-                .then((res) => setTemplates(res.data ?? []))
-                .catch(() =>
-                    getAllTemplates()
-                        .then((t) => setTemplates(t))
-                        .catch(() => setTemplates([]))
-                );
+            getAllTemplates()
+                .then((t) => setTemplates(t))
+                .catch(() => setTemplates([]));
         }, [])
     );
 
@@ -72,6 +70,7 @@ export default function ProfileScreen() {
                     style: 'destructive',
                     onPress: async () => {
                         await deleteTemplateApi(id).catch(() => {});
+                        await deleteTemplateLocal(id).catch(() => {});
                         setTemplates((prev) => prev.filter((t) => t.id !== id));
                     },
                 },
@@ -93,6 +92,21 @@ export default function ProfileScreen() {
         if (!result.canceled) {
             setProfilePhoto(result.assets[0].uri);
         }
+    };
+
+    const handleSignOut = () => {
+        Alert.alert(
+            'Sign Out',
+            'Are you sure you want to sign out?',
+            [
+                { text: 'Cancel', style: 'cancel' },
+                {
+                    text: 'Sign Out',
+                    style: 'destructive',
+                    onPress: () => signOut(),
+                },
+            ]
+        );
     };
 
     const handleClearData = () => {
@@ -305,6 +319,17 @@ export default function ProfileScreen() {
                     {/* ── DANGER ZONE ───────────────────────── */}
                     <View style={styles.card}>
                         <Text style={styles.sectionLabel} className="mb-3">Danger Zone</Text>
+                        <Pressable
+                            onPress={handleSignOut}
+                            style={styles.divider}
+                            className="flex-row items-center justify-between py-3 active:opacity-70"
+                        >
+                            <View className="flex-row items-center gap-3">
+                                <Ionicons name="log-out-outline" size={20} color="#FF3B30" />
+                                <Text style={styles.dangerText}>Sign Out</Text>
+                            </View>
+                            <Ionicons name="chevron-forward" size={18} color="#FF3B30" />
+                        </Pressable>
                         <Pressable
                             onPress={handleClearData}
                             className="flex-row items-center justify-between py-3 active:opacity-70"

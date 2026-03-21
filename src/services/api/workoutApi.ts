@@ -53,3 +53,39 @@ export const postWorkout = async (session: WorkoutSession): Promise<void> => {
     const payload = mapSessionToPayload(session);
     await apiRequest<unknown>('POST', '/api/v1/workouts', payload);
 };
+
+// ── Read-side types & fetch ──────────────────────────
+
+interface WorkoutSetResponse {
+    setNumber: number;
+    weightKg: number;
+    reps: number;
+    rpe: number | null;
+    setType: string;
+    isCompleted: boolean;
+}
+
+interface ExerciseLogResponse {
+    id: string;
+    exerciseId: string;
+    exerciseName: string;
+    order: number;
+    sets: WorkoutSetResponse[];
+}
+
+export interface WorkoutResponse {
+    id: string;
+    name: string;
+    startTime: string;
+    endTime: string | null;
+    volumeKg: number;
+    averageRpe: number | null;
+    logs: ExerciseLogResponse[];
+}
+
+interface ApiPageResponse<T> {
+    data: { content: T[] };
+}
+
+export const fetchWorkouts = (page = 0, size = 100): Promise<ApiPageResponse<WorkoutResponse>> =>
+    apiRequest('GET', `/api/v1/workouts?page=${page}&size=${size}`);

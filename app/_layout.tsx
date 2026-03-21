@@ -6,6 +6,10 @@ import '../global.css';
 import { initializeDatabase } from '../src/services/storage/database';
 import { seedExercises } from '../src/services/storage/exerciseStorage';
 import { syncExercisesFromBackend } from '../src/services/api/exerciseApi';
+import { fetchWorkouts } from '../src/services/api/workoutApi';
+import { fetchTemplates } from '../src/services/api/templateApi';
+import { upsertWorkoutsFromBackend } from '../src/services/storage/workoutStorage';
+import { upsertTemplatesFromBackend } from '../src/services/storage/templateStorage';
 import OnboardingModal from '../src/components/layout/OnboardingModal';
 import { useUserStore } from '../src/store/userStore';
 import { useAuthStore } from '../src/store/authStore';
@@ -66,10 +70,19 @@ export default function RootLayout() {
     }
   }, [session, isInitialized, isDbInitialized]);
 
-  // Exercise ID sync when user logs in
+  // Sync chain when user logs in: exercises → workouts + templates
   useEffect(() => {
     if (session?.access_token) {
-      syncExercisesFromBackend(session.access_token).catch(console.error);
+      syncExercisesFromBackend(session.access_token)
+        .then(() => Promise.all([
+          fetchWorkouts(0, 100).then((res) => {
+            if (res?.data?.content) return upsertWorkoutsFromBackend(res.data.content);
+          }),
+          fetchTemplates().then((res) => {
+            if (res?.data) return upsertTemplatesFromBackend(res.data);
+          }),
+        ]))
+        .catch(console.error);
     }
   }, [session?.user?.id]);
 

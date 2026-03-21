@@ -1,4 +1,6 @@
+import * as Crypto from 'expo-crypto';
 import { ExerciseLog, RPEScale, SetType, WorkoutSession } from '../../types/workout.types';
+import { WorkoutResponse } from '../api/workoutApi';
 import db from './database';
 
 interface WorkoutSessionRow {
@@ -176,4 +178,35 @@ export const updateWorkoutSession = async (session: WorkoutSession): Promise<voi
 
 export const deleteWorkoutSession = async (id: string): Promise<void> => {
     await db.runAsync(`DELETE FROM workout_sessions WHERE id = ?`, [id]);
+};
+
+export const upsertWorkoutsFromBackend = async (workouts: WorkoutResponse[]): Promise<void> => {
+    for (const w of workouts) {
+        const existing = await db.getFirstAsync<{ id: string }>(
+            'SELECT id FROM workout_sessions WHERE id = ?',
+            [w.id]
+        );
+        if (existing) continue;
+
+        await db.runAsync(
+            `INSERT INTO workout_sessions (id, name, startTime, endTime, volumeKg, bodyweightKg, notes, averageRPE)
+             VALUES (?, ?, ?, ?, ?, NULL, NULL, ?)`,
+            [w.id, w.name, w.startTime, w.endTime, w.volumeKg, w.averageRpe]
+        );
+
+        for (const log of w.logs) {
+            await db.runAsync(
+                `INSERT INTO exercise_logs (id, sessionId, exerciseId, "order", notes)
+                 VALUES (?, ?, ?, ?, NULL)`,
+                [log.id, w.id, log.exerciseId, log.order]
+            );
+            for (const s of log.sets) {
+                await db.runAsync(
+                    `INSERT INTO workout_sets (id, exerciseLogId, setNumber, weightKg, reps, rpe, setType, restDurationSeconds, isCompleted)
+                     VALUES (?, ?, ?, ?, ?, ?, ?, NULL, ?)`,
+                    [Crypto.randomUUID(), log.id, s.setNumber, s.weightKg, s.reps, s.rpe, s.setType, s.isCompleted ? 1 : 0]
+                );
+            }
+        }
+    }
 };

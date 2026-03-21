@@ -99,7 +99,9 @@ export const useWorkoutSession = () => {
     };
 
     const completeSet = (exerciseLogId: string, setId: string): void => {
-        const existingLog = store.activeSession?.logs.find((l) => l.id === exerciseLogId);
+        // Read fresh state to avoid stale closure (e.g. when called right after updateSetValues)
+        const fresh = useWorkoutStore.getState().activeSession;
+        const existingLog = fresh?.logs.find((l) => l.id === exerciseLogId);
         if (!existingLog) return;
 
         const existingSet = existingLog.sets.find((s) => s.id === setId);
@@ -112,7 +114,8 @@ export const useWorkoutSession = () => {
     };
 
     const removeSet = (exerciseLogId: string, setId: string): void => {
-        const log = store.activeSession?.logs.find((l) => l.id === exerciseLogId);
+        const fresh = useWorkoutStore.getState().activeSession;
+        const log = fresh?.logs.find((l) => l.id === exerciseLogId);
         if (!log || log.sets.length <= 1) return;
         store.removeSet(exerciseLogId, setId);
     };
@@ -124,7 +127,9 @@ export const useWorkoutSession = () => {
         reps: number,
         rpe?: number
     ): void => {
-        const existingLog = store.activeSession?.logs.find((l) => l.id === exerciseLogId);
+        // Read fresh state to avoid stale closure
+        const fresh = useWorkoutStore.getState().activeSession;
+        const existingLog = fresh?.logs.find((l) => l.id === exerciseLogId);
         if (!existingLog) return;
 
         const existingSet = existingLog.sets.find((s) => s.id === setId);

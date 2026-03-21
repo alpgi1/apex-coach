@@ -151,3 +151,56 @@ export const updateTemplate = async (template: WorkoutTemplate): Promise<void> =
         );
     }
 };
+
+// Backend returns 'sortOrder' but local uses 'order' — map before saving
+interface BackendTemplateExercise {
+    id: string;
+    exerciseId: string;
+    sortOrder: number;
+    targetSets: number;
+    targetRepsMin: number;
+    targetRepsMax?: number;
+    targetRpe?: number;
+    restTargetSeconds?: number;
+}
+
+interface BackendTemplate {
+    id: string;
+    name: string;
+    description?: string;
+    primaryMuscleGroups: string[];
+    exercises: BackendTemplateExercise[];
+    createdAt: string;
+    updatedAt: string;
+}
+
+export const upsertTemplatesFromBackend = async (templates: BackendTemplate[]): Promise<void> => {
+    for (const t of templates) {
+        const existing = await db.getFirstAsync<{ id: string }>(
+            'SELECT id FROM workout_templates WHERE id = ?',
+            [t.id]
+        );
+        if (existing) continue;
+
+        const mapped: WorkoutTemplate = {
+            id: t.id,
+            name: t.name,
+            description: t.description,
+            primaryMuscleGroups: t.primaryMuscleGroups as MuscleGroup[],
+            createdAt: t.createdAt,
+            updatedAt: t.updatedAt,
+            exercises: t.exercises.map((e) => ({
+                id: e.id,
+                exerciseId: e.exerciseId,
+                order: e.sortOrder,
+                targetSets: e.targetSets,
+                targetRepsMin: e.targetRepsMin,
+                targetRepsMax: e.targetRepsMax,
+                targetRpe: e.targetRpe as RPEScale | undefined,
+                restTargetSeconds: e.restTargetSeconds,
+            })),
+        };
+
+        await saveTemplate(mapped);
+    }
+};

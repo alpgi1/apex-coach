@@ -6,11 +6,27 @@ interface ApiResponse<T> {
     message?: string;
 }
 
-export const fetchTemplates = (): Promise<ApiResponse<WorkoutTemplate[]>> =>
+// Backend DTO mapping (frontend 'order' → backend 'sortOrder')
+const mapTemplateToBackend = (template: Omit<WorkoutTemplate, 'id' | 'createdAt' | 'updatedAt'>) => ({
+    name: template.name,
+    description: template.description ?? null,
+    primaryMuscleGroups: template.primaryMuscleGroups,
+    exercises: template.exercises.map((e) => ({
+        exerciseId: e.exerciseId,
+        sortOrder: e.order,
+        targetSets: e.targetSets,
+        targetRepsMin: e.targetRepsMin,
+        targetRepsMax: e.targetRepsMax ?? null,
+        targetRpe: e.targetRpe ?? null,
+        restTargetSeconds: e.restTargetSeconds ?? null,
+    })),
+});
+
+export const fetchTemplates = (): Promise<ApiResponse<any[]>> =>
     apiRequest('GET', '/api/v1/templates');
 
 export const createTemplate = (template: Omit<WorkoutTemplate, 'id' | 'createdAt' | 'updatedAt'>): Promise<ApiResponse<WorkoutTemplate>> =>
-    apiRequest('POST', '/api/v1/templates', template);
+    apiRequest('POST', '/api/v1/templates', mapTemplateToBackend(template));
 
 export const updateTemplate = (id: string, template: Partial<WorkoutTemplate>): Promise<ApiResponse<WorkoutTemplate>> =>
     apiRequest('PUT', `/api/v1/templates/${id}`, template);
