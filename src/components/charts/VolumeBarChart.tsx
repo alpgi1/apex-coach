@@ -1,12 +1,10 @@
 import { Text, View } from 'react-native';
 import { BarChart } from 'react-native-gifted-charts';
+import { formatVolume } from '../../utils/formatters';
 
 interface VolumeBarChartProps {
     data: { label: string; value: number }[];
 }
-
-const formatVolume = (v: number): string =>
-    v >= 1000 ? `${(v / 1000).toFixed(1)}k` : String(v);
 
 export default function VolumeBarChart({ data }: VolumeBarChartProps) {
     const barData = data.map((d) => ({

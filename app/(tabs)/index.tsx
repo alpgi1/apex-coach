@@ -28,6 +28,7 @@ import { getWorkoutHistory } from '../../src/services/storage/workoutStorage';
 import { useUserStore } from '../../src/store/userStore';
 import { ExerciseMetadata } from '../../src/types/exercise.types';
 import { WorkoutSession, WorkoutTemplate } from '../../src/types/workout.types';
+import { formatDateShort, isSameDay, isToday } from '../../src/utils/formatters';
 
 /* ────────────────────── week calendar helpers ────────────────────── */
 
@@ -35,7 +36,7 @@ const DAY_NAMES = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
 const getWeekDays = (): Date[] => {
   const now = new Date();
-  const dayOfWeek = now.getDay(); // 0=Sun, 1=Mon...
+  const dayOfWeek = now.getDay();
   const mondayOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
   const monday = new Date(now.getFullYear(), now.getMonth(), now.getDate() + mondayOffset);
   return Array.from({ length: 7 }, (_, i) => {
@@ -44,13 +45,6 @@ const getWeekDays = (): Date[] => {
     return d;
   });
 };
-
-const isSameDay = (a: Date, b: Date): boolean =>
-  a.getFullYear() === b.getFullYear() &&
-  a.getMonth() === b.getMonth() &&
-  a.getDate() === b.getDate();
-
-const isToday = (d: Date): boolean => isSameDay(d, new Date());
 
 const hasWorkoutOnDate = (date: Date, sessions: WorkoutSession[]): boolean =>
   sessions.some((s) => isSameDay(new Date(s.startTime), date));
@@ -132,11 +126,6 @@ export default function DashboardScreen() {
     if (rpe <= 7) return 'bg-[#34C759]';
     if (rpe <= 8.5) return 'bg-[#FFD60A]';
     return 'bg-[#FF3131]';
-  };
-
-  const formatDate = (isoString: string): string => {
-    const date = new Date(isoString);
-    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
   };
 
   const calculateDuration = (start: string, end: string | null): string => {
@@ -227,7 +216,7 @@ export default function DashboardScreen() {
                   {lastWorkout.name}
                 </Text>
                 <Text style={styles.mutedText} className="text-sm mb-4">
-                  {formatDate(lastWorkout.startTime)} • Duration:{' '}
+                  {formatDateShort(lastWorkout.startTime)} • Duration:{' '}
                   {calculateDuration(lastWorkout.startTime, lastWorkout.endTime)}
                 </Text>
 
@@ -351,7 +340,7 @@ export default function DashboardScreen() {
                       {session.name}
                     </Text>
                     <Text style={styles.mutedText} className="text-xs">
-                      {formatDate(session.startTime)} •{' '}
+                      {formatDateShort(session.startTime)} •{' '}
                       {calculateDuration(session.startTime, session.endTime)}
                     </Text>
                   </View>

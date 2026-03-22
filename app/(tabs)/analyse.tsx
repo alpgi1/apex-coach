@@ -24,37 +24,7 @@ import { getAllExercises } from '../../src/services/storage/exerciseStorage';
 import { deleteWorkoutSession, getWorkoutHistory } from '../../src/services/storage/workoutStorage';
 import { ExerciseMetadata } from '../../src/types/exercise.types';
 import { WorkoutSession } from '../../src/types/workout.types';
-
-/* ──────────────────────────── helpers ──────────────────────────── */
-
-const rpeColor = (rpe: number | undefined): string => {
-    if (rpe === undefined) return 'text-white';
-    if (rpe <= 7) return 'text-green-400';
-    if (rpe <= 8.5) return 'text-yellow-400';
-    return 'text-red-400';
-};
-
-const formatDate = (iso: string): string => {
-    const d = new Date(iso);
-    return d.toLocaleDateString('en-US', {
-        weekday: 'short',
-        month: 'short',
-        day: 'numeric',
-    });
-};
-
-const formatDuration = (start: string, end: string | null): string => {
-    if (!end) return '--';
-    const diffMs = new Date(end).getTime() - new Date(start).getTime();
-    const mins = Math.round(diffMs / 60000);
-    if (mins < 60) return `${mins}m`;
-    const h = Math.floor(mins / 60);
-    const m = mins % 60;
-    return `${h}h ${m}m`;
-};
-
-const formatVolume = (kg: number): string =>
-    kg >= 1000 ? `${(kg / 1000).toFixed(1)}k` : `${kg.toLocaleString()}`;
+import { formatDate, formatDuration, formatVolume, getRpeTextClass } from '../../src/utils/formatters';
 
 /* ──────────────────────── main screen ─────────────────────────── */
 
@@ -293,7 +263,7 @@ export default function AnalyseScreen() {
                                                                         <Text className="text-[#8E8E93] w-10 text-sm">{s.setNumber}</Text>
                                                                         <Text className="text-white flex-1 text-center text-sm">{s.weightKg} kg</Text>
                                                                         <Text className="text-white flex-1 text-center text-sm">{s.reps}</Text>
-                                                                        <Text className={`flex-1 text-center text-sm font-outfit-semibold ${rpeColor(s.rpe)}`}>
+                                                                        <Text className={`flex-1 text-center text-sm font-outfit-semibold ${getRpeTextClass(s.rpe)}`}>
                                                                             {s.rpe ?? '-'}
                                                                         </Text>
                                                                     </View>

@@ -13,38 +13,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { getExerciseById } from '../../src/services/storage/exerciseStorage';
 import { getWorkoutSessionById } from '../../src/services/storage/workoutStorage';
 import { WorkoutSession } from '../../src/types/workout.types';
-
-/* ──────────────────────────── helpers ──────────────────────────── */
-
-const rpeColor = (rpe: number | undefined): string => {
-    if (rpe === undefined) return 'text-white';
-    if (rpe <= 7) return 'text-green-400';
-    if (rpe <= 8.5) return 'text-yellow-400';
-    return 'text-red-400';
-};
-
-const formatDate = (iso: string): string => {
-    const d = new Date(iso);
-    return d.toLocaleDateString('en-US', {
-        weekday: 'long',
-        month: 'long',
-        day: 'numeric',
-        year: 'numeric',
-    });
-};
-
-const formatDuration = (start: string, end: string | null): string => {
-    if (!end) return '--';
-    const diffMs = new Date(end).getTime() - new Date(start).getTime();
-    const mins = Math.round(diffMs / 60000);
-    if (mins < 60) return `${mins} min`;
-    const h = Math.floor(mins / 60);
-    const m = mins % 60;
-    return `${h}h ${m}m`;
-};
-
-const formatVolume = (kg: number): string =>
-    kg >= 1000 ? `${(kg / 1000).toFixed(1)}k kg` : `${kg.toLocaleString()} kg`;
+import { formatDateLong, formatDuration, formatVolume, getRpeTextClass } from '../../src/utils/formatters';
 
 const countTotalSets = (session: WorkoutSession): number =>
     session.logs.reduce((sum, log) => sum + log.sets.length, 0);
@@ -192,7 +161,7 @@ export default function SessionDetailScreen() {
                                 color="#8E8E93"
                             />
                             <Text className="text-[#8E8E93] text-sm">
-                                {formatDate(session.startTime)}
+                                {formatDateLong(session.startTime)}
                             </Text>
                         </View>
                         <View className="flex-row items-center gap-1.5">
@@ -212,7 +181,7 @@ export default function SessionDetailScreen() {
                         <StatBox
                             icon="barbell-outline"
                             label="Total Volume"
-                            value={formatVolume(session.volumeKg)}
+                            value={`${formatVolume(session.volumeKg)} kg`}
                         />
                         <View className="w-px bg-[#3A3A3C]" />
                         <StatBox
@@ -281,7 +250,7 @@ export default function SessionDetailScreen() {
                                         {s.reps}
                                     </Text>
                                     <Text
-                                        className={`flex-1 text-center text-sm font-semibold ${rpeColor(
+                                        className={`flex-1 text-center text-sm font-semibold ${getRpeTextClass(
                                             s.rpe
                                         )}`}
                                     >

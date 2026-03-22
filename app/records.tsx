@@ -9,6 +9,7 @@ import { getAllExercises } from '../src/services/storage/exerciseStorage';
 import { getWorkoutHistory } from '../src/services/storage/workoutStorage';
 import { MuscleGroup } from '../src/types/exercise.types';
 import { calculateEpley1RM } from '../src/utils/rpeCalculator';
+import { formatDateMedium } from '../src/utils/formatters';
 
 /* ─────────────────────────── types ─────────────────────────── */
 
@@ -24,11 +25,6 @@ interface PRRecord {
 }
 
 /* ─────────────────────────── helpers ───────────────────────── */
-
-const formatDate = (iso: string): string => {
-    const d = new Date(iso);
-    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-};
 
 const formatLabel = (raw: string): string =>
     raw.replace(/_/g, ' ').toLowerCase().replace(/\b\w/g, (c) => c.toUpperCase());
@@ -202,7 +198,7 @@ export default function RecordsScreen() {
 
                             {/* Date of best */}
                             <Text className="text-[#8E8E93] text-xs mt-3">
-                                Best on {formatDate(record.bestDate)}
+                                Best on {formatDateMedium(record.bestDate)}
                             </Text>
 
                         </View>

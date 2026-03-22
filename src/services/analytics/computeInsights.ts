@@ -24,9 +24,7 @@ function estimated1RM(weight: number, reps: number): number {
     return weight * (1 + reps / 30);
 }
 
-function daysAgo(isoDate: string): number {
-    return (Date.now() - new Date(isoDate).getTime()) / (24 * 60 * 60 * 1000);
-}
+import { daysAgo } from '../../utils/formatters';
 
 /* ─────────────── insight detectors ─────────────── */
 

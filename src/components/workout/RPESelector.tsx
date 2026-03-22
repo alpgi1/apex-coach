@@ -16,25 +16,7 @@ const ITEM_HEIGHT = 44;
 const VISIBLE_ITEMS = 3;
 const PICKER_HEIGHT = ITEM_HEIGHT * VISIBLE_ITEMS;
 
-/* ──────────────────────── helpers ────────────────────────── */
-
-const getRpeColor = (rpe: number): string => {
-    if (rpe <= 7) return '#4ade80';
-    if (rpe <= 8.5) return '#facc15';
-    return '#f87171';
-};
-
-const getRpeLabel = (rpe: number): string => {
-    if (rpe === 10) return 'Max effort — 0 RIR';
-    if (rpe === 9.5) return 'Could maybe add weight';
-    if (rpe === 9) return '1 rep in reserve';
-    if (rpe === 8.5) return '1–2 reps in reserve';
-    if (rpe === 8) return '2 reps in reserve';
-    if (rpe === 7.5) return '2–3 reps in reserve';
-    if (rpe === 7) return '3 reps in reserve';
-    if (rpe <= 6.5) return 'Warmup territory';
-    return '';
-};
+import { getRpeHexColor as getRpeColor, getRpeLabel } from '../../utils/formatters';
 
 /* ──────────────────── picker item ────────────────────────── */
 

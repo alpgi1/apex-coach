@@ -29,17 +29,7 @@ import { getExerciseById } from '../../src/services/storage/exerciseStorage';
 import { useUserStore } from '../../src/store/userStore';
 import { ExerciseMetadata } from '../../src/types/exercise.types';
 import { WorkoutSet } from '../../src/types/workout.types';
-
-/* ──────────────────────────── helpers ──────────────────────────── */
-
-const formatTimer = (totalSeconds: number): string => {
-    const mins = Math.floor(totalSeconds / 60);
-    const secs = totalSeconds % 60;
-    return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
-};
-
-const formatVolume = (kg: number): string =>
-    kg >= 1000 ? `${(kg / 1000).toFixed(1)}k kg` : `${kg.toLocaleString()} kg`;
+import { formatTimer, formatVolume } from '../../src/utils/formatters';
 
 /* ──────────────────────── main screen ─────────────────────────── */
 
@@ -310,7 +300,7 @@ export default function WorkoutScreen() {
                             {formatTimer(elapsed)}
                         </Text>
                         <Text style={styles.volume}>
-                            {formatVolume(liveVolume)}
+                            {formatVolume(liveVolume)} kg
                         </Text>
                         <Text className="text-[#8E8E93] text-xs tracking-widest mt-1">
                             LIVE TOTAL VOLUME
@@ -414,7 +404,7 @@ export default function WorkoutScreen() {
                                 <Text className="text-[#8E8E93] text-xs mt-0.5">Time</Text>
                             </View>
                             <View className="items-center">
-                                <Text className="text-[#FF6000] text-lg font-bold">{formatVolume(liveVolume)}</Text>
+                                <Text className="text-[#FF6000] text-lg font-bold">{formatVolume(liveVolume)} kg</Text>
                                 <Text className="text-[#8E8E93] text-xs mt-0.5">Total Volume</Text>
                             </View>
                         </View>
