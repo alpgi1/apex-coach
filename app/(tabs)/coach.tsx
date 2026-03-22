@@ -12,6 +12,7 @@ import {
     TextInput,
     View,
 } from 'react-native';
+import Markdown from 'react-native-markdown-display';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { sendChatMessage } from '../../src/services/api/aiApi';
 import { useUserStore } from '../../src/store/userStore';
@@ -191,9 +192,11 @@ export default function CoachScreen() {
                     </View>
                 )}
                 <View style={[styles.messageBubble, isUser ? styles.userBubble : styles.aiBubble]}>
-                    <Text style={[styles.messageText, isUser ? styles.userText : styles.aiText]}>
-                        {item.content}
-                    </Text>
+                    {isUser ? (
+                        <Text style={[styles.messageText, styles.userText]}>{item.content}</Text>
+                    ) : (
+                        <Markdown style={markdownStyles}>{item.content}</Markdown>
+                    )}
                 </View>
             </View>
         );
@@ -538,3 +541,19 @@ const styles = StyleSheet.create({
         backgroundColor: 'rgba(255,255,255,0.08)',
     },
 });
+
+const markdownStyles = {
+    body: { color: 'rgba(255,255,255,0.9)', fontFamily: 'Outfit_400Regular', fontSize: 15, lineHeight: 22 },
+    heading1: { color: '#FFFFFF', fontFamily: 'Outfit_700Bold', fontSize: 17, marginTop: 8, marginBottom: 4 },
+    heading2: { color: '#FFFFFF', fontFamily: 'Outfit_700Bold', fontSize: 16, marginTop: 8, marginBottom: 4 },
+    heading3: { color: '#00C9A7', fontFamily: 'Outfit_600SemiBold', fontSize: 15, marginTop: 6, marginBottom: 2 },
+    strong: { fontFamily: 'Outfit_700Bold', color: '#FFFFFF' },
+    em: { fontFamily: 'Outfit_400Regular', fontStyle: 'italic' as const },
+    bullet_list: { marginVertical: 4 },
+    ordered_list: { marginVertical: 4 },
+    list_item: { marginVertical: 2 },
+    bullet_list_icon: { color: '#00C9A7', marginTop: 6 },
+    code_inline: { backgroundColor: 'rgba(0,201,167,0.1)', color: '#00C9A7', borderRadius: 4, paddingHorizontal: 4 },
+    fence: { backgroundColor: 'rgba(255,255,255,0.05)', borderRadius: 8, padding: 8, marginVertical: 4 },
+    paragraph: { marginVertical: 2 },
+};
