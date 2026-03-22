@@ -22,8 +22,11 @@ import AnimatedBackground from '../../src/components/layout/AnimatedBackground';
 
 import StartWorkoutModal from '../../src/components/workout/StartWorkoutModal';
 import { useWorkoutSession } from '../../src/hooks/useWorkoutSession';
+import { computeInsights, Insight } from '../../src/services/analytics/computeInsights';
+import { getAllExercises } from '../../src/services/storage/exerciseStorage';
 import { getWorkoutHistory } from '../../src/services/storage/workoutStorage';
 import { useUserStore } from '../../src/store/userStore';
+import { ExerciseMetadata } from '../../src/types/exercise.types';
 import { WorkoutSession, WorkoutTemplate } from '../../src/types/workout.types';
 
 /* ────────────────────── week calendar helpers ────────────────────── */
@@ -59,8 +62,11 @@ export default function DashboardScreen() {
   const { name } = useUserStore();
   const { startWorkout, addExercise, addEmptySets } = useWorkoutSession();
 
+  const { targetRIR } = useUserStore();
   const [isStartModalVisible, setIsStartModalVisible] = useState<boolean>(false);
   const [history, setHistory] = useState<WorkoutSession[]>([]);
+  const [insights, setInsights] = useState<Insight[]>([]);
+  const [dismissedInsights, setDismissedInsights] = useState<Set<string>>(new Set());
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
   /* ── start button pulse ────────────────────────────── */
@@ -84,8 +90,17 @@ export default function DashboardScreen() {
       const loadHistory = async () => {
         try {
           setIsLoading(true);
-          const data = await getWorkoutHistory();
+          const [data, exercises] = await Promise.all([
+            getWorkoutHistory(),
+            getAllExercises(),
+          ]);
           setHistory(data);
+
+          // Compute training insights
+          const exerciseMap = new Map<string, ExerciseMetadata>();
+          for (const ex of exercises) exerciseMap.set(ex.id, ex);
+          const targetRpe = 10 - targetRIR;
+          setInsights(computeInsights(data, exerciseMap, targetRpe));
         } catch (error) {
           console.error('Failed to load workout history:', error);
         } finally {
@@ -257,6 +272,50 @@ export default function DashboardScreen() {
             </Pressable>
           </Animated.View>
 
+          {/* SECTION 3.5 — TRAINING INSIGHTS */}
+          {insights.filter((i) => !dismissedInsights.has(i.id)).length > 0 && (
+            <View className="mb-6">
+              <Text className="text-white text-base font-outfit-bold mb-2 ml-1">
+                Training Intelligence
+              </Text>
+              {insights
+                .filter((i) => !dismissedInsights.has(i.id))
+                .map((insight) => {
+                  const color =
+                    insight.severity === 'warning' ? '#FF453A'
+                      : insight.severity === 'success' ? '#FFB800'
+                      : '#4A9EFF';
+                  return (
+                    <View key={insight.id} style={[
+                      styles.insightCard,
+                      insight.severity === 'warning' ? styles.insight_warning
+                        : insight.severity === 'success' ? styles.insight_success
+                        : styles.insight_info,
+                    ]}>
+                      <View style={[styles.insightIconWrap, { backgroundColor: `${color}15` }]}>
+                        <Ionicons name={insight.icon as any} size={18} color={color} />
+                      </View>
+                      <View style={{ flex: 1 }}>
+                        <Text style={[styles.insightTitle, { color }]}>
+                          {insight.title}
+                        </Text>
+                        <Text style={styles.insightMessage}>
+                          {insight.message}
+                        </Text>
+                      </View>
+                      <Pressable
+                        onPress={() => setDismissedInsights((prev) => new Set(prev).add(insight.id))}
+                        hitSlop={8}
+                        style={styles.insightDismiss}
+                      >
+                        <Ionicons name="close" size={14} color="rgba(255,255,255,0.35)" />
+                      </Pressable>
+                    </View>
+                  );
+                })}
+            </View>
+          )}
+
           {/* SECTION 4 — RECENT SESSIONS */}
           <View className="flex-row justify-between items-center mb-4">
             <Text className="text-white text-xl font-outfit-bold">Recent Sessions</Text>
@@ -411,5 +470,54 @@ const styles = StyleSheet.create({
     borderRadius: 3,
     backgroundColor: '#FF6000',
     marginTop: 4,
+  },
+  insightCard: {
+    flexDirection: 'row' as const,
+    alignItems: 'flex-start' as const,
+    padding: 14,
+    borderRadius: 16,
+    borderWidth: 1,
+    marginBottom: 8,
+  },
+  insight_warning: {
+    backgroundColor: 'rgba(255,69,58,0.08)',
+    borderColor: 'rgba(255,69,58,0.2)',
+  },
+  insight_success: {
+    backgroundColor: 'rgba(255,184,0,0.08)',
+    borderColor: 'rgba(255,184,0,0.2)',
+  },
+  insight_info: {
+    backgroundColor: 'rgba(74,158,255,0.08)',
+    borderColor: 'rgba(74,158,255,0.2)',
+  },
+  insightDismiss: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: 'rgba(255,255,255,0.08)',
+    alignItems: 'center' as const,
+    justifyContent: 'center' as const,
+    marginLeft: 8,
+  },
+  insightIconWrap: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: 'rgba(255,255,255,0.08)',
+    alignItems: 'center' as const,
+    justifyContent: 'center' as const,
+    marginRight: 12,
+    marginTop: 2,
+  },
+  insightTitle: {
+    fontSize: 13,
+    fontWeight: '700' as const,
+    marginBottom: 3,
+  },
+  insightMessage: {
+    fontSize: 12,
+    color: 'rgba(255,255,255,0.6)',
+    lineHeight: 17,
   },
 });

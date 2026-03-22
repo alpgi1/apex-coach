@@ -189,20 +189,20 @@ export const upsertWorkoutsFromBackend = async (workouts: WorkoutResponse[]): Pr
         if (existing) continue;
 
         await db.runAsync(
-            `INSERT INTO workout_sessions (id, name, startTime, endTime, volumeKg, bodyweightKg, notes, averageRPE)
+            `INSERT OR IGNORE INTO workout_sessions (id, name, startTime, endTime, volumeKg, bodyweightKg, notes, averageRPE)
              VALUES (?, ?, ?, ?, ?, NULL, NULL, ?)`,
             [w.id, w.name, w.startTime, w.endTime, w.volumeKg, w.averageRpe]
         );
 
         for (const log of w.logs) {
             await db.runAsync(
-                `INSERT INTO exercise_logs (id, sessionId, exerciseId, "order", notes)
+                `INSERT OR IGNORE INTO exercise_logs (id, sessionId, exerciseId, "order", notes)
                  VALUES (?, ?, ?, ?, NULL)`,
                 [log.id, w.id, log.exerciseId, log.order]
             );
             for (const s of log.sets) {
                 await db.runAsync(
-                    `INSERT INTO workout_sets (id, exerciseLogId, setNumber, weightKg, reps, rpe, setType, restDurationSeconds, isCompleted)
+                    `INSERT OR IGNORE INTO workout_sets (id, exerciseLogId, setNumber, weightKg, reps, rpe, setType, restDurationSeconds, isCompleted)
                      VALUES (?, ?, ?, ?, ?, ?, ?, NULL, ?)`,
                     [Crypto.randomUUID(), log.id, s.setNumber, s.weightKg, s.reps, s.rpe, s.setType, s.isCompleted ? 1 : 0]
                 );
