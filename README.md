@@ -282,6 +282,13 @@ Phase 1 — Frontend MVP
   ✅ Finish workout confirmation modal (animated BlurView sheet)
   ✅ Analyse tab — Volume Trend bar chart + Muscle Group Split radar
   ✅ UI polish — Outfit font, floating tab bar, card hierarchy, AnimatedBackground
+  ✅ Warmup sets — dedicated warm-up set type (green, "W" label, excluded from volume)
+  ✅ Rest timer — floating countdown bar with animated progress + auto-start on set complete
+  ✅ Background rest timer notification — local notification fires even when app is backgrounded
+  ✅ Session notes — free-text note field per workout session
+  ✅ Haptic feedback — NotificationFeedback on set complete / workout finish
+  ✅ Collapsed / expanded exercise card view with auto-scroll
+  ✅ Analyse history pagination (Show More / Show Less)
 
 Phase 2 — Backend + Cloud Sync
   ✅ Spring Boot 4.0.3 project scaffold

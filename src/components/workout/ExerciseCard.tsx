@@ -1,4 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
+import * as Haptics from 'expo-haptics';
 import { useEffect } from 'react';
 import {
     Pressable,
@@ -279,6 +280,9 @@ export default function ExerciseCard({
                                                 const rpe = parseFloat(draft.rpe);
                                                 updateSetValues(log.id, s.id, w, r, isNaN(rpe) ? undefined : rpe);
                                             }
+                                            Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+                                        } else {
+                                            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                                         }
                                         completeSet(log.id, s.id);
                                     }}

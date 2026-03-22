@@ -1,4 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
+import * as Haptics from 'expo-haptics';
 import { useRouter } from 'expo-router';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import {
@@ -225,6 +226,7 @@ export default function WorkoutScreen() {
         setIsFinishModalVisible(false);
         try {
             await finishWorkout();
+            Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
             router.replace('/(tabs)');
         } catch (error) {
             console.error('Failed to save workout:', error);
