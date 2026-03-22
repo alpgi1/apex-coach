@@ -62,6 +62,9 @@ export default function AnalyseScreen() {
     const [exerciseMap, setExerciseMap] = useState<Map<string, ExerciseMetadata>>(new Map());
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [expanded, setExpanded] = useState<Record<string, boolean>>({});
+    const INITIAL_HISTORY_COUNT = 5;
+    const PAGE_SIZE = 10;
+    const [visibleCount, setVisibleCount] = useState(INITIAL_HISTORY_COUNT);
 
     /* ── load data on focus ─────────────────────────────────── */
     useFocusEffect(
@@ -182,7 +185,7 @@ export default function AnalyseScreen() {
 
                     {/* ── SESSION CARDS ────────────────────────────── */}
                     <View className="px-4">
-                        {history.map((session) => {
+                        {history.slice(0, visibleCount).map((session) => {
                             const isExpanded = expanded[session.id] ?? false;
                             const highRpe = (session.averageRPE ?? 0) > 8;
 
@@ -303,6 +306,27 @@ export default function AnalyseScreen() {
                                 </Pressable>
                             );
                         })}
+                        {/* ── SHOW MORE ────────────────────────────── */}
+                        {visibleCount < history.length && (
+                            <Pressable
+                                onPress={() => setVisibleCount((c) => Math.min(c + PAGE_SIZE, history.length))}
+                                className="mb-3 py-3 items-center flex-row justify-center gap-2 active:opacity-70"
+                            >
+                                <Text className="text-[#FF6000] font-outfit-semibold text-sm">
+                                    Show {Math.min(PAGE_SIZE, history.length - visibleCount)} more
+                                </Text>
+                                <Ionicons name="chevron-down" size={14} color="#FF6000" />
+                            </Pressable>
+                        )}
+                        {visibleCount > INITIAL_HISTORY_COUNT && (
+                            <Pressable
+                                onPress={() => setVisibleCount(INITIAL_HISTORY_COUNT)}
+                                className="mb-3 py-3 items-center flex-row justify-center gap-2 active:opacity-70"
+                            >
+                                <Text className="text-[#8E8E93] font-outfit-semibold text-sm">Show less</Text>
+                                <Ionicons name="chevron-up" size={14} color="#8E8E93" />
+                            </Pressable>
+                        )}
                     </View>
                 </ScrollView>
             </SafeAreaView>

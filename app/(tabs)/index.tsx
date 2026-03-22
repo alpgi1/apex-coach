@@ -161,9 +161,7 @@ export default function DashboardScreen() {
                 {name || 'Lifter'}
               </Text>
             </View>
-            <TouchableOpacity style={styles.iconBtn}>
-              <Ionicons name="settings-outline" size={20} color="#FFFFFF" />
-            </TouchableOpacity>
+            <View style={{ width: 40 }} />
           </View>
 
           {/* SECTION 1.5 — WEEKLY CALENDAR */}

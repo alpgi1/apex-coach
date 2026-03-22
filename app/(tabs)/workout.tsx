@@ -20,6 +20,7 @@ import AnimatedBackground from '../../src/components/layout/AnimatedBackground';
 import CollapsedExerciseCard from '../../src/components/workout/CollapsedExerciseCard';
 import ExerciseCard, { type SetRowDraft } from '../../src/components/workout/ExerciseCard';
 import ExercisePickerModal from '../../src/components/workout/ExercisePickerModal';
+import RestTimer from '../../src/components/workout/RestTimer';
 import { useProgressiveOverload } from '../../src/hooks/useProgressiveOverload';
 import { useWorkoutSession } from '../../src/hooks/useWorkoutSession';
 import { getExerciseById } from '../../src/services/storage/exerciseStorage';
@@ -54,7 +55,10 @@ export default function WorkoutScreen() {
     } = useWorkoutSession();
 
     const { suggestion, fetchSuggestion } = useProgressiveOverload();
-    const { targetRIR } = useUserStore();
+    const { targetRIR, restTimerDuration, autoStartRestTimer } = useUserStore();
+
+    /* ── rest timer ────────────────────────────────────────────── */
+    const [isRestTimerRunning, setIsRestTimerRunning] = useState(false);
     const insets = useSafeAreaInsets();
 
     /* ── timer ────────────────────────────────────────────────── */
@@ -149,6 +153,7 @@ export default function WorkoutScreen() {
         const rpe = parseFloat(merged.rpe);
         if (!isNaN(w) && w > 0 && !isNaN(r) && r > 0 && !isNaN(rpe)) {
             completeSet(logId, setId);
+            if (autoStartRestTimer) setIsRestTimerRunning(true);
         }
     };
 
@@ -347,6 +352,15 @@ export default function WorkoutScreen() {
                 </ScrollView>
 
             </SafeAreaView>
+
+            {/* ── REST TIMER ──────────────────────────────────── */}
+            <View style={{ position: 'absolute', left: 16, right: 16, bottom: insets.bottom + 150 }}>
+                <RestTimer
+                    duration={restTimerDuration}
+                    isRunning={isRestTimerRunning}
+                    onDismiss={() => setIsRestTimerRunning(false)}
+                />
+            </View>
 
             {/* ── SECTION 5 — BOTTOM BUTTON ───────────────────── */}
             <View style={[styles.bottomBar, { bottom: insets.bottom + 90 }]}>

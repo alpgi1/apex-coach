@@ -9,6 +9,7 @@ import {
     Pressable,
     ScrollView,
     StyleSheet,
+    Switch,
     Text,
     TextInput,
     View,
@@ -24,7 +25,7 @@ import { useUserStore } from '../../src/store/userStore';
 import { WorkoutTemplate } from '../../src/types/workout.types';
 
 export default function ProfileScreen() {
-    const { name, weightUnit, targetRIR, profilePhoto, setName, setWeightUnit, setTargetRIR, setProfilePhoto } =
+    const { name, weightUnit, targetRIR, profilePhoto, restTimerDuration, autoStartRestTimer, setName, setWeightUnit, setTargetRIR, setProfilePhoto, setRestTimerDuration, setAutoStartRestTimer } =
         useUserStore();
     const { signOut } = useAuthStore();
 
@@ -234,6 +235,46 @@ export default function ProfileScreen() {
                                 </Pressable>
                             </View>
                         </View>
+
+                        <View style={styles.divider} className="py-3">
+                            <View className="flex-row items-center gap-3 mb-2.5">
+                                <Ionicons name="timer-outline" size={20} color="rgba(255,255,255,0.5)" />
+                                <Text style={styles.rowLabel}>Rest Timer</Text>
+                            </View>
+                            <View className="flex-row gap-2">
+                                {([60, 90, 120, 180] as const).map((sec) => (
+                                    <Pressable
+                                        key={sec}
+                                        onPress={() => setRestTimerDuration(sec)}
+                                        style={[
+                                            styles.pill,
+                                            { flex: 1, alignItems: 'center' },
+                                            restTimerDuration === sec ? styles.pillActive : styles.pillInactive,
+                                        ]}
+                                    >
+                                        <Text style={[
+                                            styles.pillText,
+                                            restTimerDuration === sec ? styles.pillTextActive : styles.pillTextInactive,
+                                        ]}>
+                                            {sec < 120 ? `${sec}s` : `${sec / 60}m`}
+                                        </Text>
+                                    </Pressable>
+                                ))}
+                            </View>
+                        </View>
+
+                        <View className="flex-row items-center justify-between py-3">
+                            <View className="flex-row items-center gap-3">
+                                <Ionicons name="play-circle-outline" size={20} color="rgba(255,255,255,0.5)" />
+                                <Text style={styles.rowLabel}>Auto-Start Rest</Text>
+                            </View>
+                            <Switch
+                                value={autoStartRestTimer}
+                                onValueChange={setAutoStartRestTimer}
+                                trackColor={{ false: 'rgba(255,255,255,0.1)', true: '#FF6000' }}
+                                thumbColor="white"
+                            />
+                        </View>
                     </View>
 
                     {/* ── YOUR STATS ────────────────────────── */}
@@ -314,6 +355,26 @@ export default function ProfileScreen() {
                                 </View>
                             ))
                         )}
+                    </View>
+
+                    {/* ── APP INFO ─────────────────────────── */}
+                    <View style={styles.card} className="mb-4">
+                        <Text style={styles.sectionLabel} className="mb-3">App</Text>
+
+                        <View style={styles.divider} className="flex-row items-center justify-between py-3">
+                            <View className="flex-row items-center gap-3">
+                                <Ionicons name="information-circle-outline" size={20} color="rgba(255,255,255,0.5)" />
+                                <Text style={styles.rowLabel}>Version</Text>
+                            </View>
+                            <Text style={styles.rowMuted}>1.0.0</Text>
+                        </View>
+
+                        <View className="flex-row items-center justify-between py-3">
+                            <View className="flex-row items-center gap-3">
+                                <Ionicons name="heart-outline" size={20} color="rgba(255,255,255,0.5)" />
+                                <Text style={styles.rowLabel}>Made by Alpgiray</Text>
+                            </View>
+                        </View>
                     </View>
 
                     {/* ── DANGER ZONE ───────────────────────── */}

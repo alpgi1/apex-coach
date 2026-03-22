@@ -36,7 +36,7 @@ export default function VolumeBarChart({ data }: VolumeBarChartProps) {
                 barWidth={28}
                 spacing={12}
                 noOfSections={4}
-                maxValue={Math.ceil(maxValue / 100) * 100}
+                maxValue={Math.ceil((maxValue * 1.15) / 100) * 100}
                 backgroundColor="transparent"
                 yAxisColor="transparent"
                 xAxisColor="rgba(255,255,255,0.1)"
@@ -49,6 +49,8 @@ export default function VolumeBarChart({ data }: VolumeBarChartProps) {
                 animationDuration={600}
                 disablePress
                 yAxisLabelWidth={40}
+                scrollToEnd
+                scrollAnimation
                 formatYLabel={(label: string) => formatVolume(Number(label))}
             />
         </View>
