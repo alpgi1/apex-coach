@@ -10,11 +10,11 @@ import {
     StyleSheet,
     Text,
     TextInput,
-    TouchableWithoutFeedback,
     View,
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { sendChatMessage } from '../../src/services/api/aiApi';
+import { useUserStore } from '../../src/store/userStore';
 import {
     createConversation,
     getConversationMessages,
@@ -54,6 +54,7 @@ export default function CoachScreen() {
     const [keyboardHeight, setKeyboardHeight] = useState(0);
     const flatListRef = useRef<FlatList>(null);
     const insets = useSafeAreaInsets();
+    const userName = useUserStore((s) => s.name);
     const bottomOffset = insets.bottom > 0 ? insets.bottom : 20;
 
     // Track keyboard height
@@ -90,8 +91,9 @@ export default function CoachScreen() {
         }
     };
 
-    const handleNewChat = useCallback(() => {
-        setConversationId(null);
+    const handleNewChat = useCallback(async () => {
+        const conv = await createConversation('New Chat');
+        setConversationId(conv.id);
         setMessages([]);
         setInputText('');
         setError(null);
@@ -132,7 +134,7 @@ export default function CoachScreen() {
 
             // Call API
             setIsLoading(true);
-            const response = await sendChatMessage(messageText, history.slice(0, -1));
+            const response = await sendChatMessage(messageText, history.slice(0, -1), userName || undefined);
 
             // Save AI response
             const aiMsg = await saveChatMessage({
@@ -218,11 +220,6 @@ export default function CoachScreen() {
         </View>
     );
 
-    const renderQuickActions = () => {
-        if (messages.length > 0 || isLoading) return null;
-        return null; // Shown in empty state instead
-    };
-
     const renderInputQuickActions = () => {
         if (messages.length === 0 || inputText.length > 0 || isLoading) return null;
         return (
@@ -265,8 +262,7 @@ export default function CoachScreen() {
                 </Pressable>
             </View>
 
-            <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-                <View style={styles.flex1}>
+            <View style={styles.flex1}>
                     {/* Messages */}
                     {messages.length === 0 && !isLoading ? (
                         renderEmptyState()
@@ -334,7 +330,6 @@ export default function CoachScreen() {
                         </View>
                     </View>
                 </View>
-            </TouchableWithoutFeedback>
         </SafeAreaView>
     );
 }

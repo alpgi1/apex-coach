@@ -12,7 +12,10 @@ public record AiChatRequest(
         String message,
 
         @Size(max = 50, message = "Conversation history too long")
-        List<ChatMessage> conversationHistory
+        List<ChatMessage> conversationHistory,
+
+        @Size(max = 50, message = "Name too long")
+        String userName
 ) {
     public record ChatMessage(
             @NotBlank(message = "Role is required")

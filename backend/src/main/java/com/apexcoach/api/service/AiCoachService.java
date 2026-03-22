@@ -28,7 +28,10 @@ public class AiCoachService {
         User user = authenticatedUserService.getCurrentUser();
         TrainingContextService.TrainingContext ctx = trainingContextService.buildChatContext(user);
 
-        String systemPrompt = buildChatSystemPrompt(user.getName(), ctx.text());
+        String displayName = (request.userName() != null && !request.userName().isBlank())
+                ? request.userName()
+                : user.getName();
+        String systemPrompt = buildChatSystemPrompt(displayName, ctx.text());
 
         // Build conversation history in Gemini format
         List<GeminiRequest.Content> contents = new ArrayList<>();

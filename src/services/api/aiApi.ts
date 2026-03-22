@@ -19,9 +19,10 @@ interface AiInsightsApiResponse {
 
 export const sendChatMessage = (
     message: string,
-    conversationHistory: { role: string; text: string }[]
+    conversationHistory: { role: string; text: string }[],
+    userName?: string
 ): Promise<AiChatApiResponse> =>
-    apiRequest('POST', '/api/v1/ai/chat', { message, conversationHistory });
+    apiRequest('POST', '/api/v1/ai/chat', { message, conversationHistory, userName });
 
 export const requestAiInsights = (
     dayRange: number
