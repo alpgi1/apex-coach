@@ -275,9 +275,19 @@ export default function DashboardScreen() {
           {/* SECTION 3.5 — TRAINING INSIGHTS */}
           {insights.filter((i) => !dismissedInsights.has(i.id)).length > 0 && (
             <View className="mb-6">
-              <Text className="text-white text-base font-outfit-bold mb-2 ml-1">
-                Training Intelligence
-              </Text>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8, marginLeft: 4 }}>
+                <Text className="text-white text-base font-outfit-bold">
+                  Training Intelligence
+                </Text>
+                <Pressable onPress={() => router.push('/(tabs)/coach')}>
+                  <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                    <Ionicons name="sparkles" size={14} color="#00C9A7" />
+                    <Text style={{ color: '#00C9A7', fontSize: 12, fontFamily: 'Outfit_600SemiBold', marginLeft: 4 }}>
+                      Ask AI
+                    </Text>
+                  </View>
+                </Pressable>
+              </View>
               {insights
                 .filter((i) => !dismissedInsights.has(i.id))
                 .map((insight) => {

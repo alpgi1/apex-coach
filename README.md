@@ -2,7 +2,21 @@
 
 ![Status](https://img.shields.io/badge/status-MVP-brightgreen) ![Platform](https://img.shields.io/badge/platform-iOS%20%7C%20Android-lightgrey) ![License](https://img.shields.io/badge/license-MIT-blue)
 
-> An offline-first, RPE-driven training app for serious weightlifters who track every set with precision.
+> An offline-first, RPE-driven training app with built-in AI coaching for serious weightlifters.
+
+---
+
+## Screenshots
+
+<table>
+  <tr>
+    <td align="center"><img src="assets/screenshots/home.png" width="180"/><br/><sub>Dashboard</sub></td>
+    <td align="center"><img src="assets/screenshots/workout.png" width="180"/><br/><sub>Active Workout</sub></td>
+    <td align="center"><img src="assets/screenshots/analyse.png" width="180"/><br/><sub>Analyse</sub></td>
+    <td align="center"><img src="assets/screenshots/coach.png" width="180"/><br/><sub>Apex AI</sub></td>
+    <td align="center"><img src="assets/screenshots/profile.png" width="180"/><br/><sub>Profile</sub></td>
+  </tr>
+</table>
 
 ---
 
@@ -12,7 +26,7 @@ Most fitness apps get progressive overload wrong. Fitbod recommends weights base
 
 **"Given how hard I worked last session, what should I lift today?"**
 
-Apex Coach is built around RPE (Rate of Perceived Exertion) — the only metric that captures both absolute load and relative fatigue. Every progression suggestion is derived from the user's own performance data, not generic algorithms.
+Apex Coach is built around RPE (Rate of Perceived Exertion) — the only metric that captures both absolute load and relative fatigue. Every progression suggestion is derived from the user's own performance data, not generic algorithms. And when you want a second opinion, the built-in AI coach has full context of your training history.
 
 ---
 
@@ -25,9 +39,9 @@ Apex Coach is built around RPE (Rate of Perceived Exertion) — the only metric 
 | **Workout Templates** | Create reusable session blueprints with target sets, rep ranges, and RPE goals |
 | **Personal Records** | Auto-tracked PRs: max weight, estimated 1RM (Epley formula), best set per exercise |
 | **Analyse Dashboard** | 8-week volume trend chart + muscle group split radar chart |
+| **Apex AI Coach** | Gemini-powered AI with full access to your training history. Ask anything — overtraining, next session, weekly analysis |
 | **Cloud Sync** | Local-first architecture with automatic backend sync. Works offline, syncs when connected |
 | **Auth** | Supabase-powered authentication with session persistence across app restarts |
-| **Offline-First** | Full functionality with zero network connection. SQLite as local source of truth |
 
 ---
 
@@ -57,6 +71,7 @@ Apex Coach is built around RPE (Rate of Perceived Exertion) — the only metric 
 | ORM | Spring Data JPA + Hibernate 7 |
 | Migrations | Flyway |
 | Auth | Supabase Auth (JWT) + Spring Security OAuth2 Resource Server |
+| AI | Gemini 3.1 Flash Lite (via REST — no SDK) |
 | Validation | Jakarta Bean Validation |
 | Deployment | Render (Docker) |
 | Uptime | UptimeRobot (5-min pings to keep free tier alive) |
@@ -72,16 +87,16 @@ Apex Coach is built around RPE (Rate of Perceived Exertion) — the only metric 
 │                          │  JSON   │                          │
 │  SQLite (local-first)    │◄────────┤  PostgreSQL 17           │
 │  Zustand (state)         │         │  (Supabase managed)      │
-└──────────┬───────────────┘         └──────────────────────────┘
-           │                                    ▲
-           │  Auth (JWT)                        │ JWT verification
-           ▼                                    │
-┌──────────────────────────┐                    │
-│       Supabase           ├────────────────────┘
-│  - Auth (email/password) │
-│  - PostgreSQL (prod DB)  │
-│  - Session persistence   │
-└──────────────────────────┘
+└──────────┬───────────────┘         └──────────┬───────────────┘
+           │                                    │
+           │  Auth (JWT)                        │ Gemini REST API
+           ▼                                    ▼
+┌──────────────────────────┐         ┌──────────────────────────┐
+│       Supabase           │         │   Google Gemini 3.1      │
+│  - Auth (email/password) │         │   Flash Lite             │
+│  - PostgreSQL (prod DB)  │         │  (training context +     │
+│  - Session persistence   │         │   conversation history)  │
+└──────────────────────────┘         └──────────────────────────┘
 ```
 
 ### Sync Strategy
@@ -98,13 +113,28 @@ Write path:  UI → SQLite (immediate) → Backend API (async, non-blocking)
 Read path:   UI ← SQLite ← Backend (merged on login)
 ```
 
-### Backend Architecture
+### AI Coach Architecture
+
+The AI has full context of the user's recent training before answering:
+
+```
+User message → AiController
+  → AiCoachService
+    → TrainingContextService (builds compact summary of last 14 days)
+    → GeminiRateLimiter (sliding window, 14 RPM)
+    → GeminiService (REST call to Gemini API)
+  ← AI response with tokensUsed
+```
+
+Chat history is persisted locally in SQLite (`chat_conversations` + `chat_messages`), never sent to the cloud.
+
+### Backend Package Structure
 
 ```
 com.apexcoach.api
-├── config/          # SecurityConfig, CorsConfig
+├── config/          # SecurityConfig, CorsConfig, GeminiConfig
 ├── controller/      # REST endpoints (@RestController)
-├── service/         # Business logic + AuthenticatedUserService
+├── service/         # Business logic, GeminiService, AiCoachService, TrainingContextService
 ├── repository/      # Spring Data JPA interfaces
 ├── entity/          # JPA entities + enums
 ├── dto/             # Request/Response records with validation
@@ -133,6 +163,9 @@ PUT    /api/v1/templates/{id}           Update template
 DELETE /api/v1/templates/{id}           Delete template
 
 GET    /api/v1/records/{exerciseId}     Personal record (max weight, est. 1RM via Epley)
+
+POST   /api/v1/ai/chat                  AI chat (message + conversation history)
+POST   /api/v1/ai/insights              AI training insights (day range)
 ```
 
 ---
@@ -148,9 +181,10 @@ apex-coach/
 │   │   ├── login.tsx               # Sign in — AnimatedBackground, glassmorphism card
 │   │   └── signup.tsx              # Sign up — email/password with validation
 │   ├── (tabs)/
-│   │   ├── _layout.tsx             # Tab bar (BlurView glass, active icon glow)
+│   │   ├── _layout.tsx             # Tab bar (BlurView glass, floating center AI button)
 │   │   ├── index.tsx               # Dashboard — last workout, weekly calendar, start button
 │   │   ├── workout.tsx             # Active workout — timer, set editor, progressive overload
+│   │   ├── coach.tsx               # Apex AI — chat UI, quick actions, conversation history
 │   │   ├── analyse.tsx             # Analyse — volume trend chart, muscle group radar
 │   │   └── profile.tsx             # Profile — preferences, templates, stats, sign out
 │   ├── records.tsx                 # Personal records — Est. 1RM (Epley), best set per exercise
@@ -158,6 +192,9 @@ apex-coach/
 │   └── template/
 │       ├── create.tsx              # Create workout template
 │       └── [templateId].tsx        # Edit template
+│
+├── assets/
+│   └── screenshots/                # App screenshots (README)
 │
 ├── src/
 │   ├── components/
@@ -168,11 +205,11 @@ apex-coach/
 │   ├── lib/
 │   │   └── supabase.ts             # Supabase client singleton (AsyncStorage adapter)
 │   ├── services/
-│   │   ├── storage/                # SQLite CRUD: workoutStorage, exerciseStorage, templateStorage
+│   │   ├── storage/                # SQLite CRUD: workoutStorage, exerciseStorage, templateStorage, chatStorage
 │   │   ├── analytics/              # computeAnalytics.ts — weekly volume, muscle group split
-│   │   └── api/                    # client.ts (Bearer JWT), workoutApi, templateApi, exerciseApi
+│   │   └── api/                    # client.ts (Bearer JWT), workoutApi, templateApi, exerciseApi, aiApi
 │   ├── store/                      # Zustand: workoutStore, userStore, authStore
-│   ├── types/                      # Strict interfaces: exercise.types, workout.types
+│   ├── types/                      # Strict interfaces: exercise.types, workout.types, chat.types
 │   └── utils/                      # rpeCalculator (Epley), progressionLogic, formatters
 │
 ├── .env                            # Environment variables (not committed)
@@ -183,15 +220,15 @@ apex-coach/
     ├── pom.xml                     # Maven — Spring Boot 4.0.3, Java 21
     └── src/main/
         ├── java/com/apexcoach/api/
-        │   ├── config/             # Security, CORS
-        │   ├── controller/         # REST controllers
-        │   ├── service/            # Business logic
+        │   ├── config/             # Security, CORS, GeminiConfig (RestClient bean)
+        │   ├── controller/         # REST controllers (workout, template, exercise, record, AI)
+        │   ├── service/            # Business logic, GeminiService, AiCoachService, TrainingContextService
         │   ├── repository/         # JPA repositories
         │   ├── entity/             # JPA entities + enums
         │   ├── dto/                # Request/Response DTOs
-        │   └── exception/          # Global exception handler
+        │   └── exception/          # Global exception handler + Gemini exceptions
         └── resources/
-            ├── application.yml     # Base config
+            ├── application.yml     # Base config (Gemini model, rate limit)
             ├── application-dev.yml # Local DB (Docker)
             ├── application-prod.yml# Supabase prod (env vars)
             └── db/migration/       # Flyway SQL migrations (V1-V4)
@@ -242,6 +279,8 @@ docker compose up -d
 curl http://localhost:8080/api/v1/health
 ```
 
+Set `GEMINI_API_KEY` in your environment or `application-dev.yml` to enable the AI coach locally.
+
 **pgAdmin:** http://localhost:5050 (admin@apexcoach.com / admin)
 
 ---
@@ -257,6 +296,11 @@ User logs set → RPESelector (drum roll picker) → useWorkoutSession hook
 On login → exerciseApi.syncExercises (ID reconciliation)
         → workoutApi.fetchWorkouts → upsertWorkoutsFromBackend (SQLite merge)
         → templateApi.fetchTemplates → upsertTemplatesFromBackend (SQLite merge)
+
+User sends AI message → coach.tsx
+  → saveChatMessage (SQLite — local persistence)
+  → aiApi.sendChatMessage (Spring Boot → TrainingContextService → Gemini REST)
+  → AI response saved to SQLite + rendered in chat
 ```
 
 ---
@@ -308,9 +352,16 @@ Phase 2 — Backend + Cloud Sync
   ✅ Sign out flow
 
 Phase 3 — AI Coach
-  ☐ LLM integration via Spring Boot endpoint
-  ☐ Natural language rationale for progression suggestions
-  ☐ Fatigue pattern detection across training blocks
+  ✅ Gemini 3.1 Flash Lite integration (Spring Boot REST, no SDK)
+  ✅ Training context builder (last 14 days of workout data → compact LLM prompt)
+  ✅ In-memory rate limiter (sliding window, 14 RPM)
+  ✅ AI chat endpoint with conversation history support
+  ✅ AI insights endpoint (day-range analysis)
+  ✅ Center floating tab (gradient glow, spring animation, sparkles icon)
+  ✅ Chat UI — message bubbles, quick action chips, empty state
+  ✅ SQLite chat persistence (conversations + messages)
+  ✅ Keyboard-aware input (dynamic padding, tap-to-dismiss)
+  ✅ Dashboard "Ask AI" shortcut button
 ```
 
 ---

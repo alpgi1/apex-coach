@@ -1,5 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import { BlurView } from 'expo-blur';
+import { LinearGradient } from 'expo-linear-gradient';
 import { Tabs } from 'expo-router';
 import { useRef } from 'react';
 import { Animated, Pressable, StyleSheet, Text, View } from 'react-native';
@@ -43,6 +44,46 @@ function AnimatedTabButton({ children, onPress, onLongPress, style, ...rest }: a
         <Pressable onPress={handlePress} onLongPress={onLongPress} style={style} {...rest}>
             <Animated.View style={{ transform: [{ scale }], flex: 1 }}>
                 {children}
+            </Animated.View>
+        </Pressable>
+    );
+}
+
+/* ── center tab button (floating gradient circle) ──── */
+
+function CenterTabButton({ onPress, onLongPress, style, ...rest }: any) {
+    const scale = useRef(new Animated.Value(1)).current;
+
+    const handlePress = (e: any) => {
+        scale.setValue(0.82);
+        Animated.spring(scale, {
+            toValue: 1,
+            friction: 4,
+            tension: 300,
+            useNativeDriver: true,
+        }).start();
+        onPress?.(e);
+    };
+
+    return (
+        <Pressable
+            onPress={handlePress}
+            onLongPress={onLongPress}
+            style={[style, styles.centerButtonContainer]}
+            {...rest}
+        >
+            <Animated.View style={[styles.centerButtonAnimated, { transform: [{ scale }] }]}>
+                {/* Outer halo glow */}
+                <View style={styles.centerHalo} />
+                {/* Gradient circle */}
+                <LinearGradient
+                    colors={['#00C9A7', '#00B4D8']}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 1 }}
+                    style={styles.centerGradient}
+                >
+                    <Ionicons name="sparkles" size={26} color="#FFFFFF" />
+                </LinearGradient>
             </Animated.View>
         </Pressable>
     );
@@ -139,6 +180,13 @@ export default function TabLayout() {
                 }}
             />
             <Tabs.Screen
+                name="coach"
+                options={{
+                    title: '',
+                    tabBarButton: (props) => <CenterTabButton {...props} />,
+                }}
+            />
+            <Tabs.Screen
                 name="analyse"
                 options={{
                     title: 'Analyse',
@@ -192,5 +240,35 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.8,
         shadowRadius: 8,
         elevation: 8,
+    },
+    /* ── center tab ── */
+    centerButtonContainer: {
+        flex: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    centerButtonAnimated: {
+        alignItems: 'center',
+        justifyContent: 'center',
+        top: -15,
+    },
+    centerHalo: {
+        position: 'absolute',
+        width: 64,
+        height: 64,
+        borderRadius: 32,
+        backgroundColor: 'rgba(0, 201, 167, 0.15)',
+    },
+    centerGradient: {
+        width: 56,
+        height: 56,
+        borderRadius: 28,
+        alignItems: 'center',
+        justifyContent: 'center',
+        shadowColor: '#00C9A7',
+        shadowOffset: { width: 0, height: 0 },
+        shadowOpacity: 0.6,
+        shadowRadius: 16,
+        elevation: 12,
     },
 });

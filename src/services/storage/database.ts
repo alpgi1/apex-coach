@@ -136,6 +136,29 @@ export const initializeDatabase = () => {
 
         CREATE INDEX IF NOT EXISTS idx_template_exercises_template_id
             ON template_exercises(templateId);
+
+        -- ==========================================
+        -- CHAT CONVERSATIONS
+        -- ==========================================
+        CREATE TABLE IF NOT EXISTS chat_conversations (
+            id TEXT PRIMARY KEY,
+            title TEXT NOT NULL,
+            createdAt TEXT NOT NULL,
+            updatedAt TEXT NOT NULL
+        );
+
+        -- ==========================================
+        -- CHAT MESSAGES
+        -- ==========================================
+        CREATE TABLE IF NOT EXISTS chat_messages (
+            id TEXT PRIMARY KEY,
+            conversationId TEXT NOT NULL,
+            role TEXT NOT NULL,
+            content TEXT NOT NULL,
+            timestamp TEXT NOT NULL,
+            FOREIGN KEY (conversationId) REFERENCES chat_conversations(id) ON DELETE CASCADE
+        );
+        CREATE INDEX IF NOT EXISTS idx_chat_messages_conversation ON chat_messages(conversationId);
     `);
 };
 
