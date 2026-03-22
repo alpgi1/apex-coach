@@ -2,6 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useMemo, useState } from 'react';
 import {
+    Alert,
     ActivityIndicator,
     Pressable,
     ScrollView,
@@ -18,8 +19,9 @@ import {
     computeMuscleGroupSplit,
     computeWeeklyVolume,
 } from '../../src/services/analytics/computeAnalytics';
+import { deleteWorkoutFromBackend } from '../../src/services/api/workoutApi';
 import { getAllExercises } from '../../src/services/storage/exerciseStorage';
-import { getWorkoutHistory } from '../../src/services/storage/workoutStorage';
+import { deleteWorkoutSession, getWorkoutHistory } from '../../src/services/storage/workoutStorage';
 import { ExerciseMetadata } from '../../src/types/exercise.types';
 import { WorkoutSession } from '../../src/types/workout.types';
 
@@ -106,6 +108,26 @@ export default function AnalyseScreen() {
     /* ── toggle expand ──────────────────────────────────────── */
     const toggleExpand = (sessionId: string) => {
         setExpanded((prev) => ({ ...prev, [sessionId]: !prev[sessionId] }));
+    };
+
+    /* ── delete workout ─────────────────────────────────────── */
+    const handleDelete = (session: WorkoutSession) => {
+        Alert.alert(
+            'Delete Workout',
+            `Delete "${session.name}"? This cannot be undone.`,
+            [
+                { text: 'Cancel', style: 'cancel' },
+                {
+                    text: 'Delete',
+                    style: 'destructive',
+                    onPress: async () => {
+                        await deleteWorkoutSession(session.id);
+                        setHistory((prev) => prev.filter((s) => s.id !== session.id));
+                        deleteWorkoutFromBackend(session.id).catch(() => {});
+                    },
+                },
+            ]
+        );
     };
 
     /* ═══════════════════ LOADING STATE ═══════════════════════ */
@@ -282,15 +304,23 @@ export default function AnalyseScreen() {
                                                 </View>
                                             )}
                                             {isExpanded && (
-                                                <Pressable
-                                                    onPress={() => router.push(`/workout/${session.id}` as never)}
-                                                    className="mt-4 border border-[#FF6000] rounded-full py-2.5 items-center flex-row justify-center active:opacity-70"
-                                                >
-                                                    <Text className="text-[#FF6000] font-outfit-bold text-sm mr-2">
-                                                        View Full Details
-                                                    </Text>
-                                                    <Ionicons name="arrow-forward" size={14} color="#FF6000" />
-                                                </Pressable>
+                                                <View className="mt-4 flex-row gap-3">
+                                                    <Pressable
+                                                        onPress={() => router.push(`/workout/${session.id}` as never)}
+                                                        className="flex-1 border border-[#FF6000] rounded-full py-2.5 items-center flex-row justify-center active:opacity-70"
+                                                    >
+                                                        <Text className="text-[#FF6000] font-outfit-bold text-sm mr-2">
+                                                            View Details
+                                                        </Text>
+                                                        <Ionicons name="arrow-forward" size={14} color="#FF6000" />
+                                                    </Pressable>
+                                                    <Pressable
+                                                        onPress={() => handleDelete(session)}
+                                                        className="border border-red-500/40 rounded-full px-4 py-2.5 items-center justify-center active:opacity-70"
+                                                    >
+                                                        <Ionicons name="trash-outline" size={16} color="#FF453A" />
+                                                    </Pressable>
+                                                </View>
                                             )}
                                         </View>
 

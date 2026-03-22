@@ -89,3 +89,6 @@ interface ApiPageResponse<T> {
 
 export const fetchWorkouts = (page = 0, size = 100): Promise<ApiPageResponse<WorkoutResponse>> =>
     apiRequest('GET', `/api/v1/workouts?page=${page}&size=${size}`);
+
+export const deleteWorkoutFromBackend = (id: string): Promise<void> =>
+    apiRequest('DELETE', `/api/v1/workouts/${id}`);
