@@ -41,6 +41,13 @@ app:
 server:
   port: 8080
 
+# ── Gemini AI ──────────────────────────────────────────
+gemini:
+  api-key: ${GEMINI_API_KEY:}
+  model: gemini-2.5-flash
+  base-url: https://generativelanguage.googleapis.com/v1beta
+  max-requests-per-minute: 14
+
 # ── Logging ────────────────────────────────────────────
 logging:
   level:

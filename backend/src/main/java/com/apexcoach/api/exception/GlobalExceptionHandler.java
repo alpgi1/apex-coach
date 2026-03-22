@@ -51,6 +51,21 @@ public class GlobalExceptionHandler {
                 .body(ApiResponse.error("Validation failed", errors));
     }
 
+    @ExceptionHandler(GeminiRateLimitException.class)
+    public ResponseEntity<ApiResponse<Void>> handleRateLimit(GeminiRateLimitException ex) {
+        return ResponseEntity
+                .status(HttpStatus.TOO_MANY_REQUESTS)
+                .body(ApiResponse.error(ex.getMessage()));
+    }
+
+    @ExceptionHandler(GeminiApiException.class)
+    public ResponseEntity<ApiResponse<Void>> handleGeminiError(GeminiApiException ex) {
+        log.error("Gemini API error: {}", ex.getMessage(), ex);
+        return ResponseEntity
+                .status(HttpStatus.SERVICE_UNAVAILABLE)
+                .body(ApiResponse.error("AI service temporarily unavailable"));
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<Void>> handleGeneral(Exception ex) {
         log.error("Unhandled exception: {}", ex.getMessage(), ex);
