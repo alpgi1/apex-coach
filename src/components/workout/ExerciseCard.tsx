@@ -28,6 +28,8 @@ export interface SetRowDraft {
     rpe: string;
 }
 
+const WARMUP_COLOR = '#30D158';
+
 interface ExerciseCardProps {
     log: ExerciseLog;
     exerciseName: string;
@@ -39,6 +41,7 @@ interface ExerciseCardProps {
     completeSet: (logId: string, setId: string) => void;
     updateSetValues: (logId: string, setId: string, w: number, r: number, rpe?: number) => void;
     removeSet: (logId: string, setId: string) => void;
+    addWarmupSet: (logId: string) => void;
     addEmptySets: (logId: string, count: number) => void;
     onCollapse: () => void;
 }
@@ -123,6 +126,7 @@ export default function ExerciseCard({
     completeSet,
     updateSetValues,
     removeSet,
+    addWarmupSet,
     addEmptySets,
     onCollapse,
 }: ExerciseCardProps) {
@@ -160,6 +164,17 @@ export default function ExerciseCard({
                     </View>
                 )}
 
+                {/* Add Warm-Up button */}
+                <Pressable
+                    onPress={() => addWarmupSet(log.id)}
+                    className="flex-row items-center self-start mb-3 active:opacity-70"
+                >
+                    <Ionicons name="flame-outline" size={14} color={WARMUP_COLOR} style={{ marginRight: 4 }} />
+                    <Text style={{ color: WARMUP_COLOR, fontSize: 13, fontWeight: '600' }}>
+                        + Warm-Up Set
+                    </Text>
+                </Pressable>
+
                 {/* Set table header */}
                 <View className="flex-row items-center mb-2 px-1">
                     <Text className="text-[#8E8E93] text-xs font-outfit-semibold w-10">SET</Text>
@@ -188,11 +203,20 @@ export default function ExerciseCard({
                             overshootRight={false}
                         >
                             <View
-                                className={`flex-row items-center py-2 px-1 border-b border-[#3A3A3C] ${s.isCompleted ? 'bg-green-500/5' : ''}`}
-                                style={{ backgroundColor: 'transparent' }}
+                                className="flex-row items-center py-2 px-1 border-b border-[#3A3A3C]"
+                                style={s.setType === 'WARMUP' ? styles.warmupRow : undefined}
                             >
-                                <Text className={`w-10 font-outfit-bold ${s.isCompleted ? 'text-white' : 'text-[#FF6000]'}`}>
-                                    {s.setNumber}
+                                <Text
+                                    className="w-10 font-outfit-bold"
+                                    style={{
+                                        color: s.isCompleted
+                                            ? 'white'
+                                            : s.setType === 'WARMUP'
+                                                ? WARMUP_COLOR
+                                                : '#FF6000',
+                                    }}
+                                >
+                                    {s.setType === 'WARMUP' ? 'W' : s.setNumber}
                                 </Text>
                                 <TextInput
                                     style={styles.setInput}
@@ -288,5 +312,9 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         paddingVertical: 8,
         marginHorizontal: 4,
+    },
+    warmupRow: {
+        backgroundColor: 'rgba(48,209,88,0.08)',
+        borderRadius: 12,
     },
 });

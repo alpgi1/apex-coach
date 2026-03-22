@@ -7,6 +7,7 @@ import {
     ScrollView,
     StyleSheet,
     Text,
+    TextInput,
     View,
 } from 'react-native';
 import Animated, {
@@ -47,11 +48,13 @@ export default function WorkoutScreen() {
         activeSession,
         isWorkoutActive,
         addExercise,
+        addWarmupSet,
         addEmptySets,
         completeSet,
         updateSetValues,
         removeSet,
         finishWorkout,
+        setSessionNotes,
     } = useWorkoutSession();
 
     const { suggestion, fetchSuggestion } = useProgressiveOverload();
@@ -152,8 +155,9 @@ export default function WorkoutScreen() {
         const r = parseInt(merged.reps, 10);
         const rpe = parseFloat(merged.rpe);
         if (!isNaN(w) && w > 0 && !isNaN(r) && r > 0 && !isNaN(rpe)) {
+            const currentSet = activeSession?.logs.find((l) => l.id === logId)?.sets.find((s) => s.id === setId);
             completeSet(logId, setId);
-            if (autoStartRestTimer) setIsRestTimerRunning(true);
+            if (autoStartRestTimer && currentSet?.setType !== 'WARMUP') setIsRestTimerRunning(true);
         }
     };
 
@@ -295,6 +299,8 @@ export default function WorkoutScreen() {
                     className="flex-1"
                     contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 160 + insets.bottom }}
                     showsVerticalScrollIndicator={false}
+                    automaticallyAdjustKeyboardInsets
+                    keyboardDismissMode="interactive"
                 >
                     {/* ── SECTION 2 — TIMER + VOLUME ────────────── */}
                     <View className="items-center mt-2 mb-6">
@@ -329,6 +335,7 @@ export default function WorkoutScreen() {
                                     completeSet={completeSet}
                                     updateSetValues={updateSetValues}
                                     removeSet={removeSet}
+                                    addWarmupSet={addWarmupSet}
                                     addEmptySets={addEmptySets}
                                     onCollapse={() => setExpandedLogId(null)}
                                 />
@@ -341,6 +348,24 @@ export default function WorkoutScreen() {
                             )}
                         </View>
                     ))}
+
+                    {/* ── Session Notes ─────────────────────────── */}
+                    <View className="mt-3 mb-2 rounded-2xl border border-white/10 bg-white/[0.07] p-4">
+                        <View className="flex-row items-center mb-2">
+                            <Ionicons name="pencil-outline" size={14} color="#8E8E93" style={{ marginRight: 6 }} />
+                            <Text className="text-[#8E8E93] text-xs font-outfit-semibold tracking-widest">
+                                SESSION NOTES
+                            </Text>
+                        </View>
+                        <TextInput
+                            multiline
+                            placeholder="How did it feel? Any PRs, injuries, notes..."
+                            placeholderTextColor="#4A4A4E"
+                            value={activeSession.notes ?? ''}
+                            onChangeText={setSessionNotes}
+                            style={styles.notesInput}
+                        />
+                    </View>
 
                     {/* ── + Add Exercise button ──────────────────── */}
                     <Pressable
@@ -464,6 +489,13 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.45,
         shadowRadius: 14,
         elevation: 8,
+    },
+    notesInput: {
+        color: 'white',
+        fontFamily: 'Outfit_400Regular',
+        fontSize: 14,
+        minHeight: 60,
+        textAlignVertical: 'top',
     },
     continueBtn: {
         flexDirection: 'row',

@@ -8,8 +8,10 @@ interface WorkoutStoreState {
 
     startSession: (name: string) => void;
     endSession: () => void;
+    setSessionNotes: (notes: string) => void;
     addExerciseLog: (log: ExerciseLog) => void;
     addSet: (exerciseLogId: string, set: WorkoutSet) => void;
+    insertSetAtStart: (exerciseLogId: string, set: WorkoutSet) => void;
     updateSet: (exerciseLogId: string, set: WorkoutSet) => void;
     removeSet: (exerciseLogId: string, setId: string) => void;
 }
@@ -70,6 +72,13 @@ export const useWorkoutStore = create<WorkoutStoreState>((set) => ({
         });
     },
 
+    setSessionNotes: (notes: string) => {
+        set((state) => {
+            if (!state.activeSession) return state;
+            return { activeSession: { ...state.activeSession, notes } };
+        });
+    },
+
     addExerciseLog: (log: ExerciseLog) => {
         set((state) => {
             if (!state.activeSession) return state;
@@ -92,6 +101,30 @@ export const useWorkoutStore = create<WorkoutStoreState>((set) => ({
                     return {
                         ...log,
                         sets: [...log.sets, newSet],
+                    };
+                }
+                return log;
+            });
+
+            return {
+                activeSession: {
+                    ...state.activeSession,
+                    logs: updatedLogs,
+                },
+            };
+        });
+    },
+
+    insertSetAtStart: (exerciseLogId: string, newSet: WorkoutSet) => {
+        set((state) => {
+            if (!state.activeSession) return state;
+
+            const updatedLogs = state.activeSession.logs.map((log) => {
+                if (log.id === exerciseLogId) {
+                    const allSets = [newSet, ...log.sets];
+                    return {
+                        ...log,
+                        sets: allSets.map((s, i) => ({ ...s, setNumber: i + 1 })),
                     };
                 }
                 return log;

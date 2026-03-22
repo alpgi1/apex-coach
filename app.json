@@ -35,7 +35,15 @@
     },
     "plugins": [
       "expo-router",
-      "expo-sqlite"
+      "expo-sqlite",
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/images/icon.png",
+          "color": "#FF6000",
+          "sounds": []
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true

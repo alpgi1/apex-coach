@@ -1,4 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
+import * as Notifications from 'expo-notifications';
 import { useEffect, useRef, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import Animated, {
@@ -22,12 +23,23 @@ const formatTime = (s: number): string => {
 export default function RestTimer({ duration, isRunning, onDismiss }: RestTimerProps) {
     const [remaining, setRemaining] = useState(duration);
     const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+    const notifIdRef = useRef<string | null>(null);
     const opacity = useSharedValue(0);
 
     useEffect(() => {
         if (isRunning) {
             setRemaining(duration);
             opacity.value = withTiming(1, { duration: 200 });
+
+            // Schedule background notification
+            Notifications.scheduleNotificationAsync({
+                content: {
+                    title: 'Rest Complete',
+                    body: 'Time to hit your next set!',
+                    sound: true,
+                },
+                trigger: { type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL, seconds: duration },
+            }).then((id) => { notifIdRef.current = id; });
 
             intervalRef.current = setInterval(() => {
                 setRemaining((prev) => {
@@ -41,6 +53,11 @@ export default function RestTimer({ duration, isRunning, onDismiss }: RestTimerP
         } else {
             opacity.value = withTiming(0, { duration: 150 });
             if (intervalRef.current) clearInterval(intervalRef.current);
+            // Cancel pending notification if dismissed early
+            if (notifIdRef.current) {
+                Notifications.cancelScheduledNotificationAsync(notifIdRef.current);
+                notifIdRef.current = null;
+            }
         }
 
         return () => {
@@ -51,6 +68,7 @@ export default function RestTimer({ duration, isRunning, onDismiss }: RestTimerP
     // Auto-dismiss when timer reaches 0
     useEffect(() => {
         if (remaining === 0 && isRunning) {
+            notifIdRef.current = null; // Notification already fired, clear ref
             const timeout = setTimeout(onDismiss, 1500);
             return () => clearTimeout(timeout);
         }

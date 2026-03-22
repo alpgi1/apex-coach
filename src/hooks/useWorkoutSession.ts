@@ -56,6 +56,19 @@ export const useWorkoutSession = () => {
         return newLog.id;
     };
 
+    const addWarmupSet = (exerciseLogId: string): void => {
+        const warmupSet: WorkoutSet = {
+            id: Crypto.randomUUID(),
+            setNumber: 1,
+            weightKg: 0,
+            reps: 0,
+            rpe: undefined,
+            setType: 'WARMUP',
+            isCompleted: false,
+        };
+        store.insertSetAtStart(exerciseLogId, warmupSet);
+    };
+
     const addEmptySets = (exerciseLogId: string, count: number): void => {
         for (let i = 0; i < count; i++) {
             const fresh = useWorkoutStore.getState().activeSession;
@@ -119,6 +132,20 @@ export const useWorkoutSession = () => {
         store.removeSet(exerciseLogId, setId);
     };
 
+    const toggleSetType = (exerciseLogId: string, setId: string): void => {
+        const fresh = useWorkoutStore.getState().activeSession;
+        const existingLog = fresh?.logs.find((l) => l.id === exerciseLogId);
+        if (!existingLog) return;
+
+        const existingSet = existingLog.sets.find((s) => s.id === setId);
+        if (!existingSet) return;
+
+        store.updateSet(exerciseLogId, {
+            ...existingSet,
+            setType: existingSet.setType === 'WORKING' ? 'WARMUP' : 'WORKING',
+        });
+    };
+
     const updateSetValues = (
         exerciseLogId: string,
         setId: string,
@@ -150,10 +177,13 @@ export const useWorkoutSession = () => {
         startWorkout,
         finishWorkout,
         addExercise,
+        addWarmupSet,
         addEmptySets,
         logSet,
         completeSet,
+        toggleSetType,
         updateSetValues,
         removeSet,
+        setSessionNotes: store.setSessionNotes,
     };
 };
