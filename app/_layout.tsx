@@ -9,7 +9,9 @@ import { seedExercises } from '../src/services/storage/exerciseStorage';
 import { syncExercisesFromBackend } from '../src/services/api/exerciseApi';
 import { fetchWorkouts } from '../src/services/api/workoutApi';
 import { fetchTemplates } from '../src/services/api/templateApi';
-import { upsertWorkoutsFromBackend } from '../src/services/storage/workoutStorage';
+import { deduplicateWorkouts, upsertWorkoutsFromBackend } from '../src/services/storage/workoutStorage';
+import { fetchBodyWeights } from '../src/services/api/weightApi';
+import { upsertWeightLogsFromBackend } from '../src/services/storage/weightStorage';
 import { upsertTemplatesFromBackend } from '../src/services/storage/templateStorage';
 import { fetchAllRecords } from '../src/services/api/recordsApi';
 import { upsertPersonalRecord } from '../src/services/storage/exerciseStorage';
@@ -80,6 +82,9 @@ export default function RootLayout() {
   // Sync chain when user logs in: exercises → workouts + templates + records
   useEffect(() => {
     if (session?.access_token) {
+      // Clean up any existing duplicates before syncing
+      deduplicateWorkouts().catch(console.error);
+
       syncExercisesFromBackend(session.access_token)
         .then(() => Promise.all([
           fetchWorkouts(0, 100).then((res) => {
@@ -87,6 +92,9 @@ export default function RootLayout() {
           }),
           fetchTemplates().then((res) => {
             if (res?.data) return upsertTemplatesFromBackend(res.data);
+          }),
+          fetchBodyWeights().then((res) => {
+            if (res?.data) return upsertWeightLogsFromBackend(res.data);
           }),
           fetchAllRecords().then((res) => {
             if (!res?.data) return;

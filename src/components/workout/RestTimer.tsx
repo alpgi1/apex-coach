@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import * as Notifications from 'expo-notifications';
 import { useEffect, useRef, useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { AppState, AppStateStatus, Pressable, StyleSheet, Text, View } from 'react-native';
 import Animated, {
     useAnimatedStyle,
     useSharedValue,
@@ -24,10 +24,37 @@ export default function RestTimer({ duration, isRunning, onDismiss }: RestTimerP
     const [remaining, setRemaining] = useState(duration);
     const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
     const notifIdRef = useRef<string | null>(null);
+    const endTimeRef = useRef<number>(0); // absolute ms timestamp when rest ends
     const opacity = useSharedValue(0);
+
+    // Start/stop the 1-second interval from current remaining value
+    const startInterval = () => {
+        if (intervalRef.current) clearInterval(intervalRef.current);
+        intervalRef.current = setInterval(() => {
+            const left = Math.max(0, Math.ceil((endTimeRef.current - Date.now()) / 1000));
+            setRemaining(left);
+            if (left <= 0) clearInterval(intervalRef.current!);
+        }, 500); // 500ms for snappier display without drift
+    };
+
+    // Re-sync remaining when app returns to foreground
+    useEffect(() => {
+        const handleAppStateChange = (next: AppStateStatus) => {
+            if (next === 'active' && isRunning) {
+                const left = Math.max(0, Math.ceil((endTimeRef.current - Date.now()) / 1000));
+                setRemaining(left);
+                if (left > 0) {
+                    startInterval();
+                }
+            }
+        };
+        const sub = AppState.addEventListener('change', handleAppStateChange);
+        return () => sub.remove();
+    }, [isRunning]);
 
     useEffect(() => {
         if (isRunning) {
+            endTimeRef.current = Date.now() + duration * 1000;
             setRemaining(duration);
             opacity.value = withTiming(1, { duration: 200 });
 
@@ -41,15 +68,7 @@ export default function RestTimer({ duration, isRunning, onDismiss }: RestTimerP
                 trigger: { type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL, seconds: duration },
             }).then((id) => { notifIdRef.current = id; });
 
-            intervalRef.current = setInterval(() => {
-                setRemaining((prev) => {
-                    if (prev <= 1) {
-                        clearInterval(intervalRef.current!);
-                        return 0;
-                    }
-                    return prev - 1;
-                });
-            }, 1000);
+            startInterval();
         } else {
             opacity.value = withTiming(0, { duration: 150 });
             if (intervalRef.current) clearInterval(intervalRef.current);

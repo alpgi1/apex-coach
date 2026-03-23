@@ -159,6 +159,18 @@ export const initializeDatabase = () => {
             FOREIGN KEY (conversationId) REFERENCES chat_conversations(id) ON DELETE CASCADE
         );
         CREATE INDEX IF NOT EXISTS idx_chat_messages_conversation ON chat_messages(conversationId);
+
+        -- ==========================================
+        -- BODY WEIGHT LOGS
+        -- ==========================================
+        CREATE TABLE IF NOT EXISTS body_weight_logs (
+            id TEXT PRIMARY KEY,
+            date TEXT NOT NULL UNIQUE,    -- date-only "YYYY-MM-DD", one entry per day
+            weightKg REAL NOT NULL,
+            notes TEXT,
+            createdAt TEXT NOT NULL
+        );
+        CREATE INDEX IF NOT EXISTS idx_body_weight_logs_date ON body_weight_logs(date);
     `);
 };
 
@@ -168,6 +180,7 @@ export const clearAllData = (): void => {
         DELETE FROM exercise_logs;
         DELETE FROM workout_sessions;
         DELETE FROM personal_records;
+        DELETE FROM body_weight_logs;
     `);
 };
 

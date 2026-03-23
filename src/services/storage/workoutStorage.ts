@@ -180,11 +180,31 @@ export const deleteWorkoutSession = async (id: string): Promise<void> => {
     await db.runAsync(`DELETE FROM workout_sessions WHERE id = ?`, [id]);
 };
 
+/** Remove duplicate workouts that share the same startTime (keeps the first inserted row). */
+export const deduplicateWorkouts = async (): Promise<number> => {
+    const dupes = await db.getAllAsync<{ startTime: string; cnt: number }>(
+        `SELECT startTime, COUNT(*) as cnt FROM workout_sessions GROUP BY startTime HAVING cnt > 1`
+    );
+    let removed = 0;
+    for (const { startTime } of dupes) {
+        // Keep the first row (MIN rowid), delete the rest
+        await db.runAsync(
+            `DELETE FROM workout_sessions WHERE startTime = ? AND rowid NOT IN (
+                SELECT MIN(rowid) FROM workout_sessions WHERE startTime = ?
+            )`,
+            [startTime, startTime]
+        );
+        removed++;
+    }
+    return removed;
+};
+
 export const upsertWorkoutsFromBackend = async (workouts: WorkoutResponse[]): Promise<void> => {
     for (const w of workouts) {
+        // Check by ID first, then by startTime to catch local/backend UUID mismatch
         const existing = await db.getFirstAsync<{ id: string }>(
-            'SELECT id FROM workout_sessions WHERE id = ?',
-            [w.id]
+            'SELECT id FROM workout_sessions WHERE id = ? OR startTime = ?',
+            [w.id, w.startTime]
         );
         if (existing) continue;
 

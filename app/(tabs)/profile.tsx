@@ -17,12 +17,17 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { clearAllData } from '../../src/services/storage/database';
+import { postBodyWeight } from '../../src/services/api/weightApi';
+import { upsertWeightLogsFromBackend } from '../../src/services/storage/weightStorage';
 import { getAllTemplates, deleteTemplate as deleteTemplateLocal } from '../../src/services/storage/templateStorage';
 import { deleteTemplate as deleteTemplateApi } from '../../src/services/api/templateApi';
 import { useAuthStore } from '../../src/store/authStore';
 import { getWorkoutHistory } from '../../src/services/storage/workoutStorage';
+import { getWeightHistoryDays, getTodayWeight, logWeight } from '../../src/services/storage/weightStorage';
 import { useUserStore } from '../../src/store/userStore';
 import { WorkoutTemplate } from '../../src/types/workout.types';
+import { WeightLog } from '../../src/types/weight.types';
+import WeightLineChart from '../../src/components/charts/WeightLineChart';
 
 export default function ProfileScreen() {
     const { name, weightUnit, targetRIR, profilePhoto, restTimerDuration, autoStartRestTimer, setName, setWeightUnit, setTargetRIR, setProfilePhoto, setRestTimerDuration, setAutoStartRestTimer } =
@@ -34,6 +39,8 @@ export default function ProfileScreen() {
     const [draftName, setDraftName] = useState<string>(name);
     const [totalWorkouts, setTotalWorkouts] = useState<number>(0);
     const [templates, setTemplates] = useState<WorkoutTemplate[]>([]);
+    const [weightHistory, setWeightHistory] = useState<WeightLog[]>([]);
+    const [draftWeight, setDraftWeight] = useState<string>('');
 
     const inputRef = useRef<TextInput>(null);
 
@@ -45,8 +52,24 @@ export default function ProfileScreen() {
             getAllTemplates()
                 .then((t) => setTemplates(t))
                 .catch(() => setTemplates([]));
+            getWeightHistoryDays(90)
+                .then((w) => setWeightHistory(w))
+                .catch(() => setWeightHistory([]));
+            getTodayWeight()
+                .then((w) => { if (w) setDraftWeight(String(w.weightKg)); })
+                .catch(() => {});
         }, [])
     );
+
+    const handleLogWeight = async () => {
+        const kg = parseFloat(draftWeight);
+        if (isNaN(kg) || kg <= 0 || kg > 500) return;
+        const today = new Date().toISOString().slice(0, 10);
+        await logWeight(kg, today).catch(() => {});
+        postBodyWeight(today, kg).catch(() => {});   // fire-and-forget
+        const updated = await getWeightHistoryDays(90).catch(() => []);
+        setWeightHistory(updated);
+    };
 
     const handleStartEdit = () => {
         setDraftName(name);
@@ -308,6 +331,53 @@ export default function ProfileScreen() {
                             </View>
                             <Text style={styles.rowMuted}>Coming soon</Text>
                         </View>
+                    </View>
+
+                    {/* ── BODY WEIGHT ───────────────────────── */}
+                    <View style={styles.card} className="mb-4">
+                        <Text style={styles.sectionLabel} className="mb-3">Body Weight</Text>
+
+                        <View style={styles.divider} className="flex-row items-center justify-between py-3">
+                            <View className="flex-row items-center gap-3">
+                                <Ionicons name="scale-outline" size={20} color="rgba(255,255,255,0.5)" />
+                                <TextInput
+                                    value={draftWeight}
+                                    onChangeText={setDraftWeight}
+                                    onSubmitEditing={handleLogWeight}
+                                    placeholder="kg"
+                                    placeholderTextColor="rgba(255,255,255,0.3)"
+                                    keyboardType="decimal-pad"
+                                    returnKeyType="done"
+                                    style={{ color: 'white', fontSize: 16, minWidth: 60 }}
+                                />
+                            </View>
+                            <Pressable
+                                onPress={handleLogWeight}
+                                style={[styles.pill, styles.pillActive]}
+                                className="active:opacity-70"
+                            >
+                                <Text style={[styles.pillText, styles.pillTextActive]}>Log</Text>
+                            </Pressable>
+                        </View>
+
+                        {weightHistory.length >= 2 ? (
+                            <View className="mt-3">
+                                <WeightLineChart
+                                    data={[...weightHistory].reverse()}
+                                />
+                            </View>
+                        ) : weightHistory.length === 1 ? (
+                            <Text style={styles.rowMuted} className="py-3 text-center text-xs">
+                                Log again tomorrow to see your trend chart
+                            </Text>
+                        ) : null}
+
+                        {weightHistory.length > 0 && (
+                            <View className="flex-row items-center justify-between pt-3">
+                                <Text style={styles.rowMuted}>Last logged</Text>
+                                <Text style={styles.rowValue}>{weightHistory[0].weightKg} kg</Text>
+                            </View>
+                        )}
                     </View>
 
                     {/* ── MY TEMPLATES ──────────────────────── */}

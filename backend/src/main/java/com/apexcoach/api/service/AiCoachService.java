@@ -31,7 +31,7 @@ public class AiCoachService {
         String displayName = (request.userName() != null && !request.userName().isBlank())
                 ? request.userName()
                 : user.getName();
-        String systemPrompt = buildChatSystemPrompt(displayName, ctx.text());
+        String systemPrompt = buildChatSystemPrompt(displayName, ctx.text(), request.weightContext());
 
         // Build conversation history in Gemini format
         List<GeminiRequest.Content> contents = new ArrayList<>();
@@ -78,7 +78,11 @@ public class AiCoachService {
         return new AiInsightsResponse(result.text(), ctx.workoutsAnalyzed(), result.tokensUsed());
     }
 
-    private String buildChatSystemPrompt(String userName, String trainingContext) {
+    private String buildChatSystemPrompt(String userName, String trainingContext, String weightContext) {
+        String weightSection = (weightContext != null && !weightContext.isBlank())
+                ? "\nBODY WEIGHT CONTEXT:\n" + weightContext + "\n"
+                : "";
+        trainingContext = trainingContext + weightSection;
         return """
                 You are Apex Coach, an expert strength training AI coach built into a workout tracking app.
 

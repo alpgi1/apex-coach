@@ -15,7 +15,10 @@ public record AiChatRequest(
         List<ChatMessage> conversationHistory,
 
         @Size(max = 50, message = "Name too long")
-        String userName
+        String userName,
+
+        @Size(max = 300, message = "Weight context too long")
+        String weightContext
 ) {
     public record ChatMessage(
             @NotBlank(message = "Role is required")

@@ -15,6 +15,7 @@ import {
 import Markdown from 'react-native-markdown-display';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { sendChatMessage } from '../../src/services/api/aiApi';
+import { buildWeightContextString } from '../../src/services/storage/weightStorage';
 import { useUserStore } from '../../src/store/userStore';
 import {
     createConversation,
@@ -135,7 +136,8 @@ export default function CoachScreen() {
 
             // Call API
             setIsLoading(true);
-            const response = await sendChatMessage(messageText, history.slice(0, -1), userName || undefined);
+            const weightCtx = await buildWeightContextString().catch(() => '');
+            const response = await sendChatMessage(messageText, history.slice(0, -1), userName || undefined, weightCtx || undefined);
 
             // Save AI response
             const aiMsg = await saveChatMessage({
