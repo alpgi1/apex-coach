@@ -4,6 +4,11 @@ spring:
   # to avoid HikariCP overriding the URL-embedded username (postgres.PROJECT_REF)
   datasource:
     url: ${DATABASE_URL}
+    hikari:
+      maximum-pool-size: 3
+      minimum-idle: 0
+      idle-timeout: 300000
+      max-lifetime: 600000
 
   jpa:
     show-sql: false
