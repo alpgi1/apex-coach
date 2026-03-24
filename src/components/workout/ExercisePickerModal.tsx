@@ -7,13 +7,14 @@ import {
     Modal,
     Platform,
     Pressable,
+    ScrollView,
     Text,
     TextInput,
     View,
 } from 'react-native';
 
 import { getAllExercises, searchExercises } from '../../services/storage/exerciseStorage';
-import { ExerciseMetadata } from '../../types/exercise.types';
+import { ExerciseMetadata, MuscleGroup } from '../../types/exercise.types';
 
 /* ────────────────────────── props ──────────────────────────── */
 
@@ -22,6 +23,12 @@ interface ExercisePickerModalProps {
     onClose: () => void;
     onSelectExercise: (exercise: ExerciseMetadata) => void;
 }
+
+/* ────────────────────────── constants ──────────────────────── */
+
+const MUSCLE_GROUPS: MuscleGroup[] = [
+    'CHEST', 'BACK', 'LEGS', 'SHOULDERS', 'ARMS', 'CORE', 'FULL_BODY',
+];
 
 /* ────────────────────────── helpers ────────────────────────── */
 
@@ -41,60 +48,55 @@ export default function ExercisePickerModal({
     const [exercises, setExercises] = useState<ExerciseMetadata[]>([]);
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [query, setQuery] = useState<string>('');
+    const [activeGroup, setActiveGroup] = useState<MuscleGroup | null>(null);
     const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-    /* ── load all exercises on mount / open ─────────────────── */
-    useEffect(() => {
-        if (!isVisible) return;
-
-        let cancelled = false;
-        const load = async () => {
-            setIsLoading(true);
-            try {
-                const all = await getAllExercises();
-                if (!cancelled) setExercises(all);
-            } catch (err) {
-                console.error('Failed to load exercises:', err);
-            } finally {
-                if (!cancelled) setIsLoading(false);
+    /* ── unified search: showSpinner only on initial open ───── */
+    const runSearch = useCallback(async (name: string, group: MuscleGroup | null, showSpinner = false) => {
+        if (showSpinner) setIsLoading(true);
+        try {
+            if (name.trim().length === 0 && !group) {
+                setExercises(await getAllExercises());
+            } else {
+                setExercises(await searchExercises({
+                    name: name.trim() || undefined,
+                    muscleGroup: group ?? undefined,
+                }));
             }
-        };
-
-        load();
-        return () => {
-            cancelled = true;
-        };
-    }, [isVisible]);
-
-    /* ── debounced search ───────────────────────────────────── */
-    const handleSearch = useCallback((text: string) => {
-        setQuery(text);
-
-        if (debounceRef.current) clearTimeout(debounceRef.current);
-
-        debounceRef.current = setTimeout(async () => {
-            setIsLoading(true);
-            try {
-                if (text.trim().length === 0) {
-                    const all = await getAllExercises();
-                    setExercises(all);
-                } else {
-                    const results = await searchExercises({ name: text.trim() });
-                    setExercises(results);
-                }
-            } catch (err) {
-                console.error('Search failed:', err);
-            } finally {
-                setIsLoading(false);
-            }
-        }, 300);
+        } catch (err) {
+            console.error('Search failed:', err);
+        } finally {
+            if (showSpinner) setIsLoading(false);
+        }
     }, []);
 
-    /* ── cleanup debounce on unmount ────────────────────────── */
+    /* ── load all exercises on open ─────────────────────────── */
     useEffect(() => {
-        return () => {
-            if (debounceRef.current) clearTimeout(debounceRef.current);
-        };
+        if (!isVisible) return;
+        runSearch('', null, true);
+    }, [isVisible, runSearch]);
+
+    /* ── debounced text search ──────────────────────────────── */
+    const handleSearch = useCallback((text: string) => {
+        setQuery(text);
+        if (debounceRef.current) clearTimeout(debounceRef.current);
+        debounceRef.current = setTimeout(() => {
+            setActiveGroup(prev => { runSearch(text, prev); return prev; });
+        }, 300);
+    }, [runSearch]);
+
+    /* ── muscle group chip tap ──────────────────────────────── */
+    const handleGroupPress = useCallback((group: MuscleGroup) => {
+        setActiveGroup(prev => {
+            const next = prev === group ? null : group;
+            runSearch(query, next);
+            return next;
+        });
+    }, [query, runSearch]);
+
+    /* ── cleanup ────────────────────────────────────────────── */
+    useEffect(() => {
+        return () => { if (debounceRef.current) clearTimeout(debounceRef.current); };
     }, []);
 
     /* ── select handler ─────────────────────────────────────── */
@@ -102,11 +104,12 @@ export default function ExercisePickerModal({
         onSelectExercise(exercise);
         onClose();
         setQuery('');
+        setActiveGroup(null);
     };
 
-    /* ── reset query when modal closes ──────────────────────── */
+    /* ── reset on close ─────────────────────────────────────── */
     useEffect(() => {
-        if (!isVisible) setQuery('');
+        if (!isVisible) { setQuery(''); setActiveGroup(null); }
     }, [isVisible]);
 
     /* ── row renderer ───────────────────────────────────────── */
@@ -204,6 +207,43 @@ export default function ExercisePickerModal({
                             <Ionicons name="close-circle" size={18} color="#8E8E93" />
                         </Pressable>
                     )}
+                </View>
+
+                {/* Muscle group filter chips */}
+                <View style={{ marginBottom: 12 }}>
+                    <ScrollView
+                        horizontal
+                        showsHorizontalScrollIndicator={false}
+                        contentContainerStyle={{ paddingHorizontal: 16 }}
+                        keyboardShouldPersistTaps="handled"
+                    >
+                        {MUSCLE_GROUPS.map((group, index) => {
+                            const active = activeGroup === group;
+                            return (
+                                <Pressable
+                                    key={group}
+                                    onPress={() => handleGroupPress(group)}
+                                    style={{
+                                        backgroundColor: active ? '#FF6000' : '#242424',
+                                        borderRadius: 999,
+                                        paddingHorizontal: 14,
+                                        paddingVertical: 8,
+                                        borderWidth: 1,
+                                        borderColor: active ? '#FF6000' : '#3A3A3C',
+                                        marginRight: index < MUSCLE_GROUPS.length - 1 ? 8 : 0,
+                                    }}
+                                >
+                                    <Text style={{
+                                        color: active ? '#000' : '#8E8E93',
+                                        fontSize: 13,
+                                        fontWeight: '600',
+                                    }}>
+                                        {formatLabel(group)}
+                                    </Text>
+                                </Pressable>
+                            );
+                        })}
+                    </ScrollView>
                 </View>
 
                 {/* List */}

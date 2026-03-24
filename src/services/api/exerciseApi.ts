@@ -65,23 +65,23 @@ export const syncExercisesFromBackend = async (token: string): Promise<void> => 
 
             if (!backendId || backendId === local.id) continue;
 
-            // Update FK references first, then parent row
-            await db.runAsync(
-                `UPDATE exercise_logs SET exerciseId = ? WHERE exerciseId = ?`,
-                [backendId, local.id]
+            const existing = await db.getFirstAsync<{ id: string }>(
+                `SELECT id FROM exercises WHERE id = ?`, [backendId]
             );
-            await db.runAsync(
-                `UPDATE template_exercises SET exerciseId = ? WHERE exerciseId = ?`,
-                [backendId, local.id]
-            );
-            await db.runAsync(
-                `UPDATE personal_records SET exerciseId = ? WHERE exerciseId = ?`,
-                [backendId, local.id]
-            );
-            await db.runAsync(
-                `UPDATE exercises SET id = ? WHERE id = ?`,
-                [backendId, local.id]
-            );
+
+            if (existing) {
+                // backendId already in DB (leftover duplicate) — migrate FKs and delete the stale local row
+                await db.runAsync(`UPDATE exercise_logs SET exerciseId = ? WHERE exerciseId = ?`, [backendId, local.id]);
+                await db.runAsync(`UPDATE template_exercises SET exerciseId = ? WHERE exerciseId = ?`, [backendId, local.id]);
+                await db.runAsync(`UPDATE personal_records SET exerciseId = ? WHERE exerciseId = ?`, [backendId, local.id]);
+                await db.runAsync(`DELETE FROM exercises WHERE id = ?`, [local.id]);
+            } else {
+                // Normal case: rename local ID to backend ID
+                await db.runAsync(`UPDATE exercise_logs SET exerciseId = ? WHERE exerciseId = ?`, [backendId, local.id]);
+                await db.runAsync(`UPDATE template_exercises SET exerciseId = ? WHERE exerciseId = ?`, [backendId, local.id]);
+                await db.runAsync(`UPDATE personal_records SET exerciseId = ? WHERE exerciseId = ?`, [backendId, local.id]);
+                await db.runAsync(`UPDATE exercises SET id = ? WHERE id = ?`, [backendId, local.id]);
+            }
         }
 
         // Insert backend exercises that don't exist locally

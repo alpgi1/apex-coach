@@ -16,7 +16,7 @@ public class AuthenticatedUserService {
 
     private final UserRepository userRepository;
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Transactional(propagation = Propagation.REQUIRED)
     public User getCurrentUser() {
         JwtAuthenticationToken auth = (JwtAuthenticationToken)
                 SecurityContextHolder.getContext().getAuthentication();
