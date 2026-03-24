@@ -87,7 +87,7 @@ export default function RootLayout() {
 
       syncExercisesFromBackend(session.access_token)
         .then(() => Promise.all([
-          fetchWorkouts(0, 100).then((res) => {
+          fetchWorkouts(0, 500).then((res) => {
             if (res?.data?.content) return upsertWorkoutsFromBackend(res.data.content);
           }),
           fetchTemplates().then((res) => {

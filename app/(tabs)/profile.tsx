@@ -17,6 +17,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { clearAllData } from '../../src/services/storage/database';
+import { calculateStreak, STREAK_MILESTONES, StreakResult } from '../../src/services/storage/streakStorage';
 import { postBodyWeight } from '../../src/services/api/weightApi';
 import { upsertWeightLogsFromBackend } from '../../src/services/storage/weightStorage';
 import { getAllTemplates, deleteTemplate as deleteTemplateLocal } from '../../src/services/storage/templateStorage';
@@ -41,6 +42,7 @@ export default function ProfileScreen() {
     const [templates, setTemplates] = useState<WorkoutTemplate[]>([]);
     const [weightHistory, setWeightHistory] = useState<WeightLog[]>([]);
     const [draftWeight, setDraftWeight] = useState<string>('');
+    const [streak, setStreak] = useState<StreakResult | null>(null);
 
     const inputRef = useRef<TextInput>(null);
 
@@ -57,6 +59,9 @@ export default function ProfileScreen() {
                 .catch(() => setWeightHistory([]));
             getTodayWeight()
                 .then((w) => { if (w) setDraftWeight(String(w.weightKg)); })
+                .catch(() => {});
+            calculateStreak()
+                .then((s) => setStreak(s))
                 .catch(() => {});
         }, [])
     );
@@ -330,6 +335,42 @@ export default function ProfileScreen() {
                                 <Text style={styles.rowLabel}>Favorite Exercise</Text>
                             </View>
                             <Text style={styles.rowMuted}>Coming soon</Text>
+                        </View>
+                    </View>
+
+                    {/* ── ACHIEVEMENTS ──────────────────────── */}
+                    <View style={styles.card} className="mb-4">
+                        <Text style={styles.sectionLabel} className="mb-1">Achievements</Text>
+                        {streak && (
+                            <Text style={[styles.rowMuted, { fontSize: 12, marginBottom: 12 }]}>
+                                {streak.currentStreak}w current · {streak.longestStreak}w best
+                            </Text>
+                        )}
+                        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10 }}>
+                            {STREAK_MILESTONES.map((m) => {
+                                const earned = (streak?.earnedMilestones ?? []).some(e => e.weeks === m.weeks);
+                                return (
+                                    <View
+                                        key={m.weeks}
+                                        style={[
+                                            styles.badge,
+                                            earned
+                                                ? { borderColor: `${m.color}60`, backgroundColor: `${m.color}12` }
+                                                : styles.badgeLocked,
+                                        ]}
+                                    >
+                                        <Text style={{ fontSize: 22, opacity: earned ? 1 : 0.25 }}>
+                                            {m.emoji}
+                                        </Text>
+                                        <Text style={[styles.badgeLabel, { color: earned ? m.color : 'rgba(255,255,255,0.25)' }]}>
+                                            {m.label}
+                                        </Text>
+                                        <Text style={[styles.badgeWeeks, { color: earned ? 'rgba(255,255,255,0.5)' : 'rgba(255,255,255,0.2)' }]}>
+                                            {m.weeks}w
+                                        </Text>
+                                    </View>
+                                );
+                            })}
                         </View>
                     </View>
 
@@ -626,5 +667,27 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         width: 24,
         textAlign: 'center',
+    },
+    badge: {
+        flex: 1,
+        minWidth: '28%',
+        alignItems: 'center',
+        borderWidth: 1,
+        borderRadius: 14,
+        paddingVertical: 10,
+        paddingHorizontal: 6,
+        gap: 3,
+    },
+    badgeLocked: {
+        borderColor: 'rgba(255,255,255,0.08)',
+        backgroundColor: 'rgba(255,255,255,0.03)',
+    },
+    badgeLabel: {
+        fontSize: 10,
+        fontWeight: '600',
+        textAlign: 'center',
+    },
+    badgeWeeks: {
+        fontSize: 10,
     },
 });

@@ -19,11 +19,13 @@ import Animated, {
 } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AnimatedBackground from '../../src/components/layout/AnimatedBackground';
+import StreakWidget from '../../src/components/dashboard/StreakWidget';
 
 import StartWorkoutModal from '../../src/components/workout/StartWorkoutModal';
 import { useWorkoutSession } from '../../src/hooks/useWorkoutSession';
 import { computeInsights, Insight } from '../../src/services/analytics/computeInsights';
 import { getAllExercises } from '../../src/services/storage/exerciseStorage';
+import { calculateStreak, StreakResult } from '../../src/services/storage/streakStorage';
 import { getWorkoutHistory } from '../../src/services/storage/workoutStorage';
 import { useUserStore } from '../../src/store/userStore';
 import { ExerciseMetadata } from '../../src/types/exercise.types';
@@ -61,6 +63,7 @@ export default function DashboardScreen() {
   const [history, setHistory] = useState<WorkoutSession[]>([]);
   const [insights, setInsights] = useState<Insight[]>([]);
   const [dismissedInsights, setDismissedInsights] = useState<Set<string>>(new Set());
+  const [streak, setStreak] = useState<StreakResult | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
   /* ── start button pulse ────────────────────────────── */
@@ -84,11 +87,13 @@ export default function DashboardScreen() {
       const loadHistory = async () => {
         try {
           setIsLoading(true);
-          const [data, exercises] = await Promise.all([
+          const [data, exercises, streakResult] = await Promise.all([
             getWorkoutHistory(),
             getAllExercises(),
+            calculateStreak(),
           ]);
           setHistory(data);
+          setStreak(streakResult);
 
           // Compute training insights
           const exerciseMap = new Map<string, ExerciseMetadata>();
@@ -197,6 +202,9 @@ export default function DashboardScreen() {
               );
             })}
           </View>
+
+          {/* SECTION 1.7 — STREAK WIDGET */}
+          {streak && <StreakWidget streak={streak} />}
 
           {/* SECTION 2 — HERO CARD */}
           <View style={styles.card} className="p-4 w-full mb-6">
