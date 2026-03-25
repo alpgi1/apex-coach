@@ -4,6 +4,7 @@ import { postWorkout } from '../services/api/workoutApi';
 import { useWorkoutStore } from '../store/workoutStore';
 import { useAuthStore } from '../store/authStore';
 import { ExerciseLog, RPEScale, WorkoutSet } from '../types/workout.types';
+import { scheduleWorkoutReminder } from '../services/notifications/workoutReminder';
 
 export const useWorkoutSession = () => {
     const store = useWorkoutStore();
@@ -33,6 +34,9 @@ export const useWorkoutSession = () => {
             console.error('Failed to save workout:', error);
             throw error;
         }
+
+        // Schedule 2-day reminder (fire-and-forget)
+        scheduleWorkoutReminder().catch(() => {});
 
         // Fire-and-forget backend sync — does not block UX
         if (useAuthStore.getState().session) {

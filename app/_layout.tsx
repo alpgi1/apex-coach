@@ -1,5 +1,17 @@
 import * as Notifications from 'expo-notifications';
 import { Stack, useRouter } from 'expo-router';
+import { ensureWorkoutReminderArmed } from '../src/services/notifications/workoutReminder';
+import { getWorkoutHistory } from '../src/services/storage/workoutStorage';
+
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: true,
+    shouldSetBadge: false,
+    shouldShowBanner: true,
+    shouldShowList: true,
+  }),
+});
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, Text, View } from 'react-native';
@@ -59,6 +71,11 @@ export default function RootLayout() {
         if (!name || name.trim().length === 0) {
           setShowOnboarding(true);
         }
+        // Re-arm workout reminder if no pending notification exists
+        getWorkoutHistory().then((sessions) => {
+          const last = sessions[0]?.startTime ?? null;
+          ensureWorkoutReminderArmed(last).catch(() => {});
+        }).catch(() => {});
       } catch (error) {
         console.error('Failed to initialize or seed the database:', error);
       } finally {
