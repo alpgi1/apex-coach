@@ -71,6 +71,9 @@ public class Exercise {
     @Column(name = "video_url")
     private String videoUrl;
 
+    @Column(name = "gif_url")
+    private String gifUrl;
+
     @Column(name = "is_custom", nullable = false)
     @Builder.Default
     private boolean isCustom = false;

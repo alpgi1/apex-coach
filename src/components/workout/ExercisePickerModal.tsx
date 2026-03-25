@@ -3,6 +3,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import {
     ActivityIndicator,
     FlatList,
+    Image,
     KeyboardAvoidingView,
     Modal,
     Platform,
@@ -118,6 +119,16 @@ export default function ExercisePickerModal({
             onPress={() => handleSelect(item)}
             className="flex-row items-center py-4 px-4 active:bg-[#2A2A2A]"
         >
+            {item.gifUrl ? (
+                <View style={{ width: 44, height: 44, borderRadius: 22, overflow: 'hidden', backgroundColor: '#2A2A2A', marginRight: 12 }}>
+                    <Image source={{ uri: item.gifUrl }} style={{ width: 44, height: 44 }} resizeMode="cover" />
+                </View>
+            ) : (
+                <View style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: '#2A2A2A', marginRight: 12, alignItems: 'center', justifyContent: 'center' }}>
+                    <Ionicons name="barbell-outline" size={20} color="#3A3A3C" />
+                </View>
+            )}
+
             <View className="flex-1 mr-3">
                 <Text className="text-white text-base font-outfit-bold mb-1.5">
                     {item.name}

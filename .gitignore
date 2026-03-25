@@ -40,3 +40,7 @@ yarn-error.*
 # generated native folders
 /ios
 /android
+
+# script cache / output files
+scripts/exercisedb-cache.json
+scripts/match-results.json

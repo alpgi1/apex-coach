@@ -11,6 +11,7 @@ interface BackendExercise {
     idealRepsMin: number;
     idealRepsMax: number;
     isBilateral: boolean;
+    gifUrl?: string;
 }
 
 interface BackendExercisesResponse {
@@ -93,8 +94,8 @@ export const syncExercisesFromBackend = async (token: string): Promise<void> => 
                 `INSERT OR IGNORE INTO exercises
                  (id, name, primaryMuscleGroup, primaryMuscles, secondaryMuscles,
                   equipment, category, idealRepsMin, idealRepsMax, isBilateral,
-                  instructions, videoUrl, createdAt, updatedAt, isCustom)
-                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NULL, NULL, ?, ?, 0)`,
+                  instructions, videoUrl, gifUrl, createdAt, updatedAt, isCustom)
+                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NULL, NULL, ?, ?, ?, 0)`,
                 [
                     ex.id,
                     ex.name,
@@ -106,9 +107,19 @@ export const syncExercisesFromBackend = async (token: string): Promise<void> => 
                     ex.idealRepsMin,
                     ex.idealRepsMax,
                     ex.isBilateral ? 1 : 0,
+                    ex.gifUrl ?? null,
                     now,
                     now,
                 ]
+            );
+        }
+
+        // Update gifUrl for existing exercises from backend data
+        for (const ex of backendExercises) {
+            if (!ex.gifUrl) continue;
+            await db.runAsync(
+                `UPDATE exercises SET gifUrl = ? WHERE id = ? AND (gifUrl IS NULL OR gifUrl != ?)`,
+                [ex.gifUrl, ex.id, ex.gifUrl]
             );
         }
     } finally {

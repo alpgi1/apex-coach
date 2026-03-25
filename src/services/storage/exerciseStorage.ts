@@ -15,6 +15,7 @@ interface ExerciseRow {
     isBilateral: number; // 0 or 1
     instructions: string | null;
     videoUrl: string | null;
+    gifUrl: string | null;
     createdAt: string;
     updatedAt: string;
     isCustom: number; // 0 or 1
@@ -44,6 +45,7 @@ const mapRowToExercise = (row: ExerciseRow): ExerciseMetadata => ({
     isBilateral: row.isBilateral === 1,
     instructions: row.instructions || undefined,
     videoUrl: row.videoUrl || undefined,
+    gifUrl: row.gifUrl || undefined,
     createdAt: row.createdAt,
     updatedAt: row.updatedAt,
     isCustom: row.isCustom === 1

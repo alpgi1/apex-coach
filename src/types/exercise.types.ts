@@ -92,6 +92,8 @@ export interface ExerciseMetadata {
     instructions?: string;
     /** Link to an external video demonstration */
     videoUrl?: string;
+    /** GIF demonstration URL from ExerciseDB */
+    gifUrl?: string;
     /** ISO 8601 string */
     createdAt: string;
     /** ISO 8601 string */

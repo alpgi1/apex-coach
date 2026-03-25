@@ -22,6 +22,7 @@ public record ExerciseResponse(
         boolean isBilateral,
         String instructions,
         String videoUrl,
+        String gifUrl,
         boolean isCustom,
         Instant createdAt
 ) {
@@ -39,6 +40,7 @@ public record ExerciseResponse(
                 e.isBilateral(),
                 e.getInstructions(),
                 e.getVideoUrl(),
+                e.getGifUrl(),
                 e.isCustom(),
                 e.getCreatedAt()
         );

@@ -172,6 +172,13 @@ export const initializeDatabase = () => {
         );
         CREATE INDEX IF NOT EXISTS idx_body_weight_logs_date ON body_weight_logs(date);
     `);
+
+    // Add gifUrl column for existing installs (ALTER TABLE ADD COLUMN fails if already exists)
+    try {
+        db.execSync(`ALTER TABLE exercises ADD COLUMN gifUrl TEXT;`);
+    } catch {
+        // Column already exists — safe to ignore
+    }
 };
 
 export const clearAllData = (): void => {

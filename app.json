@@ -18,7 +18,8 @@
       "bundleIdentifier": "com.alpgiraycelik.apexcoach",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
-      }
+      },
+      "buildNumber": "3"
     },
     "android": {
       "adaptiveIcon": {
