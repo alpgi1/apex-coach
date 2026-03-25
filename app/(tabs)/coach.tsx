@@ -1,7 +1,8 @@
 import { Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import {
-    ActivityIndicator,
+    Animated,
     FlatList,
     Keyboard,
     Platform,
@@ -38,12 +39,53 @@ interface QuickAction {
 }
 
 const QUICK_ACTIONS: QuickAction[] = [
-    { label: 'Analyze my week', prompt: 'Analyze my training this week. What went well and what could improve?' },
-    { label: 'Suggest next workout', prompt: 'Based on my recent training, suggest what I should train next and why.' },
-    { label: 'Am I overtraining?', prompt: 'Look at my recent data and tell me if there are signs of overtraining.' },
-    { label: 'Rate my volume', prompt: 'Evaluate my weekly training volume per muscle group.' },
-    { label: 'Recovery tips', prompt: 'Based on my recent intensity, what recovery strategies do you recommend?' },
+    { label: '📊 Analyze my week', prompt: 'Analyze my training this week. What went well and what could improve?' },
+    { label: '💪 Suggest next workout', prompt: 'Based on my recent training, suggest what I should train next and why.' },
+    { label: '⚠️ Am I overtraining?', prompt: 'Look at my recent data and tell me if there are signs of overtraining.' },
+    { label: '📈 Rate my volume', prompt: 'Evaluate my weekly training volume per muscle group.' },
+    { label: '🔄 Recovery tips', prompt: 'Based on my recent intensity, what recovery strategies do you recommend?' },
 ];
+
+/* ── Thinking dots component ───────────────────────── */
+
+function ThinkingDots() {
+    const dots = [useRef(new Animated.Value(0)).current, useRef(new Animated.Value(0)).current, useRef(new Animated.Value(0)).current];
+
+    useEffect(() => {
+        const animations = dots.map((dot, i) =>
+            Animated.loop(
+                Animated.sequence([
+                    Animated.delay(i * 200),
+                    Animated.timing(dot, { toValue: 1, duration: 400, useNativeDriver: true }),
+                    Animated.timing(dot, { toValue: 0, duration: 400, useNativeDriver: true }),
+                    Animated.delay((dots.length - i - 1) * 200),
+                ])
+            )
+        );
+        animations.forEach(a => a.start());
+        return () => animations.forEach(a => a.stop());
+    }, []);
+
+    return (
+        <View style={dotStyles.container}>
+            <Text style={dotStyles.label}>Thinking</Text>
+            {dots.map((dot, i) => (
+                <Animated.Text
+                    key={i}
+                    style={[dotStyles.dot, { opacity: dot, transform: [{ translateY: dot.interpolate({ inputRange: [0, 1], outputRange: [0, -4] }) }] }]}
+                >
+                    ·
+                </Animated.Text>
+            ))}
+        </View>
+    );
+}
+
+const dotStyles = StyleSheet.create({
+    container: { flexDirection: 'row', alignItems: 'flex-end', gap: 2, paddingVertical: 4 },
+    label: { color: 'rgba(255,255,255,0.4)', fontSize: 14, fontFamily: 'Outfit_400Regular', marginRight: 2 },
+    dot: { color: AI_COLOR, fontSize: 22, lineHeight: 22 },
+});
 
 /* ── component ─────────────────────────────────────── */
 
@@ -59,25 +101,15 @@ export default function CoachScreen() {
     const userName = useUserStore((s) => s.name);
     const bottomOffset = insets.bottom > 0 ? insets.bottom : 20;
 
-    // Track keyboard height
     useEffect(() => {
         const showEvent = Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow';
         const hideEvent = Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide';
-
-        const showSub = Keyboard.addListener(showEvent, (e) => {
-            setKeyboardHeight(e.endCoordinates.height);
-        });
-        const hideSub = Keyboard.addListener(hideEvent, () => {
-            setKeyboardHeight(0);
-        });
-
+        const showSub = Keyboard.addListener(showEvent, (e) => setKeyboardHeight(e.endCoordinates.height));
+        const hideSub = Keyboard.addListener(hideEvent, () => setKeyboardHeight(0));
         return () => { showSub.remove(); hideSub.remove(); };
     }, []);
 
-    // Load last conversation on mount
-    useEffect(() => {
-        loadLastConversation();
-    }, []);
+    useEffect(() => { loadLastConversation(); }, []);
 
     const loadLastConversation = async () => {
         try {
@@ -104,12 +136,10 @@ export default function CoachScreen() {
     const handleSend = useCallback(async (text?: string) => {
         const messageText = (text ?? inputText).trim();
         if (!messageText || isLoading) return;
-
         setInputText('');
         setError(null);
 
         try {
-            // Create conversation if needed
             let currentConvId = conversationId;
             if (!currentConvId) {
                 const conv = await createConversation(messageText.slice(0, 30));
@@ -117,7 +147,6 @@ export default function CoachScreen() {
                 setConversationId(conv.id);
             }
 
-            // Save user message
             const userMsg = await saveChatMessage({
                 conversationId: currentConvId,
                 role: 'user',
@@ -128,18 +157,15 @@ export default function CoachScreen() {
             const updatedMessages = [...messages, userMsg];
             setMessages(updatedMessages);
 
-            // Build conversation history for API
             const history = updatedMessages.map((m) => ({
                 role: m.role === 'user' ? 'user' : 'model',
                 text: m.content,
             }));
 
-            // Call API
             setIsLoading(true);
             const weightCtx = await buildWeightContextString().catch(() => '');
             const response = await sendChatMessage(messageText, history.slice(0, -1), userName || undefined, weightCtx || undefined);
 
-            // Save AI response
             const aiMsg = await saveChatMessage({
                 conversationId: currentConvId,
                 role: 'model',
@@ -149,7 +175,6 @@ export default function CoachScreen() {
 
             setMessages((prev) => [...prev, aiMsg]);
 
-            // Auto-title on first exchange
             if (updatedMessages.length === 1) {
                 await updateConversationTitle(currentConvId, messageText.slice(0, 30));
             }
@@ -164,41 +189,40 @@ export default function CoachScreen() {
     const handleRetry = useCallback(() => {
         if (messages.length === 0) return;
         const lastUserMsg = [...messages].reverse().find((m) => m.role === 'user');
-        if (lastUserMsg) {
-            // Remove the failed state and resend
-            setError(null);
-            handleSend(lastUserMsg.content);
-        }
+        if (lastUserMsg) { setError(null); handleSend(lastUserMsg.content); }
     }, [messages, handleSend]);
 
     const scrollToEnd = useCallback(() => {
-        setTimeout(() => {
-            flatListRef.current?.scrollToEnd({ animated: true });
-        }, 100);
+        setTimeout(() => flatListRef.current?.scrollToEnd({ animated: true }), 100);
     }, []);
 
-    // Auto-scroll when messages change
-    useEffect(() => {
-        if (messages.length > 0) scrollToEnd();
-    }, [messages.length, scrollToEnd]);
+    useEffect(() => { if (messages.length > 0) scrollToEnd(); }, [messages.length, scrollToEnd]);
 
     /* ── render helpers ─────────────────────────────── */
 
     const renderMessage = useCallback(({ item }: { item: ChatMessage }) => {
         const isUser = item.role === 'user';
-        return (
-            <View style={[styles.messageBubbleWrapper, isUser ? styles.userAlign : styles.aiAlign]}>
-                {!isUser && (
-                    <View style={styles.aiAvatar}>
-                        <Ionicons name="sparkles" size={14} color={AI_COLOR} />
+
+        if (isUser) {
+            return (
+                <View style={styles.userMsgWrapper}>
+                    <View style={styles.userBubble}>
+                        <Text style={styles.userText}>{item.content}</Text>
                     </View>
-                )}
-                <View style={[styles.messageBubble, isUser ? styles.userBubble : styles.aiBubble]}>
-                    {isUser ? (
-                        <Text style={[styles.messageText, styles.userText]}>{item.content}</Text>
-                    ) : (
-                        <Markdown style={markdownStyles}>{item.content}</Markdown>
-                    )}
+                </View>
+            );
+        }
+
+        return (
+            <View style={styles.aiMsgWrapper}>
+                <View style={styles.aiAvatarRow}>
+                    <View style={styles.aiAvatar}>
+                        <Ionicons name="sparkles" size={13} color={AI_COLOR} />
+                    </View>
+                    <Text style={styles.aiLabel}>Apex AI</Text>
+                </View>
+                <View style={styles.aiContent}>
+                    <Markdown style={markdownStyles}>{item.content}</Markdown>
                 </View>
             </View>
         );
@@ -206,11 +230,15 @@ export default function CoachScreen() {
 
     const renderEmptyState = () => (
         <View style={styles.emptyState}>
+            <LinearGradient
+                colors={['rgba(0,201,167,0.15)', 'rgba(0,201,167,0.0)']}
+                style={styles.emptyGlow}
+            />
             <View style={styles.emptyIconWrapper}>
-                <Ionicons name="sparkles" size={48} color={AI_COLOR} />
+                <Ionicons name="sparkles" size={32} color={AI_COLOR} />
             </View>
             <Text style={styles.emptyTitle}>Apex AI</Text>
-            <Text style={styles.emptySubtitle}>Ask me anything about your training</Text>
+            <Text style={styles.emptySubtitle}>Your personal training intelligence</Text>
             <View style={styles.quickActionsContainer}>
                 {QUICK_ACTIONS.map((action) => (
                     <Pressable
@@ -246,95 +274,105 @@ export default function CoachScreen() {
         );
     };
 
-    /* ── dynamic bottom padding ────────────────────── */
-
     const inputBottomPadding = keyboardHeight > 0
-        ? keyboardHeight + 8 // keyboard open: sit right above keyboard
-        : TAB_HEIGHT + bottomOffset + TAB_MARGIN; // keyboard closed: sit above tab bar
+        ? keyboardHeight + 8
+        : TAB_HEIGHT + bottomOffset + TAB_MARGIN;
 
     /* ── main render ────────────────────────────────── */
 
     return (
         <SafeAreaView style={styles.container} edges={['top']}>
-            {/* Header */}
+            {/* ── HEADER ─────────────────────────────── */}
             <View style={styles.header}>
                 <View style={styles.headerLeft}>
-                    <Ionicons name="sparkles" size={20} color={AI_COLOR} />
-                    <Text style={styles.headerTitle}>Apex AI</Text>
+                    <View style={styles.headerIconBadge}>
+                        <Ionicons name="sparkles" size={16} color={AI_COLOR} />
+                    </View>
+                    <View>
+                        <Text style={styles.headerTitle}>Apex AI</Text>
+                        <Text style={styles.headerSub}>Powered by Gemini</Text>
+                    </View>
                 </View>
-                <Pressable onPress={handleNewChat} hitSlop={8}>
-                    <Ionicons name="create-outline" size={22} color="rgba(255,255,255,0.5)" />
+                <Pressable
+                    onPress={handleNewChat}
+                    hitSlop={8}
+                    style={styles.headerActionBtn}
+                >
+                    <Ionicons name="create-outline" size={20} color="rgba(255,255,255,0.6)" />
                 </Pressable>
             </View>
 
             <View style={styles.flex1}>
-                    {/* Messages */}
-                    {messages.length === 0 && !isLoading ? (
-                        renderEmptyState()
-                    ) : (
-                        <FlatList
-                            ref={flatListRef}
-                            data={messages}
-                            renderItem={renderMessage}
-                            keyExtractor={(item) => item.id}
-                            contentContainerStyle={styles.messagesList}
-                            onContentSizeChange={scrollToEnd}
-                            showsVerticalScrollIndicator={false}
-                            keyboardDismissMode="on-drag"
-                            ListFooterComponent={
-                                <>
-                                    {isLoading && (
-                                        <View style={[styles.messageBubbleWrapper, styles.aiAlign]}>
+                {messages.length === 0 && !isLoading ? (
+                    renderEmptyState()
+                ) : (
+                    <FlatList
+                        ref={flatListRef}
+                        data={messages}
+                        renderItem={renderMessage}
+                        keyExtractor={(item) => item.id}
+                        contentContainerStyle={styles.messagesList}
+                        onContentSizeChange={scrollToEnd}
+                        showsVerticalScrollIndicator={false}
+                        keyboardDismissMode="on-drag"
+                        ListFooterComponent={
+                            <>
+                                {isLoading && (
+                                    <View style={styles.aiMsgWrapper}>
+                                        <View style={styles.aiAvatarRow}>
                                             <View style={styles.aiAvatar}>
-                                                <Ionicons name="sparkles" size={14} color={AI_COLOR} />
+                                                <Ionicons name="sparkles" size={13} color={AI_COLOR} />
                                             </View>
-                                            <View style={[styles.messageBubble, styles.aiBubble]}>
-                                                <ActivityIndicator size="small" color={AI_COLOR} />
-                                            </View>
+                                            <Text style={styles.aiLabel}>Apex AI</Text>
                                         </View>
-                                    )}
-                                    {error && (
-                                        <Pressable onPress={handleRetry} style={styles.errorContainer}>
-                                            <Ionicons name="alert-circle" size={16} color="#FF453A" />
-                                            <Text style={styles.errorText}>{error}</Text>
-                                        </Pressable>
-                                    )}
-                                </>
-                            }
-                        />
-                    )}
+                                        <View style={styles.aiContent}>
+                                            <ThinkingDots />
+                                        </View>
+                                    </View>
+                                )}
+                                {error && (
+                                    <Pressable onPress={handleRetry} style={styles.errorContainer}>
+                                        <Ionicons name="alert-circle" size={16} color="#FF453A" />
+                                        <Text style={styles.errorText}>{error}</Text>
+                                    </Pressable>
+                                )}
+                            </>
+                        }
+                    />
+                )}
 
-                    {/* Input Area */}
-                    <View style={[styles.inputArea, { paddingBottom: inputBottomPadding }]}>
-                        {renderInputQuickActions()}
-                        <View style={styles.inputRow}>
-                            <TextInput
-                                style={styles.textInput}
-                                placeholder="Ask about your training..."
-                                placeholderTextColor="rgba(255,255,255,0.3)"
-                                value={inputText}
-                                onChangeText={setInputText}
-                                multiline
-                                maxLength={2000}
-                                editable={!isLoading}
+                {/* ── INPUT AREA ──────────────────────── */}
+                <View style={[styles.inputArea, { paddingBottom: inputBottomPadding }]}>
+                    {renderInputQuickActions()}
+                    <View style={styles.inputRow}>
+                        <TextInput
+                            style={styles.textInput}
+                            placeholder="Message Apex AI..."
+                            placeholderTextColor="rgba(255,255,255,0.25)"
+                            value={inputText}
+                            onChangeText={setInputText}
+                            multiline
+                            maxLength={2000}
+                            editable={!isLoading}
+                        />
+                        <Pressable
+                            onPress={() => handleSend()}
+                            disabled={!inputText.trim() || isLoading}
+                            style={[
+                                styles.sendButton,
+                                (!inputText.trim() || isLoading) && styles.sendButtonDisabled,
+                            ]}
+                        >
+                            <Ionicons
+                                name="arrow-up"
+                                size={18}
+                                color={!inputText.trim() || isLoading ? 'rgba(255,255,255,0.2)' : '#000000'}
                             />
-                            <Pressable
-                                onPress={() => handleSend()}
-                                disabled={!inputText.trim() || isLoading}
-                                style={[
-                                    styles.sendButton,
-                                    (!inputText.trim() || isLoading) && styles.sendButtonDisabled,
-                                ]}
-                            >
-                                <Ionicons
-                                    name="arrow-up"
-                                    size={20}
-                                    color={!inputText.trim() || isLoading ? 'rgba(255,255,255,0.2)' : '#FFFFFF'}
-                                />
-                            </Pressable>
-                        </View>
+                        </Pressable>
                     </View>
+                    <Text style={styles.disclaimer}>Apex AI can make mistakes. Verify important info.</Text>
                 </View>
+            </View>
         </SafeAreaView>
     );
 }
@@ -342,59 +380,92 @@ export default function CoachScreen() {
 /* ── styles ────────────────────────────────────────── */
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: '#0A0A0A',
-    },
-    flex1: {
-        flex: 1,
-    },
-    /* ── header ── */
+    container: { flex: 1, backgroundColor: '#0A0A0A' },
+    flex1: { flex: 1 },
+
+    /* header */
     header: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        paddingHorizontal: 20,
-        paddingVertical: 14,
+        paddingHorizontal: 16,
+        paddingVertical: 12,
         borderBottomWidth: StyleSheet.hairlineWidth,
-        borderBottomColor: 'rgba(255,255,255,0.08)',
+        borderBottomColor: 'rgba(255,255,255,0.07)',
     },
     headerLeft: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 8,
+        gap: 10,
+    },
+    headerIconBadge: {
+        width: 34,
+        height: 34,
+        borderRadius: 10,
+        backgroundColor: 'rgba(0,201,167,0.12)',
+        borderWidth: 1,
+        borderColor: 'rgba(0,201,167,0.2)',
+        alignItems: 'center',
+        justifyContent: 'center',
     },
     headerTitle: {
-        fontSize: 20,
+        fontSize: 16,
         fontFamily: 'Outfit_700Bold',
-        color: AI_COLOR,
+        color: '#FFFFFF',
+        lineHeight: 20,
     },
-    /* ── empty state ── */
+    headerSub: {
+        fontSize: 11,
+        fontFamily: 'Outfit_400Regular',
+        color: 'rgba(255,255,255,0.35)',
+        lineHeight: 14,
+    },
+    headerActionBtn: {
+        width: 36,
+        height: 36,
+        borderRadius: 10,
+        backgroundColor: 'rgba(255,255,255,0.06)',
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.08)',
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+
+    /* empty state */
     emptyState: {
         flex: 1,
         alignItems: 'center',
         justifyContent: 'center',
-        paddingHorizontal: 40,
+        paddingHorizontal: 32,
+    },
+    emptyGlow: {
+        position: 'absolute',
+        top: '20%',
+        width: 280,
+        height: 280,
+        borderRadius: 140,
     },
     emptyIconWrapper: {
-        width: 80,
-        height: 80,
-        borderRadius: 40,
+        width: 64,
+        height: 64,
+        borderRadius: 18,
         backgroundColor: 'rgba(0, 201, 167, 0.1)',
+        borderWidth: 1,
+        borderColor: 'rgba(0, 201, 167, 0.2)',
         alignItems: 'center',
         justifyContent: 'center',
         marginBottom: 16,
     },
     emptyTitle: {
-        fontSize: 24,
+        fontSize: 22,
         fontFamily: 'Outfit_700Bold',
         color: '#FFFFFF',
-        marginBottom: 8,
+        marginBottom: 6,
     },
     emptySubtitle: {
-        fontSize: 15,
+        fontSize: 14,
         fontFamily: 'Outfit_400Regular',
-        color: 'rgba(255,255,255,0.5)',
+        color: 'rgba(255,255,255,0.4)',
         textAlign: 'center',
         marginBottom: 32,
     },
@@ -405,94 +476,98 @@ const styles = StyleSheet.create({
         gap: 8,
     },
     quickChip: {
-        paddingHorizontal: 16,
-        paddingVertical: 10,
-        borderRadius: 20,
-        backgroundColor: 'rgba(0, 201, 167, 0.1)',
+        paddingHorizontal: 14,
+        paddingVertical: 9,
+        borderRadius: 12,
+        backgroundColor: 'rgba(255,255,255,0.05)',
         borderWidth: 1,
-        borderColor: 'rgba(0, 201, 167, 0.25)',
+        borderColor: 'rgba(255,255,255,0.1)',
     },
     quickChipText: {
         fontSize: 13,
         fontFamily: 'Outfit_500Medium',
-        color: AI_COLOR,
+        color: 'rgba(255,255,255,0.7)',
     },
-    /* ── messages ── */
+
+    /* messages */
     messagesList: {
-        paddingHorizontal: 16,
-        paddingTop: 16,
+        paddingTop: 12,
         paddingBottom: 8,
     },
-    messageBubbleWrapper: {
-        flexDirection: 'row',
-        marginBottom: 12,
-        maxWidth: '85%',
-    },
-    userAlign: {
-        alignSelf: 'flex-end',
-    },
-    aiAlign: {
-        alignSelf: 'flex-start',
-    },
-    aiAvatar: {
-        width: 28,
-        height: 28,
-        borderRadius: 14,
-        backgroundColor: 'rgba(0, 201, 167, 0.15)',
-        alignItems: 'center',
-        justifyContent: 'center',
-        marginRight: 8,
-        marginTop: 2,
-    },
-    messageBubble: {
-        paddingHorizontal: 14,
-        paddingVertical: 10,
-        borderRadius: 18,
-        flexShrink: 1,
+    /* User message */
+    userMsgWrapper: {
+        alignItems: 'flex-end',
+        paddingHorizontal: 16,
+        marginBottom: 20,
     },
     userBubble: {
-        backgroundColor: 'rgba(255, 96, 0, 0.15)',
-        borderWidth: 1,
-        borderColor: 'rgba(255, 96, 0, 0.25)',
+        backgroundColor: 'rgba(255,255,255,0.1)',
+        borderRadius: 18,
         borderBottomRightRadius: 4,
+        paddingHorizontal: 16,
+        paddingVertical: 10,
+        maxWidth: '80%',
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.08)',
     },
-    aiBubble: {
-        backgroundColor: 'rgba(0, 201, 167, 0.08)',
-        borderLeftWidth: 2,
-        borderLeftColor: AI_COLOR,
-        borderBottomLeftRadius: 4,
-    },
-    messageText: {
+    userText: {
+        color: '#FFFFFF',
         fontSize: 15,
         fontFamily: 'Outfit_400Regular',
         lineHeight: 22,
     },
-    userText: {
-        color: '#FFFFFF',
+    /* AI message */
+    aiMsgWrapper: {
+        paddingHorizontal: 16,
+        marginBottom: 24,
     },
-    aiText: {
-        color: 'rgba(255,255,255,0.9)',
+    aiAvatarRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 8,
+        marginBottom: 10,
     },
-    /* ── error ── */
+    aiAvatar: {
+        width: 26,
+        height: 26,
+        borderRadius: 8,
+        backgroundColor: 'rgba(0, 201, 167, 0.12)',
+        borderWidth: 1,
+        borderColor: 'rgba(0,201,167,0.2)',
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    aiLabel: {
+        color: 'rgba(255,255,255,0.45)',
+        fontSize: 12,
+        fontFamily: 'Outfit_600SemiBold',
+        letterSpacing: 0.3,
+    },
+    aiContent: {
+        paddingLeft: 34,
+    },
+
+    /* error */
     errorContainer: {
         flexDirection: 'row',
         alignItems: 'center',
         gap: 6,
-        paddingHorizontal: 12,
+        paddingHorizontal: 16,
         paddingVertical: 8,
-        marginLeft: 36,
+        paddingLeft: 50,
     },
     errorText: {
         fontSize: 13,
         fontFamily: 'Outfit_400Regular',
         color: '#FF453A',
     },
-    /* ── input ── */
+
+    /* input */
     inputArea: {
         paddingHorizontal: 16,
-        paddingTop: 8,
+        paddingTop: 10,
         borderTopWidth: StyleSheet.hairlineWidth,
-        borderTopColor: 'rgba(255,255,255,0.08)',
+        borderTopColor: 'rgba(255,255,255,0.07)',
     },
     inputChipsContainer: {
         paddingBottom: 8,
@@ -501,30 +576,30 @@ const styles = StyleSheet.create({
     inputChip: {
         paddingHorizontal: 12,
         paddingVertical: 6,
-        borderRadius: 16,
-        backgroundColor: 'rgba(255,255,255,0.06)',
+        borderRadius: 10,
+        backgroundColor: 'rgba(255,255,255,0.05)',
         borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.1)',
+        borderColor: 'rgba(255,255,255,0.08)',
     },
     inputChipText: {
         fontSize: 12,
         fontFamily: 'Outfit_500Medium',
-        color: 'rgba(255,255,255,0.5)',
+        color: 'rgba(255,255,255,0.45)',
     },
     inputRow: {
         flexDirection: 'row',
         alignItems: 'flex-end',
-        gap: 8,
+        gap: 10,
     },
     textInput: {
         flex: 1,
-        minHeight: 40,
-        maxHeight: 100,
-        backgroundColor: 'rgba(255,255,255,0.08)',
-        borderRadius: 20,
+        minHeight: 44,
+        maxHeight: 120,
+        backgroundColor: 'rgba(255,255,255,0.06)',
+        borderRadius: 14,
         paddingHorizontal: 16,
-        paddingTop: 10,
-        paddingBottom: 10,
+        paddingTop: 12,
+        paddingBottom: 12,
         fontSize: 15,
         fontFamily: 'Outfit_400Regular',
         color: '#FFFFFF',
@@ -532,30 +607,41 @@ const styles = StyleSheet.create({
         borderColor: 'rgba(255,255,255,0.1)',
     },
     sendButton: {
-        width: 40,
-        height: 40,
-        borderRadius: 20,
-        backgroundColor: AI_COLOR,
+        width: 44,
+        height: 44,
+        borderRadius: 12,
+        backgroundColor: '#FFFFFF',
         alignItems: 'center',
         justifyContent: 'center',
     },
     sendButtonDisabled: {
         backgroundColor: 'rgba(255,255,255,0.08)',
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.08)',
+    },
+    disclaimer: {
+        color: 'rgba(255,255,255,0.2)',
+        fontSize: 11,
+        fontFamily: 'Outfit_400Regular',
+        textAlign: 'center',
+        marginTop: 8,
     },
 });
 
 const markdownStyles = {
-    body: { color: 'rgba(255,255,255,0.9)', fontFamily: 'Outfit_400Regular', fontSize: 15, lineHeight: 22 },
-    heading1: { color: '#FFFFFF', fontFamily: 'Outfit_700Bold', fontSize: 17, marginTop: 8, marginBottom: 4 },
+    body: { color: 'rgba(255,255,255,0.88)', fontFamily: 'Outfit_400Regular', fontSize: 15, lineHeight: 24 },
+    heading1: { color: '#FFFFFF', fontFamily: 'Outfit_700Bold', fontSize: 18, marginTop: 10, marginBottom: 4 },
     heading2: { color: '#FFFFFF', fontFamily: 'Outfit_700Bold', fontSize: 16, marginTop: 8, marginBottom: 4 },
-    heading3: { color: '#00C9A7', fontFamily: 'Outfit_600SemiBold', fontSize: 15, marginTop: 6, marginBottom: 2 },
+    heading3: { color: AI_COLOR, fontFamily: 'Outfit_600SemiBold', fontSize: 15, marginTop: 6, marginBottom: 2 },
     strong: { fontFamily: 'Outfit_700Bold', color: '#FFFFFF' },
     em: { fontFamily: 'Outfit_400Regular', fontStyle: 'italic' as const },
     bullet_list: { marginVertical: 4 },
     ordered_list: { marginVertical: 4 },
     list_item: { marginVertical: 2 },
-    bullet_list_icon: { color: '#00C9A7', marginTop: 6 },
-    code_inline: { backgroundColor: 'rgba(0,201,167,0.1)', color: '#00C9A7', borderRadius: 4, paddingHorizontal: 4 },
-    fence: { backgroundColor: 'rgba(255,255,255,0.05)', borderRadius: 8, padding: 8, marginVertical: 4 },
-    paragraph: { marginVertical: 2 },
+    bullet_list_icon: { color: AI_COLOR, marginTop: 6 },
+    code_inline: { backgroundColor: 'rgba(0,201,167,0.08)', color: AI_COLOR, borderRadius: 4, paddingHorizontal: 4 },
+    fence: { backgroundColor: 'rgba(255,255,255,0.04)', borderRadius: 10, padding: 12, marginVertical: 6 },
+    blockquote: { borderLeftWidth: 3, borderLeftColor: AI_COLOR, paddingLeft: 12, marginLeft: 0, opacity: 0.8 },
+    paragraph: { marginVertical: 3 },
+    hr: { backgroundColor: 'rgba(255,255,255,0.08)', height: 1, marginVertical: 12 },
 };
