@@ -30,6 +30,7 @@ export interface SetRowDraft {
 }
 
 const WARMUP_COLOR = '#30D158';
+const DROP_COLOR = '#5AC8FA'; // iOS system blue
 
 interface ExerciseCardProps {
     log: ExerciseLog;
@@ -43,6 +44,7 @@ interface ExerciseCardProps {
     updateSetValues: (logId: string, setId: string, w: number, r: number, rpe?: number) => void;
     removeSet: (logId: string, setId: string) => void;
     addWarmupSet: (logId: string) => void;
+    addDropSet: (logId: string) => void;
     addEmptySets: (logId: string, count: number) => void;
     onCollapse: () => void;
 }
@@ -128,6 +130,7 @@ export default function ExerciseCard({
     updateSetValues,
     removeSet,
     addWarmupSet,
+    addDropSet,
     addEmptySets,
     onCollapse,
 }: ExerciseCardProps) {
@@ -165,16 +168,27 @@ export default function ExerciseCard({
                     </View>
                 )}
 
-                {/* Add Warm-Up button */}
-                <Pressable
-                    onPress={() => addWarmupSet(log.id)}
-                    className="flex-row items-center self-start mb-3 active:opacity-70"
-                >
-                    <Ionicons name="flame-outline" size={14} color={WARMUP_COLOR} style={{ marginRight: 4 }} />
-                    <Text style={{ color: WARMUP_COLOR, fontSize: 13, fontWeight: '600' }}>
-                        + Warm-Up Set
-                    </Text>
-                </Pressable>
+                {/* Add Warm-Up + Drop Set buttons */}
+                <View className="flex-row gap-4 mb-3">
+                    <Pressable
+                        onPress={() => addWarmupSet(log.id)}
+                        className="flex-row items-center active:opacity-70"
+                    >
+                        <Ionicons name="flame-outline" size={14} color={WARMUP_COLOR} style={{ marginRight: 4 }} />
+                        <Text style={{ color: WARMUP_COLOR, fontSize: 13, fontWeight: '600' }}>
+                            + Warm-Up
+                        </Text>
+                    </Pressable>
+                    <Pressable
+                        onPress={() => addDropSet(log.id)}
+                        className="flex-row items-center active:opacity-70"
+                    >
+                        <Ionicons name="trending-down-outline" size={14} color={DROP_COLOR} style={{ marginRight: 4 }} />
+                        <Text style={{ color: DROP_COLOR, fontSize: 13, fontWeight: '600' }}>
+                            + Drop Set
+                        </Text>
+                    </Pressable>
+                </View>
 
                 {/* Set table header */}
                 <View className="flex-row items-center mb-2 px-1">
@@ -205,7 +219,13 @@ export default function ExerciseCard({
                         >
                             <View
                                 className="flex-row items-center py-2 px-1 border-b border-[#3A3A3C]"
-                                style={s.setType === 'WARMUP' ? styles.warmupRow : undefined}
+                                style={
+                                    s.setType === 'WARMUP'
+                                        ? styles.warmupRow
+                                        : s.setType === 'DROP'
+                                            ? styles.dropRow
+                                            : undefined
+                                }
                             >
                                 <Text
                                     className="w-10 font-outfit-bold"
@@ -214,10 +234,12 @@ export default function ExerciseCard({
                                             ? 'white'
                                             : s.setType === 'WARMUP'
                                                 ? WARMUP_COLOR
-                                                : '#FF6000',
+                                                : s.setType === 'DROP'
+                                                    ? DROP_COLOR
+                                                    : '#FF6000',
                                     }}
                                 >
-                                    {s.setType === 'WARMUP' ? 'W' : s.setNumber}
+                                    {s.setType === 'WARMUP' ? 'W' : s.setType === 'DROP' ? 'D' : s.setNumber}
                                 </Text>
                                 <TextInput
                                     style={styles.setInput}
@@ -319,6 +341,10 @@ const styles = StyleSheet.create({
     },
     warmupRow: {
         backgroundColor: 'rgba(48,209,88,0.08)',
+        borderRadius: 12,
+    },
+    dropRow: {
+        backgroundColor: 'rgba(90,200,250,0.08)',
         borderRadius: 12,
     },
 });

@@ -69,7 +69,24 @@ export const useWorkoutSession = () => {
         store.insertSetAtStart(exerciseLogId, warmupSet);
     };
 
-    const addEmptySets = (exerciseLogId: string, count: number): void => {
+    const addDropSet = (exerciseLogId: string): void => {
+        const fresh = useWorkoutStore.getState().activeSession;
+        const existingLog = fresh?.logs.find((l) => l.id === exerciseLogId);
+        // Pre-fill with last set's weight so user only needs to lower it
+        const lastSet = existingLog?.sets[existingLog.sets.length - 1];
+        const dropSet: WorkoutSet = {
+            id: Crypto.randomUUID(),
+            setNumber: existingLog ? existingLog.sets.length + 1 : 1,
+            weightKg: lastSet?.weightKg ?? 0,
+            reps: 0,
+            rpe: undefined,
+            setType: 'DROP',
+            isCompleted: false,
+        };
+        store.addSet(exerciseLogId, dropSet);
+    };
+
+    const addEmptySets = (exerciseLogId: string, count: number, weightKg?: number): void => {
         for (let i = 0; i < count; i++) {
             const fresh = useWorkoutStore.getState().activeSession;
             const existingLog = fresh?.logs.find((l) => l.id === exerciseLogId);
@@ -77,7 +94,7 @@ export const useWorkoutSession = () => {
             const emptySet: WorkoutSet = {
                 id: Crypto.randomUUID(),
                 setNumber,
-                weightKg: 0,
+                weightKg: weightKg ?? 0,
                 reps: 0,
                 rpe: undefined,
                 setType: 'WORKING',
@@ -178,6 +195,7 @@ export const useWorkoutSession = () => {
         finishWorkout,
         addExercise,
         addWarmupSet,
+        addDropSet,
         addEmptySets,
         logSet,
         completeSet,

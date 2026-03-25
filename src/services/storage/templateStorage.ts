@@ -22,6 +22,7 @@ interface TemplateExerciseRow {
     targetRepsMax: number | null;
     targetRpe: number | null;
     restTargetSeconds: number | null;
+    targetWeightKg: number | null;
 }
 
 const mapRowToTemplateExercise = (row: TemplateExerciseRow): TemplateExercise => ({
@@ -33,6 +34,7 @@ const mapRowToTemplateExercise = (row: TemplateExerciseRow): TemplateExercise =>
     targetRepsMax: row.targetRepsMax ?? undefined,
     targetRpe: row.targetRpe != null ? (row.targetRpe as RPEScale) : undefined,
     restTargetSeconds: row.restTargetSeconds ?? undefined,
+    targetWeightKg: row.targetWeightKg ?? undefined,
 });
 
 const mapRowToTemplate = (row: WorkoutTemplateRow, exercises: TemplateExercise[]): WorkoutTemplate => ({
@@ -70,8 +72,8 @@ export const saveTemplate = async (template: WorkoutTemplate): Promise<void> => 
     for (const ex of template.exercises) {
         await db.runAsync(
             `INSERT INTO template_exercises
-                (id, templateId, exerciseId, "order", targetSets, targetRepsMin, targetRepsMax, targetRpe, restTargetSeconds)
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                (id, templateId, exerciseId, "order", targetSets, targetRepsMin, targetRepsMax, targetRpe, restTargetSeconds, targetWeightKg)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
             [
                 ex.id,
                 template.id,
@@ -82,6 +84,7 @@ export const saveTemplate = async (template: WorkoutTemplate): Promise<void> => 
                 ex.targetRepsMax ?? null,
                 ex.targetRpe ?? null,
                 ex.restTargetSeconds ?? null,
+                ex.targetWeightKg ?? null,
             ]
         );
     }
@@ -135,8 +138,8 @@ export const updateTemplate = async (template: WorkoutTemplate): Promise<void> =
     for (const ex of template.exercises) {
         await db.runAsync(
             `INSERT INTO template_exercises
-                (id, templateId, exerciseId, "order", targetSets, targetRepsMin, targetRepsMax, targetRpe, restTargetSeconds)
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                (id, templateId, exerciseId, "order", targetSets, targetRepsMin, targetRepsMax, targetRpe, restTargetSeconds, targetWeightKg)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
             [
                 Crypto.randomUUID(),
                 template.id,
@@ -147,6 +150,7 @@ export const updateTemplate = async (template: WorkoutTemplate): Promise<void> =
                 ex.targetRepsMax ?? null,
                 ex.targetRpe ?? null,
                 ex.restTargetSeconds ?? null,
+                ex.targetWeightKg ?? null,
             ]
         );
     }
@@ -162,6 +166,7 @@ interface BackendTemplateExercise {
     targetRepsMax?: number;
     targetRpe?: number;
     restTargetSeconds?: number;
+    targetWeightKg?: number;
 }
 
 interface BackendTemplate {
@@ -205,6 +210,7 @@ export const upsertTemplatesFromBackend = async (templates: BackendTemplate[]): 
                 targetRepsMax: e.targetRepsMax,
                 targetRpe: e.targetRpe as RPEScale | undefined,
                 restTargetSeconds: e.restTargetSeconds,
+                targetWeightKg: e.targetWeightKg,
             })),
         };
 

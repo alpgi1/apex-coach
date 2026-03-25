@@ -14,7 +14,8 @@ public record TemplateExerciseResponse(
         int targetRepsMin,
         Integer targetRepsMax,
         BigDecimal targetRpe,
-        Integer restTargetSeconds
+        Integer restTargetSeconds,
+        BigDecimal targetWeightKg
 ) {
     public static TemplateExerciseResponse from(TemplateExercise te) {
         return new TemplateExerciseResponse(
@@ -26,7 +27,8 @@ public record TemplateExerciseResponse(
                 te.getTargetRepsMin(),
                 te.getTargetRepsMax(),
                 te.getTargetRpe(),
-                te.getRestTargetSeconds()
+                te.getRestTargetSeconds(),
+                te.getTargetWeightKg()
         );
     }
 }

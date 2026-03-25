@@ -115,7 +115,7 @@ export default function DashboardScreen() {
     if (template) {
       for (const te of template.exercises) {
         const logId = addExercise(te.exerciseId);
-        addEmptySets(logId, te.targetSets);
+        addEmptySets(logId, te.targetSets, te.targetWeightKg);
       }
     }
     router.push('/(tabs)/workout');

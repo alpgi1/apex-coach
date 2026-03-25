@@ -125,11 +125,11 @@ export default function StartWorkoutModal({ isVisible, onClose, onStart }: Props
                                 }`}
                             />
 
-                            {/* My Templates — only if any exist */}
+                            {/* My Workout Plans — only if any exist */}
                             {templates.length > 0 && (
                                 <View className="mb-5">
                                     <Text className="text-[#8E8E93] text-xs font-outfit-semibold mb-3 uppercase tracking-wider">
-                                        My Templates
+                                        My Workout Plans
                                     </Text>
                                     <ScrollView
                                         horizontal

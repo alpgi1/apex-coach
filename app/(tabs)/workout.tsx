@@ -40,6 +40,7 @@ export default function WorkoutScreen() {
         isWorkoutActive,
         addExercise,
         addWarmupSet,
+        addDropSet,
         addEmptySets,
         completeSet,
         updateSetValues,
@@ -80,7 +81,7 @@ export default function WorkoutScreen() {
         let total = 0;
         for (const log of activeSession.logs) {
             for (const s of log.sets) {
-                if (s.isCompleted && s.setType === 'WORKING') {
+                if (s.isCompleted && (s.setType === 'WORKING' || s.setType === 'DROP')) {
                     total += s.weightKg * s.reps;
                 }
             }
@@ -129,10 +130,19 @@ export default function WorkoutScreen() {
         };
 
     const updateDraft = (setId: string, field: keyof SetRowDraft, value: string) => {
-        setDrafts((prev) => ({
-            ...prev,
-            [setId]: { ...(prev[setId] ?? { weight: '', reps: '', rpe: '' }), [field]: value },
-        }));
+        setDrafts((prev) => {
+            if (prev[setId]) {
+                return { ...prev, [setId]: { ...prev[setId], [field]: value } };
+            }
+            // Draft not yet initialized — seed from actual set to preserve pre-filled values (e.g. drop set weight)
+            const set = activeSession?.logs.flatMap((l) => l.sets).find((s) => s.id === setId);
+            const seed: SetRowDraft = {
+                weight: set && set.weightKg > 0 ? String(set.weightKg) : '',
+                reps: set && set.reps > 0 ? String(set.reps) : '',
+                rpe: set?.rpe != null ? String(set.rpe) : '',
+            };
+            return { ...prev, [setId]: { ...seed, [field]: value } };
+        });
     };
 
     const tryAutoComplete = (
@@ -328,6 +338,7 @@ export default function WorkoutScreen() {
                                     updateSetValues={updateSetValues}
                                     removeSet={removeSet}
                                     addWarmupSet={addWarmupSet}
+                                    addDropSet={addDropSet}
                                     addEmptySets={addEmptySets}
                                     onCollapse={() => setExpandedLogId(null)}
                                 />

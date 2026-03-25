@@ -180,6 +180,13 @@ export const initializeDatabase = () => {
         // Column already exists — safe to ignore
     }
 
+    // Add targetWeightKg column to template_exercises for existing installs
+    try {
+        db.execSync(`ALTER TABLE template_exercises ADD COLUMN targetWeightKg REAL;`);
+    } catch {
+        // Column already exists — safe to ignore
+    }
+
     // Remove deprecated / duplicate exercises (no-ops if they have workout history or don't exist)
     const deprecated = [
         'Ab Wheel Rollout',

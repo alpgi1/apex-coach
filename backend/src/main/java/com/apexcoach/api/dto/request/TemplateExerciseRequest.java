@@ -26,5 +26,8 @@ public record TemplateExerciseRequest(
         BigDecimal targetRpe,
 
         @Min(value = 0, message = "Rest target must be >= 0")
-        Integer restTargetSeconds
+        Integer restTargetSeconds,
+
+        @DecimalMin(value = "0.0", message = "Weight must be >= 0")
+        BigDecimal targetWeightKg
 ) {}

@@ -75,6 +75,7 @@ export interface TemplateExercise {
     targetRepsMax?: number;  // 12 — null ise sabit rep (sadece "5")
     targetRpe?: RPEScale;    // Optional preset intensity goal
     restTargetSeconds?: number;
+    targetWeightKg?: number; // Optional pre-fill weight for all sets
 }
 
 /**

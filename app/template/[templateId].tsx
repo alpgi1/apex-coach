@@ -116,7 +116,7 @@ export default function TemplateDetailScreen() {
 
     const updateExerciseField = (
         id: string,
-        field: keyof Pick<TemplateExercise, 'targetSets' | 'targetRepsMin' | 'targetRepsMax' | 'targetRpe'>,
+        field: keyof Pick<TemplateExercise, 'targetSets' | 'targetRepsMin' | 'targetRepsMax' | 'targetRpe' | 'targetWeightKg'>,
         raw: string
     ) => {
         const value = parseFloat(raw);
@@ -196,7 +196,7 @@ export default function TemplateDetailScreen() {
                 </Pressable>
 
                 <Text className="text-white text-lg font-bold" numberOfLines={1}>
-                    {templateName || 'Template'}
+                    {templateName || 'Workout Plan'}
                 </Text>
 
                 <Pressable
@@ -218,7 +218,7 @@ export default function TemplateDetailScreen() {
                 {/* ── SECTION 2 — TEMPLATE NAME ─────────────── */}
                 <View className="mb-4">
                     <Text className="text-[#8E8E93] text-xs font-semibold uppercase tracking-wider mb-2">
-                        Template Name
+                        Plan Name
                     </Text>
                     <TextInput
                         value={templateName}
@@ -286,7 +286,7 @@ export default function TemplateDetailScreen() {
                                 </Pressable>
                             </View>
 
-                            {/* Sets / Reps Min / Reps Max */}
+                            {/* Sets / Reps Min / Reps Max / KG */}
                             <View className="flex-row gap-2 mb-2">
                                 <View className="flex-1">
                                     <Text className="text-[#8E8E93] text-xs text-center mb-1">Sets</Text>
@@ -317,6 +317,17 @@ export default function TemplateDetailScreen() {
                                         onChangeText={(v) => updateExerciseField(te.id, 'targetRepsMax', v)}
                                         keyboardType="numeric"
                                         placeholder="12"
+                                        placeholderTextColor="#8E8E93"
+                                        className="bg-[#1A1A1A] rounded-lg text-white text-center py-2 text-base"
+                                    />
+                                </View>
+                                <View className="flex-1">
+                                    <Text className="text-[#8E8E93] text-xs text-center mb-1">KG</Text>
+                                    <TextInput
+                                        value={te.targetWeightKg != null ? String(te.targetWeightKg) : ''}
+                                        onChangeText={(v) => updateExerciseField(te.id, 'targetWeightKg', v)}
+                                        keyboardType="decimal-pad"
+                                        placeholder="—"
                                         placeholderTextColor="#8E8E93"
                                         className="bg-[#1A1A1A] rounded-lg text-white text-center py-2 text-base"
                                     />
@@ -362,7 +373,7 @@ export default function TemplateDetailScreen() {
                     onPress={handleDelete}
                     className="border border-[#FF3B30] rounded-full h-[52px] items-center justify-center active:opacity-70"
                 >
-                    <Text className="text-[#FF3B30] font-bold text-base">Delete Template</Text>
+                    <Text className="text-[#FF3B30] font-bold text-base">Delete Plan</Text>
                 </Pressable>
 
             </ScrollView>

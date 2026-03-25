@@ -47,7 +47,7 @@ export const useWorkoutStore = create<WorkoutStoreState>((set) => ({
 
             for (const log of state.activeSession.logs) {
                 for (const workoutSet of log.sets) {
-                    if (workoutSet.isCompleted && workoutSet.setType === 'WORKING') {
+                    if (workoutSet.isCompleted && (workoutSet.setType === 'WORKING' || workoutSet.setType === 'DROP')) {
                         totalVolumeKg += workoutSet.weightKg * workoutSet.reps;
 
                         if (workoutSet.rpe) {

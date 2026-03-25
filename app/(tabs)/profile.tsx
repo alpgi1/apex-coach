@@ -436,7 +436,7 @@ export default function ProfileScreen() {
                     {/* ── MY TEMPLATES ──────────────────────── */}
                     <View style={styles.card} className="mb-4">
                         <View className="flex-row items-center justify-between mb-3">
-                            <Text style={styles.sectionLabel}>My Templates</Text>
+                            <Text style={styles.sectionLabel}>My Workout Plans</Text>
                             <Pressable
                                 onPress={() => router.push('/template/create')}
                                 className="flex-row items-center gap-1 active:opacity-70"

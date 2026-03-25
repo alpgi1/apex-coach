@@ -47,4 +47,7 @@ public class TemplateExercise {
 
     @Column(name = "rest_target_seconds")
     private Integer restTargetSeconds;
+
+    @Column(name = "target_weight_kg", precision = 6, scale = 2)
+    private BigDecimal targetWeightKg;
 }

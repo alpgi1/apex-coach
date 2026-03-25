@@ -89,6 +89,7 @@ public class TemplateService {
                     .targetRepsMax(r.targetRepsMax())
                     .targetRpe(r.targetRpe())
                     .restTargetSeconds(r.restTargetSeconds())
+                    .targetWeightKg(r.targetWeightKg())
                     .build());
         }
     }

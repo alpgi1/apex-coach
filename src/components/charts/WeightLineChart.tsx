@@ -24,26 +24,29 @@ export default function WeightLineChart({ data }: WeightLineChartProps) {
             <LineChart
                 data={lineData}
                 color="#00C9A7"
-                thickness={2}
+                thickness={3}
                 curved
                 isAnimated
-                animationDuration={600}
+                animationDuration={800}
                 backgroundColor="transparent"
                 yAxisColor="transparent"
-                xAxisColor="rgba(255,255,255,0.1)"
-                yAxisTextStyle={{ color: '#8E8E93', fontSize: 10 }}
-                xAxisLabelTextStyle={{ color: '#8E8E93', fontSize: 9 }}
-                rulesColor="rgba(255,255,255,0.05)"
-                dataPointsColor="#00C9A7"
-                dataPointsRadius={3}
+                xAxisColor="transparent"
+                yAxisTextStyle={{ color: 'rgba(255,255,255,0.4)', fontSize: 11, fontFamily: 'Outfit_400Regular' }}
+                xAxisLabelTextStyle={{ color: 'rgba(255,255,255,0.4)', fontSize: 11, fontFamily: 'Outfit_400Regular' }}
+                rulesColor="rgba(255,255,255,0.06)"
+                rulesType="solid"
+                dataPointsColor="#FFFFFF"
+                dataPointsRadius={4}
                 maxValue={Math.ceil(maxVal + padding)}
                 noOfSections={4}
-                yAxisLabelWidth={40}
+                yAxisLabelWidth={45}
                 formatYLabel={(label: string) => `${Number(label).toFixed(0)}kg`}
                 scrollAnimation
                 hideDataPoints={data.length > 15}
-                startFillColor="rgba(0,201,167,0.15)"
-                endFillColor="transparent"
+                startFillColor="rgba(0,201,167,0.4)"
+                endFillColor="rgba(0,201,167,0.0)"
+                startOpacity={0.8}
+                endOpacity={0.0}
                 areaChart
             />
             {minVal === maxVal && (
