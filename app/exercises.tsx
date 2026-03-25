@@ -15,17 +15,14 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import AnimatedBackground from '../src/components/layout/AnimatedBackground';
-import {
-    ExerciseDbItem,
-    fetchBodyParts,
-    fetchExercises,
-    fetchExercisesByBodyPart,
-    searchExercisesDb,
-} from '../src/services/api/exerciseDbApi';
+import { getAllExercises, searchExercises } from '../src/services/storage/exerciseStorage';
+import { ExerciseMetadata, MuscleGroup } from '../src/types/exercise.types';
 
 /* ────────────────────────── constants ──────────────────────── */
 
-const PAGE_SIZE = 20;
+const MUSCLE_GROUPS: MuscleGroup[] = [
+    'CHEST', 'BACK', 'LEGS', 'SHOULDERS', 'ARMS', 'CORE', 'FULL_BODY',
+];
 
 const formatLabel = (raw: string): string =>
     raw
@@ -38,95 +35,58 @@ const formatLabel = (raw: string): string =>
 export default function ExercisesScreen() {
     const router = useRouter();
 
-    /* state */
-    const [exercises, setExercises] = useState<ExerciseDbItem[]>([]);
-    const [bodyParts, setBodyParts] = useState<string[]>([]);
-    const [activeBodyPart, setActiveBodyPart] = useState<string | null>(null);
+    const [exercises, setExercises] = useState<ExerciseMetadata[]>([]);
+    const [activeMuscleGroup, setActiveMuscleGroup] = useState<MuscleGroup | null>(null);
     const [query, setQuery] = useState('');
-    const [offset, setOffset] = useState(0);
-    const [hasMore, setHasMore] = useState(true);
     const [isLoading, setIsLoading] = useState(true);
-    const [isLoadingMore, setIsLoadingMore] = useState(false);
     const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-    /* ── load body parts once ──────────────────────────────── */
-    useEffect(() => {
-        fetchBodyParts()
-            .then(setBodyParts)
-            .catch(() => {});
-    }, []);
-
-    /* ── unified data fetcher ──────────────────────────────── */
-    const loadExercises = useCallback(
-        async (q: string, bp: string | null, newOffset: number, append: boolean) => {
-            if (!append) setIsLoading(true);
-            else setIsLoadingMore(true);
-
-            try {
-                let res;
-                if (q.trim().length > 0) {
-                    res = await searchExercisesDb(q, newOffset, PAGE_SIZE);
-                } else if (bp) {
-                    res = await fetchExercisesByBodyPart(bp, newOffset, PAGE_SIZE);
-                } else {
-                    res = await fetchExercises(newOffset, PAGE_SIZE);
-                }
-
-                if (append) {
-                    setExercises((prev) => [...prev, ...res.data]);
-                } else {
-                    setExercises(res.data);
-                }
-
-                setHasMore(res.metadata.nextPage !== null);
-                setOffset(newOffset + res.data.length);
-            } catch (err) {
-                console.error('Failed to load exercises:', err);
-            } finally {
-                setIsLoading(false);
-                setIsLoadingMore(false);
+    /* ── unified loader (local SQLite) ─────────────────────── */
+    const load = useCallback(async (q: string, mg: MuscleGroup | null) => {
+        setIsLoading(true);
+        try {
+            let results: ExerciseMetadata[];
+            if (q.trim().length === 0 && !mg) {
+                results = await getAllExercises();
+            } else {
+                results = await searchExercises({
+                    name: q.trim() || undefined,
+                    muscleGroup: mg ?? undefined,
+                });
             }
-        },
-        [],
-    );
+            setExercises(results);
+        } catch (err) {
+            console.error('Failed to load exercises:', err);
+        } finally {
+            setIsLoading(false);
+        }
+    }, []);
 
     /* ── initial load ──────────────────────────────────────── */
     useEffect(() => {
-        loadExercises('', null, 0, false);
-    }, [loadExercises]);
+        load('', null);
+    }, [load]);
 
     /* ── debounced search ──────────────────────────────────── */
-    const handleSearch = useCallback(
-        (text: string) => {
-            setQuery(text);
-            if (debounceRef.current) clearTimeout(debounceRef.current);
-            debounceRef.current = setTimeout(() => {
-                setActiveBodyPart(null);
-                loadExercises(text, null, 0, false);
-            }, 400);
-        },
-        [loadExercises],
-    );
+    const handleSearch = useCallback((text: string) => {
+        setQuery(text);
+        if (debounceRef.current) clearTimeout(debounceRef.current);
+        debounceRef.current = setTimeout(() => {
+            setActiveMuscleGroup(null);
+            load(text, null);
+        }, 300);
+    }, [load]);
 
-    /* ── body part tap ─────────────────────────────────────── */
-    const handleBodyPartPress = useCallback(
-        (bp: string) => {
-            const next = activeBodyPart === bp ? null : bp;
-            setActiveBodyPart(next);
-            setQuery('');
-            loadExercises('', next, 0, false);
-        },
-        [activeBodyPart, loadExercises],
-    );
-
-    /* ── infinite scroll ───────────────────────────────────── */
-    const handleEndReached = useCallback(() => {
-        if (!hasMore || isLoadingMore || isLoading) return;
-        loadExercises(query, activeBodyPart, offset, true);
-    }, [hasMore, isLoadingMore, isLoading, query, activeBodyPart, offset, loadExercises]);
+    /* ── muscle group chip tap ─────────────────────────────── */
+    const handleGroupPress = useCallback((mg: MuscleGroup) => {
+        const next = activeMuscleGroup === mg ? null : mg;
+        setActiveMuscleGroup(next);
+        setQuery('');
+        load('', next);
+    }, [activeMuscleGroup, load]);
 
     /* ── navigate to detail ────────────────────────────────── */
-    const handleExercisePress = (item: ExerciseDbItem) => {
+    const handlePress = (item: ExerciseMetadata) => {
         router.push({
             pathname: '/exercise-detail' as any,
             params: { exercise: JSON.stringify(item) },
@@ -135,51 +95,40 @@ export default function ExercisesScreen() {
 
     /* ── cleanup ───────────────────────────────────────────── */
     useEffect(() => {
-        return () => {
-            if (debounceRef.current) clearTimeout(debounceRef.current);
-        };
+        return () => { if (debounceRef.current) clearTimeout(debounceRef.current); };
     }, []);
 
-    /* ── row renderer (compact list) ───────────────────────── */
-    const renderItem = ({ item }: { item: ExerciseDbItem }) => (
-        <Pressable
-            onPress={() => handleExercisePress(item)}
-            style={styles.row}
-        >
-            {/* Small circular GIF thumbnail */}
+    /* ── row renderer ──────────────────────────────────────── */
+    const renderItem = ({ item }: { item: ExerciseMetadata }) => (
+        <Pressable onPress={() => handlePress(item)} style={styles.row}>
+            {/* Circular GIF or fallback icon */}
             <View style={styles.thumbWrapper}>
-                <Image
-                    source={{ uri: item.gifUrl }}
-                    style={styles.thumb}
-                    resizeMode="cover"
-                />
+                {item.gifUrl ? (
+                    <Image
+                        source={{ uri: item.gifUrl }}
+                        style={styles.thumb}
+                        resizeMode="cover"
+                    />
+                ) : (
+                    <View style={styles.thumbFallback}>
+                        <Ionicons name="barbell-outline" size={22} color="rgba(255,255,255,0.3)" />
+                    </View>
+                )}
             </View>
 
-            {/* Text info */}
+            {/* Text */}
             <View style={styles.rowInfo}>
-                <Text style={styles.rowName} numberOfLines={1}>
-                    {item.name}
-                </Text>
+                <Text style={styles.rowName} numberOfLines={1}>{item.name}</Text>
                 <Text style={styles.rowMuscle} numberOfLines={1}>
-                    {item.targetMuscles.map(formatLabel).join(', ')}
+                    {formatLabel(item.primaryMuscleGroup)} · {formatLabel(item.equipment)}
                 </Text>
             </View>
 
-            {/* Chevron */}
             <Ionicons name="chevron-forward" size={18} color="rgba(255,255,255,0.3)" />
         </Pressable>
     );
 
     const renderSeparator = () => <View style={styles.separator} />;
-
-    const renderFooter = () => {
-        if (!isLoadingMore) return null;
-        return (
-            <View style={{ paddingVertical: 20 }}>
-                <ActivityIndicator size="small" color="#FF6000" />
-            </View>
-        );
-    };
 
     /* ══════════════════════ render ═════════════════════════── */
     return (
@@ -196,15 +145,10 @@ export default function ExercisesScreen() {
                     <View style={{ width: 40 }} />
                 </View>
 
-                {/* ── SEARCH BAR (always visible) ─────────────── */}
+                {/* ── SEARCH BAR ──────────────────────────────── */}
                 <View style={styles.searchContainer}>
                     <View style={styles.searchBar}>
-                        <Ionicons
-                            name="search"
-                            size={18}
-                            color="#8E8E93"
-                            style={{ marginRight: 8 }}
-                        />
+                        <Ionicons name="search" size={18} color="#8E8E93" style={{ marginRight: 8 }} />
                         <TextInput
                             style={styles.searchInput}
                             placeholder="Search exercises..."
@@ -222,43 +166,44 @@ export default function ExercisesScreen() {
                     </View>
                 </View>
 
-                {/* ── BODY PART CHIPS ─────────────────────────── */}
-                {bodyParts.length > 0 && (
-                    <View style={{ marginBottom: 6 }}>
-                        <ScrollView
-                            horizontal
-                            showsHorizontalScrollIndicator={false}
-                            contentContainerStyle={{ paddingHorizontal: 16 }}
-                            keyboardShouldPersistTaps="handled"
-                        >
-                            {bodyParts.map((bp, index) => {
-                                const active = activeBodyPart === bp;
-                                return (
-                                    <Pressable
-                                        key={bp}
-                                        onPress={() => handleBodyPartPress(bp)}
-                                        style={[
-                                            styles.chip,
-                                            active ? styles.chipActive : styles.chipInactive,
-                                            index < bodyParts.length - 1 && { marginRight: 8 },
-                                        ]}
-                                    >
-                                        <Text
-                                            style={[
-                                                styles.chipText,
-                                                active ? styles.chipTextActive : styles.chipTextInactive,
-                                            ]}
-                                        >
-                                            {formatLabel(bp)}
-                                        </Text>
-                                    </Pressable>
-                                );
-                            })}
-                        </ScrollView>
-                    </View>
+                {/* ── MUSCLE GROUP CHIPS ──────────────────────── */}
+                <View style={{ marginBottom: 8 }}>
+                    <ScrollView
+                        horizontal
+                        showsHorizontalScrollIndicator={false}
+                        contentContainerStyle={{ paddingHorizontal: 16 }}
+                        keyboardShouldPersistTaps="handled"
+                    >
+                        {MUSCLE_GROUPS.map((mg, index) => {
+                            const active = activeMuscleGroup === mg;
+                            return (
+                                <Pressable
+                                    key={mg}
+                                    onPress={() => handleGroupPress(mg)}
+                                    style={[
+                                        styles.chip,
+                                        active ? styles.chipActive : styles.chipInactive,
+                                        index < MUSCLE_GROUPS.length - 1 && { marginRight: 8 },
+                                    ]}
+                                >
+                                    <Text style={[
+                                        styles.chipText,
+                                        active ? styles.chipTextActive : styles.chipTextInactive,
+                                    ]}>
+                                        {formatLabel(mg)}
+                                    </Text>
+                                </Pressable>
+                            );
+                        })}
+                    </ScrollView>
+                </View>
+
+                {/* ── COUNT ───────────────────────────────────── */}
+                {!isLoading && (
+                    <Text style={styles.countText}>{exercises.length} exercises</Text>
                 )}
 
-                {/* ── EXERCISE LIST ───────────────────────────── */}
+                {/* ── LIST ────────────────────────────────────── */}
                 {isLoading ? (
                     <View style={styles.center}>
                         <ActivityIndicator size="large" color="#FF6000" />
@@ -272,12 +217,9 @@ export default function ExercisesScreen() {
                 ) : (
                     <FlatList
                         data={exercises}
-                        keyExtractor={(item) => item.exerciseId}
+                        keyExtractor={(item) => item.id}
                         renderItem={renderItem}
                         ItemSeparatorComponent={renderSeparator}
-                        ListFooterComponent={renderFooter}
-                        onEndReached={handleEndReached}
-                        onEndReachedThreshold={0.4}
                         showsVerticalScrollIndicator={false}
                         contentContainerStyle={{ paddingBottom: 40 }}
                         keyboardShouldPersistTaps="handled"
@@ -291,11 +233,7 @@ export default function ExercisesScreen() {
 /* ────────────────────────── styles ─────────────────────────── */
 
 const styles = StyleSheet.create({
-    root: {
-        flex: 1,
-        backgroundColor: '#0A0A0A',
-    },
-    /* header */
+    root: { flex: 1, backgroundColor: '#0A0A0A' },
     header: {
         flexDirection: 'row',
         alignItems: 'center',
@@ -304,119 +242,68 @@ const styles = StyleSheet.create({
         paddingVertical: 10,
     },
     headerBtn: {
-        width: 40,
-        height: 40,
-        borderRadius: 20,
+        width: 40, height: 40, borderRadius: 20,
         backgroundColor: 'rgba(255,255,255,0.08)',
-        alignItems: 'center',
-        justifyContent: 'center',
+        alignItems: 'center', justifyContent: 'center',
     },
     headerTitle: {
-        color: 'white',
-        fontSize: 20,
-        fontWeight: 'bold',
+        color: 'white', fontSize: 20, fontWeight: 'bold',
         fontFamily: 'Outfit_700Bold',
     },
-    /* search */
-    searchContainer: {
-        paddingHorizontal: 16,
-        marginBottom: 10,
-    },
+    searchContainer: { paddingHorizontal: 16, marginBottom: 10 },
     searchBar: {
-        flexDirection: 'row',
-        alignItems: 'center',
+        flexDirection: 'row', alignItems: 'center',
         backgroundColor: 'rgba(255,255,255,0.07)',
-        borderRadius: 12,
-        paddingHorizontal: 14,
-        paddingVertical: 10,
-        borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.08)',
+        borderRadius: 12, paddingHorizontal: 14, paddingVertical: 10,
+        borderWidth: 1, borderColor: 'rgba(255,255,255,0.08)',
     },
     searchInput: {
-        flex: 1,
-        color: 'white',
-        fontSize: 15,
+        flex: 1, color: 'white', fontSize: 15,
         fontFamily: 'Outfit_400Regular',
     },
-    /* chips */
-    chip: {
-        borderRadius: 999,
-        paddingHorizontal: 14,
-        paddingVertical: 7,
-        borderWidth: 1,
+    chip: { borderRadius: 999, paddingHorizontal: 14, paddingVertical: 7, borderWidth: 1 },
+    chipActive: { backgroundColor: '#FF6000', borderColor: '#FF6000' },
+    chipInactive: { backgroundColor: 'rgba(255,255,255,0.07)', borderColor: 'rgba(255,255,255,0.1)' },
+    chipText: { fontSize: 13, fontWeight: '600', fontFamily: 'Outfit_600SemiBold' },
+    chipTextActive: { color: '#FFFFFF' },
+    chipTextInactive: { color: 'rgba(255,255,255,0.5)' },
+    countText: {
+        color: 'rgba(255,255,255,0.3)', fontSize: 12,
+        fontFamily: 'Outfit_400Regular',
+        paddingHorizontal: 16, marginBottom: 6,
     },
-    chipActive: {
-        backgroundColor: '#FF6000',
-        borderColor: '#FF6000',
-    },
-    chipInactive: {
-        backgroundColor: 'rgba(255,255,255,0.07)',
-        borderColor: 'rgba(255,255,255,0.1)',
-    },
-    chipText: {
-        fontSize: 13,
-        fontWeight: '600',
-        fontFamily: 'Outfit_600SemiBold',
-    },
-    chipTextActive: {
-        color: '#FFFFFF',
-    },
-    chipTextInactive: {
-        color: 'rgba(255,255,255,0.5)',
-    },
-    /* compact row */
     row: {
-        flexDirection: 'row' as const,
-        alignItems: 'center' as const,
-        paddingVertical: 10,
-        paddingHorizontal: 16,
+        flexDirection: 'row', alignItems: 'center',
+        paddingVertical: 10, paddingHorizontal: 16,
     },
     thumbWrapper: {
-        width: 52,
-        height: 52,
-        borderRadius: 26,
-        overflow: 'hidden' as const,
-        backgroundColor: '#F5F5F5',
-        borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.08)',
+        width: 52, height: 52, borderRadius: 26,
+        overflow: 'hidden', backgroundColor: '#F5F5F5',
+        borderWidth: 1, borderColor: 'rgba(255,255,255,0.08)',
     },
-    thumb: {
-        width: 52,
-        height: 52,
+    thumb: { width: 52, height: 52 },
+    thumbFallback: {
+        width: 52, height: 52,
+        backgroundColor: '#1A1A1A',
+        alignItems: 'center', justifyContent: 'center',
     },
-    rowInfo: {
-        flex: 1,
-        marginLeft: 14,
-        marginRight: 8,
-    },
+    rowInfo: { flex: 1, marginLeft: 14, marginRight: 8 },
     rowName: {
-        color: 'white',
-        fontSize: 16,
-        fontWeight: '600',
-        fontFamily: 'Outfit_600SemiBold',
-        marginBottom: 2,
+        color: 'white', fontSize: 16, fontWeight: '600',
+        fontFamily: 'Outfit_600SemiBold', marginBottom: 2,
     },
     rowMuscle: {
-        color: 'rgba(255,255,255,0.45)',
-        fontSize: 13,
+        color: 'rgba(255,255,255,0.45)', fontSize: 13,
         fontFamily: 'Outfit_400Regular',
     },
     separator: {
         height: StyleSheet.hairlineWidth,
         backgroundColor: 'rgba(255,255,255,0.08)',
-        marginLeft: 82,   // 16 + 52 + 14
-        marginRight: 16,
+        marginLeft: 82, marginRight: 16,
     },
-    /* loading / empty */
-    center: {
-        flex: 1,
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
+    center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
     loadingText: {
-        color: '#8E8E93',
-        fontSize: 14,
-        marginTop: 12,
+        color: '#8E8E93', fontSize: 14, marginTop: 12,
         fontFamily: 'Outfit_500Medium',
     },
 });

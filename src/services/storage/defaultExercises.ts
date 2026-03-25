@@ -14,7 +14,7 @@ export type ExerciseSeed = {
 };
 
 // Bump this when adding new exercises so existing users get seeded on next launch
-export const EXPECTED_SEED_COUNT = 79;
+export const EXPECTED_SEED_COUNT = 76;
 
 export const DEFAULT_EXERCISES: ExerciseSeed[] = [
 
@@ -129,18 +129,7 @@ export const DEFAULT_EXERCISES: ExerciseSeed[] = [
     },
 
     // ── BACK ───────────────────────────────────────────────────────────────
-    {
-        id: 'e0f1g3e6-4c3f-6g7e-1e5h-0c8d4f3h2g6c',
-        name: 'Barbell Deadlift',
-        primaryMuscleGroup: 'BACK',
-        primaryMuscles: ['LOWER_BACK', 'GLUTES', 'HAMSTRINGS'],
-        secondaryMuscles: ['TRAPS', 'FOREARMS', 'ABS'],
-        equipment: 'BARBELL',
-        category: 'COMPOUND',
-        idealRepsMin: 1,
-        idealRepsMax: 5,
-        isBilateral: true,
-    },
+
     {
         id: 'd4e5f6a7-b8c9-4d0e-8f2a-3b4c5d6e7f8a',
         name: 'Barbell Row',
@@ -513,17 +502,7 @@ export const DEFAULT_EXERCISES: ExerciseSeed[] = [
         idealRepsMax: 12,
         isBilateral: true,
     },
-    {
-        id: 'd6e7f8a9-b0c1-4d2e-bf4a-5b6c7d8e9f0a',
-        name: 'Lateral Raise',
-        primaryMuscleGroup: 'SHOULDERS',
-        primaryMuscles: ['SIDE_DELTS'],
-        equipment: 'DUMBBELL',
-        category: 'ISOLATION',
-        idealRepsMin: 12,
-        idealRepsMax: 15,
-        isBilateral: true,
-    },
+
     {
         id: 'e7f8a9b0-c1d2-4e3f-8a5b-6c7d8e9f0a1b',
         name: 'Face Pull',
@@ -823,18 +802,7 @@ export const DEFAULT_EXERCISES: ExerciseSeed[] = [
         idealRepsMax: 15,
         isBilateral: true,
     },
-    {
-        id: 'a5b6c7d8-e9f0-4a1b-ac3d-4e5f6a7b8c9d',
-        name: 'Ab Wheel Rollout',
-        primaryMuscleGroup: 'CORE',
-        primaryMuscles: ['ABS'],
-        secondaryMuscles: ['OBLIQUES', 'LOWER_BACK'],
-        equipment: 'BODYWEIGHT',
-        category: 'ISOLATION',
-        idealRepsMin: 8,
-        idealRepsMax: 15,
-        isBilateral: true,
-    },
+
     {
         id: 'f6a7b8c9-d0e1-4f2a-8c3c-4d5e6f7a8b9c',
         name: 'Russian Twist',

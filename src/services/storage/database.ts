@@ -179,6 +179,22 @@ export const initializeDatabase = () => {
     } catch {
         // Column already exists — safe to ignore
     }
+
+    // Remove deprecated / duplicate exercises (no-ops if they have workout history or don't exist)
+    const deprecated = [
+        'Ab Wheel Rollout',
+        'Barbell Deadlift',
+        'Lateral Raise',
+    ];
+    for (const name of deprecated) {
+        try {
+            db.execSync(
+                `DELETE FROM exercises WHERE name = '${name.replace(/'/g, "''")}' AND isCustom = 0`
+            );
+        } catch {
+            // Exercise has linked workout logs — leave it
+        }
+    }
 };
 
 export const clearAllData = (): void => {

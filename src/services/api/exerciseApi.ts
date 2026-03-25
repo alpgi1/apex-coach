@@ -122,6 +122,21 @@ export const syncExercisesFromBackend = async (token: string): Promise<void> => 
                 [ex.gifUrl, ex.id, ex.gifUrl]
             );
         }
+
+        // Remove non-custom local exercises that no longer exist in the backend
+        const backendIds = new Set(backendExercises.map(e => e.id));
+        const allLocal = await db.getAllAsync<{ id: string; isCustom: number }>(
+            `SELECT id, isCustom FROM exercises`
+        );
+        for (const local of allLocal) {
+            if (local.isCustom === 1) continue;          // Never delete user-created
+            if (backendIds.has(local.id)) continue;      // Still in backend → keep
+            try {
+                await db.runAsync(`DELETE FROM exercises WHERE id = ?`, [local.id]);
+            } catch {
+                // FK constraint — exercise has workout history, leave it
+            }
+        }
     } finally {
         db.execSync('PRAGMA foreign_keys = ON;');
     }
