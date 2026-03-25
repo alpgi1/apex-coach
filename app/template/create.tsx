@@ -75,7 +75,15 @@ export default function CreateTemplateScreen() {
         field: keyof Pick<TemplateExercise, 'targetSets' | 'targetRepsMin' | 'targetRepsMax' | 'targetRpe' | 'targetWeightKg'>,
         raw: string
     ) => {
-        const value = parseFloat(raw);
+        const MAX: Partial<Record<typeof field, number>> = {
+            targetWeightKg: 500,
+            targetRepsMin: 100,
+            targetRepsMax: 100,
+            targetSets: 20,
+        };
+        let value = parseFloat(raw);
+        const max = MAX[field];
+        if (!isNaN(value) && max !== undefined && value > max) value = max;
         setExercises((prev) =>
             prev.map((e) =>
                 e.templateExercise.id === id

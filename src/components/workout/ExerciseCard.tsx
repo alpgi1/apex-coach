@@ -32,6 +32,12 @@ export interface SetRowDraft {
 const WARMUP_COLOR = '#30D158';
 const DROP_COLOR = '#5AC8FA'; // iOS system blue
 
+const clampInput = (v: string, max: number): string => {
+    const n = parseFloat(v);
+    if (!isNaN(n) && n > max) return String(max);
+    return v;
+};
+
 interface ExerciseCardProps {
     log: ExerciseLog;
     exerciseName: string;
@@ -248,14 +254,15 @@ export default function ExerciseCard({
                                     keyboardType="numeric"
                                     value={draft.weight}
                                     onChangeText={(v) => {
-                                        updateDraft(s.id, 'weight', v);
-                                        const w = parseFloat(v);
+                                        const val = clampInput(v, 500);
+                                        updateDraft(s.id, 'weight', val);
+                                        const w = parseFloat(val);
                                         const r = parseInt(draft.reps, 10);
                                         if (!isNaN(w) && !isNaN(r)) {
                                             const rpe = parseFloat(draft.rpe);
                                             updateSetValues(log.id, s.id, w, r, isNaN(rpe) ? undefined : rpe);
                                         }
-                                        tryAutoComplete(log.id, s.id, s.isCompleted, { ...draft, weight: v });
+                                        tryAutoComplete(log.id, s.id, s.isCompleted, { ...draft, weight: val });
                                     }}
                                 />
                                 <TextInput
@@ -265,14 +272,15 @@ export default function ExerciseCard({
                                     keyboardType="numeric"
                                     value={draft.reps}
                                     onChangeText={(v) => {
-                                        updateDraft(s.id, 'reps', v);
+                                        const val = clampInput(v, 100);
+                                        updateDraft(s.id, 'reps', val);
                                         const w = parseFloat(draft.weight);
-                                        const r = parseInt(v, 10);
+                                        const r = parseInt(val, 10);
                                         if (!isNaN(w) && !isNaN(r)) {
                                             const rpe = parseFloat(draft.rpe);
                                             updateSetValues(log.id, s.id, w, r, isNaN(rpe) ? undefined : rpe);
                                         }
-                                        tryAutoComplete(log.id, s.id, s.isCompleted, { ...draft, reps: v });
+                                        tryAutoComplete(log.id, s.id, s.isCompleted, { ...draft, reps: val });
                                     }}
                                 />
                                 <RPESelector

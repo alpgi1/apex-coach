@@ -11,14 +11,10 @@ import {
     View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import Body from 'react-native-body-highlighter';
 
-import SpiderChart from '../../src/components/charts/SpiderChart';
-import VolumeBarChart from '../../src/components/charts/VolumeBarChart';
 import AnimatedBackground from '../../src/components/layout/AnimatedBackground';
-import {
-    computeMuscleGroupSplit,
-    computeWeeklyVolume,
-} from '../../src/services/analytics/computeAnalytics';
+import { computeWeeklyMuscleHeatmap } from '../../src/services/analytics/computeAnalytics';
 import { deleteWorkoutFromBackend } from '../../src/services/api/workoutApi';
 import { getAllExercises } from '../../src/services/storage/exerciseStorage';
 import { deleteWorkoutSession, getWorkoutHistory } from '../../src/services/storage/workoutStorage';
@@ -26,7 +22,24 @@ import { ExerciseMetadata } from '../../src/types/exercise.types';
 import { WorkoutSession } from '../../src/types/workout.types';
 import { formatDate, formatDuration, formatVolume, getRpeTextClass } from '../../src/utils/formatters';
 
-/* ──────────────────────── main screen ─────────────────────────── */
+/* ──────────────────────── stat cards ─────────────────────────── */
+
+const STAT_CARDS = [
+    {
+        icon: 'bar-chart-outline' as const,
+        title: 'Volume Trend',
+        desc: 'Weekly volume over the last 8 weeks',
+        route: '/analyse/volume',
+    },
+    {
+        icon: 'radio-button-on-outline' as const,
+        title: 'Muscle Split',
+        desc: 'Volume distribution by muscle group',
+        route: '/analyse/muscle-split',
+    },
+];
+
+/* ──────────────────────── main screen ────────────────────────── */
 
 export default function AnalyseScreen() {
     const router = useRouter();
@@ -38,11 +51,9 @@ export default function AnalyseScreen() {
     const PAGE_SIZE = 10;
     const [visibleCount, setVisibleCount] = useState(INITIAL_HISTORY_COUNT);
 
-    /* ── load data on focus ─────────────────────────────────── */
     useFocusEffect(
         useCallback(() => {
             let cancelled = false;
-
             const load = async () => {
                 setIsLoading(true);
                 try {
@@ -59,28 +70,20 @@ export default function AnalyseScreen() {
                     if (!cancelled) setIsLoading(false);
                 }
             };
-
             load();
             return () => { cancelled = true; };
         }, [])
     );
 
-    /* ── computed analytics ─────────────────────────────────── */
-    const weeklyVolume = useMemo(
-        () => computeWeeklyVolume(history, 8),
-        [history],
-    );
-    const muscleGroupSplit = useMemo(
-        () => computeMuscleGroupSplit(history, exerciseMap),
-        [history, exerciseMap],
+    const heatmap = useMemo(
+        () => computeWeeklyMuscleHeatmap(history, exerciseMap),
+        [history, exerciseMap]
     );
 
-    /* ── toggle expand ──────────────────────────────────────── */
     const toggleExpand = (sessionId: string) => {
         setExpanded((prev) => ({ ...prev, [sessionId]: !prev[sessionId] }));
     };
 
-    /* ── delete workout ─────────────────────────────────────── */
     const handleDelete = (session: WorkoutSession) => {
         Alert.alert(
             'Delete Workout',
@@ -133,49 +136,83 @@ export default function AnalyseScreen() {
     return (
         <View style={styles.root}>
             <AnimatedBackground />
-
             <SafeAreaView style={{ flex: 1 }}>
                 <ScrollView
                     className="flex-1"
                     contentContainerStyle={{ paddingBottom: 100 }}
                     showsVerticalScrollIndicator={false}
                 >
-                    {/* ── HEADER ───────────────────────────────────── */}
-                    <View className="flex-row items-center justify-between px-5 pt-3 pb-4">
+                    {/* ── HEADER ──────────────────────────────── */}
+                    <View className="px-5 pt-3 pb-4">
                         <Text className="text-white text-2xl font-outfit-bold">Analyse</Text>
                     </View>
 
-                    {/* ── VOLUME TREND ─────────────────────────────── */}
+                    {/* ── BODY HEAT MAP ───────────────────────── */}
+                    <View className="px-4 mb-2">
+                        <View className="flex-row items-center justify-between mb-2 px-1">
+                            <Text className="text-[#8E8E93] text-xs font-outfit-semibold uppercase tracking-wider">
+                                Last 7 Days
+                            </Text>
+                            {heatmap.length === 0 && (
+                                <Text className="text-[#3A3A3C] text-xs italic">No workouts this week</Text>
+                            )}
+                        </View>
+                        <View className="flex-row justify-center">
+                            <Body
+                                data={heatmap.map((m) => ({ slug: m.slug, intensity: m.intensity }))}
+                                side="front"
+                                scale={0.9}
+                                colors={['#FF6000', '#FF3B00', '#CC2200']}
+                                defaultFill="#2C2C2E"
+                                border="none"
+                            />
+                            <Body
+                                data={heatmap.map((m) => ({ slug: m.slug, intensity: m.intensity }))}
+                                side="back"
+                                scale={0.9}
+                                colors={['#FF6000', '#FF3B00', '#CC2200']}
+                                defaultFill="#2C2C2E"
+                                border="none"
+                            />
+                        </View>
+                    </View>
+
+                    {/* ── STATISTICS CARDS ────────────────────── */}
                     <View className="px-4 mb-4">
-                        <Text className="text-white text-base font-outfit-semibold mb-3 px-1">
-                            Volume Trend
+                        <Text className="text-[#8E8E93] text-xs font-outfit-semibold uppercase tracking-wider mb-2 px-1">
+                            Statistics
                         </Text>
-                        <View className="rounded-2xl border border-white/10 bg-white/[0.07] p-4">
-                            <VolumeBarChart data={weeklyVolume} />
-                        </View>
+                        {STAT_CARDS.map((card) => (
+                            <Pressable
+                                key={card.route}
+                                onPress={() => router.push(card.route as never)}
+                                className="active:opacity-70"
+                            >
+                                <View style={styles.statCard} className="flex-row items-center px-4 py-3.5 mb-2">
+                                    <View style={styles.statIcon} className="mr-3">
+                                        <Ionicons name={card.icon} size={20} color="#FF6000" />
+                                    </View>
+                                    <View className="flex-1">
+                                        <Text className="text-white font-outfit-semibold text-sm">{card.title}</Text>
+                                        <Text className="text-[#8E8E93] text-xs mt-0.5">{card.desc}</Text>
+                                    </View>
+                                    <Ionicons name="chevron-forward" size={16} color="#3A3A3C" />
+                                </View>
+                            </Pressable>
+                        ))}
                     </View>
 
-                    {/* ── MUSCLE GROUP SPLIT ───────────────────────── */}
-                    <View className="px-4 mb-6">
-                        <Text className="text-white text-base font-outfit-semibold mb-3 px-1">
-                            Muscle Group Split
-                        </Text>
-                        <View className="rounded-2xl border border-white/10 bg-white/[0.07] p-4 items-center">
-                            <SpiderChart data={muscleGroupSplit} />
-                        </View>
-                    </View>
-
-                    {/* ── DIVIDER ──────────────────────────────────── */}
+                    {/* ── DIVIDER ─────────────────────────────── */}
                     <View className="h-px bg-white/10 mx-5 mb-4" />
 
-                    {/* ── HISTORY HEADER ───────────────────────────── */}
+                    {/* ── HISTORY HEADER ──────────────────────── */}
                     <View className="px-5 mb-3">
                         <Text className="text-white text-base font-outfit-semibold">
                             Workout History
                         </Text>
                     </View>
 
-                    {/* ── SESSION CARDS ────────────────────────────── */}
+                    {/* ── SESSION CARDS ───────────────────────── */}
                     <View className="px-4">
                         {history.slice(0, visibleCount).map((session) => {
                             const isExpanded = expanded[session.id] ?? false;
@@ -188,32 +225,21 @@ export default function AnalyseScreen() {
                                     className="mb-3 active:opacity-90"
                                 >
                                     <View style={styles.card} className="flex-row overflow-hidden">
-                                        {/* Left accent bar */}
-                                        <View
-                                            className={`w-1.5 ${highRpe ? 'bg-red-500' : 'bg-[#FF6000]'}`}
-                                        />
-
-                                        {/* Card content */}
+                                        <View className={`w-1.5 ${highRpe ? 'bg-red-500' : 'bg-[#FF6000]'}`} />
                                         <View className="flex-1 p-4">
-                                            {/* Top row: date + category */}
                                             <View className="flex-row items-center justify-between mb-1">
                                                 <Text className="text-[#8E8E93] text-xs">
                                                     {formatDate(session.startTime)}
                                                 </Text>
                                                 <View className="bg-[#FF6000]/15 rounded-full px-2.5 py-0.5">
                                                     <Text className="text-[#FF6000] text-xs font-outfit-semibold">
-                                                        {session.logs.length} exercise
-                                                        {session.logs.length !== 1 ? 's' : ''}
+                                                        {session.logs.length} exercise{session.logs.length !== 1 ? 's' : ''}
                                                     </Text>
                                                 </View>
                                             </View>
-
-                                            {/* Workout name */}
                                             <Text className="text-white text-lg font-outfit-bold mb-2">
                                                 {session.name}
                                             </Text>
-
-                                            {/* Stats row */}
                                             <View className="flex-row items-center gap-4">
                                                 <View className="flex-row items-center gap-1">
                                                     <Ionicons name="barbell-outline" size={14} color="#8E8E93" />
@@ -221,14 +247,12 @@ export default function AnalyseScreen() {
                                                         {formatVolume(session.volumeKg)} kg
                                                     </Text>
                                                 </View>
-
                                                 <View className="flex-row items-center gap-1">
                                                     <Ionicons name="speedometer-outline" size={14} color="#8E8E93" />
                                                     <Text className="text-[#8E8E93] text-xs">
                                                         RPE {session.averageRPE ?? '-'}
                                                     </Text>
                                                 </View>
-
                                                 <View className="flex-row items-center gap-1">
                                                     <Ionicons name="time-outline" size={14} color="#8E8E93" />
                                                     <Text className="text-[#8E8E93] text-xs">
@@ -237,7 +261,6 @@ export default function AnalyseScreen() {
                                                 </View>
                                             </View>
 
-                                            {/* ── EXPANDED: exercise details ──── */}
                                             {isExpanded && (
                                                 <View className="mt-4 border-t border-[#3A3A3C] pt-3">
                                                     {session.logs.map((log) => (
@@ -245,14 +268,12 @@ export default function AnalyseScreen() {
                                                             <Text className="text-[#FF6000] font-outfit-bold text-base mb-2">
                                                                 {exerciseMap.get(log.exerciseId)?.name ?? log.exerciseId}
                                                             </Text>
-
                                                             <View className="flex-row mb-1 px-1">
                                                                 <Text className="text-[#8E8E93] text-xs font-outfit-semibold w-10">SET</Text>
                                                                 <Text className="text-[#8E8E93] text-xs font-outfit-semibold flex-1 text-center">WEIGHT</Text>
                                                                 <Text className="text-[#8E8E93] text-xs font-outfit-semibold flex-1 text-center">REPS</Text>
                                                                 <Text className="text-[#8E8E93] text-xs font-outfit-semibold flex-1 text-center">RPE</Text>
                                                             </View>
-
                                                             {log.sets.map((s) => {
                                                                 const isHot = (s.rpe ?? 0) > 8.5;
                                                                 return (
@@ -293,8 +314,6 @@ export default function AnalyseScreen() {
                                                 </View>
                                             )}
                                         </View>
-
-                                        {/* Chevron */}
                                         <View className="justify-center pr-3">
                                             <Ionicons
                                                 name={isExpanded ? 'chevron-down' : 'chevron-forward'}
@@ -306,7 +325,7 @@ export default function AnalyseScreen() {
                                 </Pressable>
                             );
                         })}
-                        {/* ── SHOW MORE ────────────────────────────── */}
+
                         {visibleCount < history.length && (
                             <Pressable
                                 onPress={() => setVisibleCount((c) => Math.min(c + PAGE_SIZE, history.length))}
@@ -344,5 +363,19 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderColor: 'rgba(255,255,255,0.08)',
         borderRadius: 16,
+    },
+    statCard: {
+        backgroundColor: 'rgba(255,255,255,0.04)',
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.08)',
+        borderRadius: 16,
+    },
+    statIcon: {
+        width: 38,
+        height: 38,
+        borderRadius: 19,
+        backgroundColor: 'rgba(255,96,0,0.12)',
+        alignItems: 'center',
+        justifyContent: 'center',
     },
 });

@@ -1,4 +1,5 @@
 import { ExerciseMetadata, MuscleGroup } from '../../types/exercise.types';
+import { Slug } from 'react-native-body-highlighter';
 import { WorkoutSession } from '../../types/workout.types';
 
 /* ─────────────── types ─────────────── */
@@ -69,6 +70,56 @@ export function computeWeeklyVolume(
     return mondays.map((m) => ({
         label: formatMonday(m),
         value: Math.round(volumeByWeek.get(m.getTime()) ?? 0),
+    }));
+}
+
+/* ─────────────── Weekly Muscle Heatmap ─────────────── */
+
+const MUSCLE_SLUGS: Partial<Record<MuscleGroup, Slug[]>> = {
+    CHEST:     ['chest'],
+    BACK:      ['upper-back', 'lower-back', 'trapezius'],
+    SHOULDERS: ['deltoids'],
+    ARMS:      ['biceps', 'triceps', 'forearm'],
+    LEGS:      ['quadriceps', 'hamstring', 'gluteal', 'calves', 'adductors'],
+    CORE:      ['abs', 'obliques'],
+};
+
+export interface MuscleHeatmapPoint {
+    slug: Slug;
+    intensity: 1 | 2 | 3;
+}
+
+/**
+ * Returns muscles worked in the last 7 days with intensity based on completed set count.
+ * intensity 1 = 1–4 sets, 2 = 5–9 sets, 3 = 10+ sets
+ */
+export function computeWeeklyMuscleHeatmap(
+    sessions: WorkoutSession[],
+    exerciseMap: Map<string, ExerciseMetadata>,
+): MuscleHeatmapPoint[] {
+    const sevenDaysAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
+    const slugSetCount: Partial<Record<Slug, number>> = {};
+
+    for (const session of sessions) {
+        if (new Date(session.startTime).getTime() < sevenDaysAgo) continue;
+        for (const log of session.logs) {
+            const ex = exerciseMap.get(log.exerciseId);
+            if (!ex) continue;
+            const completedSets = log.sets.filter((s) => s.isCompleted).length;
+            const groups: MuscleGroup[] = ex.primaryMuscleGroup === 'FULL_BODY'
+                ? ['CHEST', 'BACK', 'SHOULDERS', 'ARMS', 'LEGS', 'CORE']
+                : [ex.primaryMuscleGroup];
+            for (const group of groups) {
+                for (const slug of (MUSCLE_SLUGS[group] ?? [])) {
+                    slugSetCount[slug] = (slugSetCount[slug] ?? 0) + completedSets;
+                }
+            }
+        }
+    }
+
+    return (Object.entries(slugSetCount) as [Slug, number][]).map(([slug, count]) => ({
+        slug,
+        intensity: count >= 10 ? 3 : count >= 5 ? 2 : 1,
     }));
 }
 
