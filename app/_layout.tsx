@@ -1,7 +1,14 @@
 import * as Notifications from 'expo-notifications';
+import * as SplashScreen from 'expo-splash-screen';
 import { Stack, useRouter } from 'expo-router';
+import { StatusBar } from 'expo-status-bar';
+import { useEffect, useState } from 'react';
+import { Text, View } from 'react-native';
 import { ensureWorkoutReminderArmed } from '../src/services/notifications/workoutReminder';
 import { getWorkoutHistory } from '../src/services/storage/workoutStorage';
+import AppSplashScreen from '../src/components/layout/AppSplashScreen';
+
+SplashScreen.preventAutoHideAsync();
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -12,9 +19,6 @@ Notifications.setNotificationHandler({
     shouldShowList: true,
   }),
 });
-import { StatusBar } from 'expo-status-bar';
-import { useEffect, useState } from 'react';
-import { ActivityIndicator, Text, View } from 'react-native';
 import '../global.css';
 import { initializeDatabase } from '../src/services/storage/database';
 import { seedExercises } from '../src/services/storage/exerciseStorage';
@@ -138,14 +142,13 @@ export default function RootLayout() {
     setShowOnboarding(false);
   };
 
-  if (!isDbInitialized || !isInitialized || !fontsLoaded) {
-    return (
-      <View style={{ flex: 1, backgroundColor: '#1A1A1A', justifyContent: 'center', alignItems: 'center' }}>
-        <StatusBar style="light" />
-        <ActivityIndicator size="large" color="#FF8C00" />
-      </View>
-    );
-  }
+  const isReady = isDbInitialized && isInitialized && fontsLoaded;
+
+  useEffect(() => {
+    if (isReady) SplashScreen.hideAsync();
+  }, [isReady]);
+
+  if (!fontsLoaded) return null;
 
   return (
     <View style={{ flex: 1, backgroundColor: '#1A1A1A' }}>
@@ -160,6 +163,11 @@ export default function RootLayout() {
         isVisible={showOnboarding}
         onComplete={handleOnboardingComplete}
       />
+      {!isReady && (
+        <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}>
+          <AppSplashScreen />
+        </View>
+      )}
     </View>
   );
 }
