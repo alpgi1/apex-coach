@@ -201,14 +201,11 @@ export const deduplicateWorkouts = async (): Promise<number> => {
 
 export const upsertWorkoutsFromBackend = async (workouts: WorkoutResponse[]): Promise<void> => {
     for (const w of workouts) {
-        // Check by ID first, then by startTime to catch local/backend UUID mismatch
         const existing = await db.getFirstAsync<{ id: string }>(
             'SELECT id FROM workout_sessions WHERE id = ? OR startTime = ?',
             [w.id, w.startTime]
         );
         if (existing) {
-            // Local UUID didn't match backend UUID, but it's the same workout (created offline).
-            // We MUST rename the local UUID to the backend's UUID so future deletions/edits hit the correct backend ID!
             if (existing.id !== w.id) {
                 try {
                     db.execSync('PRAGMA foreign_keys = OFF;');

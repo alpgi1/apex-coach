@@ -13,15 +13,6 @@ import { ExerciseMetadata } from '../../src/types/exercise.types';
 import { WorkoutSession } from '../../src/types/workout.types';
 import { formatVolume } from '../../src/utils/formatters';
 
-const GROUP_ICON: Record<string, string> = {
-    Chest: 'radio-button-on',
-    Back: 'layers',
-    Shoulders: 'triangle',
-    Arms: 'barbell',
-    Legs: 'walk',
-    Core: 'disc',
-};
-
 export default function MuscleSplitScreen() {
     const router = useRouter();
     const [history, setHistory] = useState<WorkoutSession[]>([]);
@@ -37,6 +28,8 @@ export default function MuscleSplitScreen() {
                     setExerciseMap(new Map(exercises.map((e) => [e.id, e])));
                     setIsLoading(false);
                 }
+            }).catch(() => {
+                if (!cancelled) setIsLoading(false);
             });
             return () => { cancelled = true; };
         }, [])

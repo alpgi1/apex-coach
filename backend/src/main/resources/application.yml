@@ -41,6 +41,11 @@ app:
 server:
   port: 8080
 
+# ── Supabase ───────────────────────────────────────────
+supabase:
+  url: https://fiafmmecijtjxifbgweb.supabase.co
+  service-role-key: ${SUPABASE_SERVICE_ROLE_KEY:}
+
 # ── Gemini AI ──────────────────────────────────────────
 gemini:
   api-key: ${GEMINI_API_KEY:}

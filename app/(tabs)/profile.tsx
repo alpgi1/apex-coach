@@ -17,6 +17,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { clearAllData } from '../../src/services/storage/database';
+import { deleteAccount } from '../../src/services/api/userApi';
 import { calculateStreak, STREAK_MILESTONES, StreakResult } from '../../src/services/storage/streakStorage';
 import { postBodyWeight } from '../../src/services/api/weightApi';
 import { upsertWeightLogsFromBackend } from '../../src/services/storage/weightStorage';
@@ -153,6 +154,43 @@ export default function ProfileScreen() {
                         setWeightUnit('KG');
                         setTargetRIR(2);
                         setTotalWorkouts(0);
+                    },
+                },
+            ]
+        );
+    };
+
+    const handleDeleteAccount = () => {
+        Alert.alert(
+            'Delete Account',
+            'This will permanently delete your account and all your data. This action cannot be undone.',
+            [
+                { text: 'Cancel', style: 'cancel' },
+                {
+                    text: 'Delete Account',
+                    style: 'destructive',
+                    onPress: () => {
+                        Alert.alert(
+                            'Are you absolutely sure?',
+                            'All your workouts, plans, and progress will be lost forever.',
+                            [
+                                { text: 'Cancel', style: 'cancel' },
+                                {
+                                    text: 'Yes, Delete Everything',
+                                    style: 'destructive',
+                                    onPress: async () => {
+                                        try {
+                                            await deleteAccount();
+                                        } catch {
+                                            // Backend deletion failed — still clear local data and sign out
+                                        } finally {
+                                            clearAllData();
+                                            await signOut();
+                                        }
+                                    },
+                                },
+                            ]
+                        );
                     },
                 },
             ]
@@ -504,11 +542,27 @@ export default function ProfileScreen() {
                         </Pressable>
                         <Pressable
                             onPress={handleClearData}
+                            style={styles.divider}
                             className="flex-row items-center justify-between py-3 active:opacity-70"
                         >
                             <View className="flex-row items-center gap-3">
                                 <Ionicons name="trash-outline" size={20} color="#FF3B30" />
                                 <Text style={styles.dangerText}>Clear All Data</Text>
+                            </View>
+                            <Ionicons name="chevron-forward" size={18} color="#FF3B30" />
+                        </Pressable>
+                        <Pressable
+                            onPress={handleDeleteAccount}
+                            className="flex-row items-center justify-between py-3 active:opacity-70"
+                        >
+                            <View className="flex-row items-center gap-3">
+                                <Ionicons name="person-remove-outline" size={20} color="#FF3B30" />
+                                <View>
+                                    <Text style={styles.dangerText}>Delete Account</Text>
+                                    <Text style={{ color: 'rgba(255,59,48,0.5)', fontSize: 11, fontFamily: 'Outfit_400Regular' }}>
+                                        Permanently removes all data
+                                    </Text>
+                                </View>
                             </View>
                             <Ionicons name="chevron-forward" size={18} color="#FF3B30" />
                         </Pressable>

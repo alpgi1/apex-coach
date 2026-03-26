@@ -144,7 +144,7 @@ export default function FeaturedPlanDetailScreen() {
                     {/* ── PLAN HERO ── */}
                     <View style={styles.heroCard}>
                         <View style={[styles.heroIcon, { backgroundColor: plan.color + '22' }]}>
-                            <Text style={styles.heroEmoji}>{plan.emoji}</Text>
+                            <Text style={[styles.heroAbbreviation, { color: plan.color }]}>{plan.abbreviation}</Text>
                         </View>
                         <View style={{ flex: 1 }}>
                             <View style={styles.heroTagRow}>
@@ -255,7 +255,12 @@ const styles = StyleSheet.create({
         width: 56, height: 56, borderRadius: 16,
         alignItems: 'center', justifyContent: 'center',
     },
-    heroEmoji: { fontSize: 26 },
+    heroAbbreviation: { 
+        fontSize: 22, 
+        fontFamily: 'Outfit_700Bold',
+        fontStyle: 'italic',
+        letterSpacing: 0.5,
+    },
     heroTagRow: { flexDirection: 'row', gap: 6, marginBottom: 8 },
     tag: {
         flexDirection: 'row', alignItems: 'center', gap: 4,

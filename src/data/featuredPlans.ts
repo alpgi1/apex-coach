@@ -13,7 +13,7 @@ export interface FeaturedSession {
 export interface FeaturedPlan {
     id: string;
     name: string;
-    emoji: string;
+    abbreviation: string;
     color: string;
     tag: string;
     daysPerWeek: number;
@@ -25,7 +25,7 @@ export const FEATURED_PLANS: FeaturedPlan[] = [
     {
         id: 'featured-ppl',
         name: 'Push Pull Legs',
-        emoji: '🔄',
+        abbreviation: 'PPL',
         color: '#FF6000',
         tag: 'Intermediate',
         daysPerWeek: 3,
@@ -70,7 +70,7 @@ export const FEATURED_PLANS: FeaturedPlan[] = [
     {
         id: 'featured-upper-lower',
         name: 'Upper / Lower',
-        emoji: '⚡',
+        abbreviation: 'U/L',
         color: '#4A9EFF',
         tag: 'Intermediate',
         daysPerWeek: 4,
@@ -127,7 +127,7 @@ export const FEATURED_PLANS: FeaturedPlan[] = [
     {
         id: 'featured-full-body',
         name: 'Full Body',
-        emoji: '🔥',
+        abbreviation: 'FB',
         color: '#FF453A',
         tag: 'All Levels',
         daysPerWeek: 3,
@@ -171,7 +171,7 @@ export const FEATURED_PLANS: FeaturedPlan[] = [
     {
         id: 'featured-beginner',
         name: 'Beginner',
-        emoji: '🌱',
+        abbreviation: 'BEG',
         color: '#34C759',
         tag: 'Beginner',
         daysPerWeek: 3,

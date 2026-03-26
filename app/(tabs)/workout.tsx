@@ -400,7 +400,7 @@ export default function WorkoutScreen() {
                                     className="active:opacity-80"
                                 >
                                     <View style={[styles.programIcon, { backgroundColor: plan.color + '22' }]}>
-                                        <Text style={styles.programEmoji}>{plan.emoji}</Text>
+                                        <Text style={[styles.programAbbreviation, { color: plan.color }]}>{plan.abbreviation}</Text>
                                     </View>
                                     <Text style={styles.programName}>{plan.name}</Text>
                                     <View style={[styles.programTag, { backgroundColor: plan.color + '18', borderColor: plan.color + '33' }]}>
@@ -767,13 +767,20 @@ const styles = StyleSheet.create({
         borderRadius: 16,
         padding: 14,
         gap: 6,
+        alignItems: 'center',
     },
     programIcon: {
         width: 42, height: 42, borderRadius: 12,
         alignItems: 'center', justifyContent: 'center',
         marginBottom: 2,
     },
-    programEmoji: { fontSize: 20 },
+    programAbbreviation: {
+        fontSize: 16,
+        fontFamily: 'Outfit_700Bold',
+        fontStyle: 'italic',
+        letterSpacing: 0.5,
+        textAlign: 'center',
+    },
     programName: {
         color: '#FFFFFF',
         fontSize: 14, fontFamily: 'Outfit_600SemiBold',
@@ -789,10 +796,12 @@ const styles = StyleSheet.create({
     },
     programTagText: {
         fontSize: 10, fontFamily: 'Outfit_600SemiBold',
+        textAlign: 'center',
     },
     programDays: {
         color: 'rgba(255,255,255,0.3)',
         fontSize: 11, fontFamily: 'Outfit_500Medium',
+        textAlign: 'center',
     },
     iconBtn: {
         width: 40,
