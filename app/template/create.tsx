@@ -8,6 +8,7 @@ import {
     Text,
     TextInput,
     View,
+    Image,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -206,14 +207,24 @@ export default function CreateTemplateScreen() {
                             {/* Exercise header row */}
                             <View className="flex-row items-start justify-between mb-3">
                                 <View className="flex-row items-center flex-1 mr-2">
-                                    <Ionicons
-                                        name="reorder-three"
-                                        size={20}
-                                        color="#3A3A3C"
-                                        style={{ marginRight: 8 }}
-                                    />
-                                    <View className="flex-1">
-                                        <Text className="text-white font-bold text-base mb-1">
+
+                                    {/* Circular GIF or fallback icon */}
+                                    <View className="w-[52px] h-[52px] rounded-full overflow-hidden bg-[#F5F5F5] border border-white/10 mr-3 shrink-0">
+                                        {meta.gifUrl ? (
+                                            <Image
+                                                source={{ uri: meta.gifUrl }}
+                                                className="w-full h-full"
+                                                resizeMode="cover"
+                                            />
+                                        ) : (
+                                            <View className="w-full h-full bg-[#1A1A1A] items-center justify-center">
+                                                <Ionicons name="barbell-outline" size={22} color="rgba(255,255,255,0.3)" />
+                                            </View>
+                                        )}
+                                    </View>
+
+                                    <View className="flex-1 shrink">
+                                        <Text className="text-white font-bold text-base mb-1" numberOfLines={2}>
                                             {meta.name}
                                         </Text>
                                         <View className="bg-[#3A3A3C] rounded-full px-2.5 py-0.5 self-start">

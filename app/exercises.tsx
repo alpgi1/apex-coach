@@ -135,7 +135,7 @@ export default function ExercisesScreen() {
         <View style={styles.root}>
             <AnimatedBackground />
 
-            <SafeAreaView style={{ flex: 1 }}>
+            <SafeAreaView edges={['top']} style={{ flex: 1 }}>
                 {/* ── HEADER ──────────────────────────────────── */}
                 <View style={styles.header}>
                     <Pressable onPress={() => router.back()} style={styles.headerBtn}>

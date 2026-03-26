@@ -52,34 +52,40 @@ const mapRowToExercise = (row: ExerciseRow): ExerciseMetadata => ({
 });
 
 export const seedExercises = async (): Promise<void> => {
-    const existing = await db.getFirstAsync<{ count: number }>(
-        `SELECT COUNT(*) as count FROM exercises WHERE isCustom = 0`
+    // 1. Get all current default exercises by ID and NAME
+    const existingRows = await db.getAllAsync<{ id: string, name: string }>(
+        `SELECT id, name FROM exercises WHERE isCustom = 0`
     );
-    if (existing && existing.count >= EXPECTED_SEED_COUNT) return;
+    const existingIds = new Set(existingRows.map(r => r.id));
+    const existingNames = new Set(existingRows.map(r => r.name));
 
     const now = new Date().toISOString();
+    
+    // 2. Insert any missing hardcoded IDs, ONLY if their name isn't already present (e.g. from a backend sync with a different ID)
     for (const ex of DEFAULT_EXERCISES) {
-        await db.runAsync(
-            `INSERT OR IGNORE INTO exercises (id, name, primaryMuscleGroup, primaryMuscles, secondaryMuscles, equipment, category, idealRepsMin, idealRepsMax, isBilateral, instructions, videoUrl, createdAt, updatedAt, isCustom)
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-            [
-                ex.id,
-                ex.name,
-                ex.primaryMuscleGroup,
-                JSON.stringify(ex.primaryMuscles),
-                ex.secondaryMuscles ? JSON.stringify(ex.secondaryMuscles) : null,
-                ex.equipment,
-                ex.category,
-                ex.idealRepsMin,
-                ex.idealRepsMax,
-                ex.isBilateral ? 1 : 0,
-                null,
-                null,
-                now,
-                now,
-                0,
-            ]
-        );
+        if (!existingIds.has(ex.id) && !existingNames.has(ex.name)) {
+            await db.runAsync(
+                `INSERT OR IGNORE INTO exercises (id, name, primaryMuscleGroup, primaryMuscles, secondaryMuscles, equipment, category, idealRepsMin, idealRepsMax, isBilateral, instructions, videoUrl, createdAt, updatedAt, isCustom)
+                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                [
+                    ex.id,
+                    ex.name,
+                    ex.primaryMuscleGroup,
+                    JSON.stringify(ex.primaryMuscles),
+                    ex.secondaryMuscles ? JSON.stringify(ex.secondaryMuscles) : null,
+                    ex.equipment,
+                    ex.category,
+                    ex.idealRepsMin,
+                    ex.idealRepsMax,
+                    ex.isBilateral ? 1 : 0,
+                    null,
+                    null,
+                    now,
+                    now,
+                    0,
+                ]
+            );
+        }
     }
 };
 

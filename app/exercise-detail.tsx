@@ -2,7 +2,6 @@ import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useMemo, useRef, useState } from 'react';
 import {
-    ActivityIndicator,
     Image,
     Pressable,
     ScrollView,
@@ -14,6 +13,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import AnimatedBackground from '../src/components/layout/AnimatedBackground';
+import SkeletonBox from '../src/components/ui/SkeletonBox';
 import { searchExercisesDb } from '../src/services/api/exerciseDbApi';
 import { ExerciseMetadata } from '../src/types/exercise.types';
 
@@ -70,7 +70,7 @@ export default function ExerciseDetailScreen() {
         return (
             <View style={styles.root}>
                 <AnimatedBackground />
-                <SafeAreaView style={styles.center}>
+                <SafeAreaView edges={['top']} style={styles.center}>
                     <Text style={styles.emptyText}>Exercise not found</Text>
                     <Pressable onPress={() => router.back()} style={styles.backBtn}>
                         <Text style={styles.backBtnText}>Go Back</Text>
@@ -178,9 +178,16 @@ export default function ExerciseDetailScreen() {
                         /* ── INSTRUCTIONS TAB ─────────────────── */
                         <View style={styles.content}>
                             {instructionsLoading ? (
-                                <View style={styles.emptyInstructions}>
-                                    <ActivityIndicator size="large" color="#FF6000" />
-                                    <Text style={styles.loadingText}>Loading instructions...</Text>
+                                <View style={{ gap: 16 }}>
+                                    {[0.9, 0.75, 0.85, 0.7, 0.8].map((w, i) => (
+                                        <View key={i} style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 14 }}>
+                                            <SkeletonBox width={28} height={28} borderRadius={14} />
+                                            <View style={{ flex: 1, gap: 6 }}>
+                                                <SkeletonBox width={`${Math.round(w * 100)}%`} height={14} borderRadius={6} />
+                                                <SkeletonBox width={`${Math.round((w - 0.15) * 100)}%`} height={14} borderRadius={6} />
+                                            </View>
+                                        </View>
+                                    ))}
                                 </View>
                             ) : apiInstructions === null ? (
                                 // Not yet triggered (shouldn't happen)

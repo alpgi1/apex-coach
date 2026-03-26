@@ -3,7 +3,6 @@ import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useMemo, useState } from 'react';
 import {
     Alert,
-    ActivityIndicator,
     Pressable,
     ScrollView,
     StyleSheet,
@@ -14,6 +13,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import Body from 'react-native-body-highlighter';
 
 import AnimatedBackground from '../../src/components/layout/AnimatedBackground';
+import SkeletonBox from '../../src/components/ui/SkeletonBox';
 import { computeWeeklyMuscleHeatmap } from '../../src/services/analytics/computeAnalytics';
 import { deleteWorkoutFromBackend } from '../../src/services/api/workoutApi';
 import { getAllExercises } from '../../src/services/storage/exerciseStorage';
@@ -108,9 +108,35 @@ export default function AnalyseScreen() {
         return (
             <View style={styles.root}>
                 <AnimatedBackground />
-                <SafeAreaView style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-                    <ActivityIndicator size="large" color="#FF6000" />
-                    <Text className="text-[#8E8E93] text-sm mt-3">Loading analytics...</Text>
+                <SafeAreaView edges={["top"]} style={{ flex: 1 }}>
+                    <ScrollView scrollEnabled={false} contentContainerStyle={{ paddingBottom: 100 }}>
+                        {/* Header */}
+                        <View className="px-5 pt-3 pb-4">
+                            <SkeletonBox width={120} height={28} borderRadius={8} />
+                        </View>
+                        {/* Body heatmap */}
+                        <View className="px-4 mb-4">
+                            <SkeletonBox height={220} borderRadius={16} />
+                        </View>
+                        {/* Stats section label */}
+                        <View className="px-4 mb-2">
+                            <SkeletonBox width={80} height={12} borderRadius={6} style={{ marginBottom: 10 }} />
+                            <SkeletonBox height={62} borderRadius={16} style={{ marginBottom: 8 }} />
+                            <SkeletonBox height={62} borderRadius={16} style={{ marginBottom: 8 }} />
+                        </View>
+                        {/* Divider */}
+                        <View className="h-px bg-white/10 mx-5 mb-4" />
+                        {/* History header */}
+                        <View className="px-5 mb-3">
+                            <SkeletonBox width={130} height={16} borderRadius={6} />
+                        </View>
+                        {/* History items */}
+                        <View className="px-4">
+                            <SkeletonBox height={88} borderRadius={16} style={{ marginBottom: 12 }} />
+                            <SkeletonBox height={88} borderRadius={16} style={{ marginBottom: 12 }} />
+                            <SkeletonBox height={88} borderRadius={16} style={{ marginBottom: 12 }} />
+                        </View>
+                    </ScrollView>
                 </SafeAreaView>
             </View>
         );
@@ -121,7 +147,7 @@ export default function AnalyseScreen() {
         return (
             <View style={styles.root}>
                 <AnimatedBackground />
-                <SafeAreaView style={{ flex: 1, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 24 }}>
+                <SafeAreaView edges={["top"]} style={{ flex: 1, justifyContent: "center", alignItems: "center", paddingHorizontal: 24 }}>
                     <Ionicons name="analytics-outline" size={64} color="#3A3A3C" />
                     <Text className="text-white text-xl font-outfit-bold mt-4 text-center">No data yet</Text>
                     <Text className="text-[#8E8E93] text-sm mt-2 text-center">
@@ -136,7 +162,7 @@ export default function AnalyseScreen() {
     return (
         <View style={styles.root}>
             <AnimatedBackground />
-            <SafeAreaView style={{ flex: 1 }}>
+            <SafeAreaView edges={["top"]} style={{ flex: 1 }}>
                 <ScrollView
                     className="flex-1"
                     contentContainerStyle={{ paddingBottom: 100 }}

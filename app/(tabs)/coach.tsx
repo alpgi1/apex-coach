@@ -1,5 +1,4 @@
 import { Ionicons } from '@expo/vector-icons';
-import { LinearGradient } from 'expo-linear-gradient';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import {
     Animated,
@@ -230,25 +229,40 @@ export default function CoachScreen() {
 
     const renderEmptyState = () => (
         <View style={styles.emptyState}>
-            <LinearGradient
-                colors={['rgba(0,201,167,0.15)', 'rgba(0,201,167,0.0)']}
-                style={styles.emptyGlow}
-            />
             <View style={styles.emptyIconWrapper}>
                 <Ionicons name="sparkles" size={32} color={AI_COLOR} />
             </View>
             <Text style={styles.emptyTitle}>Apex AI</Text>
             <Text style={styles.emptySubtitle}>Your personal training intelligence</Text>
             <View style={styles.quickActionsContainer}>
-                {QUICK_ACTIONS.map((action) => (
-                    <Pressable
-                        key={action.label}
-                        style={styles.quickChip}
-                        onPress={() => handleSend(action.prompt)}
-                    >
-                        <Text style={styles.quickChipText}>{action.label}</Text>
-                    </Pressable>
-                ))}
+                <View style={styles.quickActionsRow}>
+                    {QUICK_ACTIONS.slice(0, 2).map((action) => (
+                        <Pressable
+                            key={action.label}
+                            style={[styles.quickChip, { flex: 1 }]}
+                            onPress={() => handleSend(action.prompt)}
+                        >
+                            <Text style={styles.quickChipText}>{action.label}</Text>
+                        </Pressable>
+                    ))}
+                </View>
+                <View style={styles.quickActionsRow}>
+                    {QUICK_ACTIONS.slice(2, 4).map((action) => (
+                        <Pressable
+                            key={action.label}
+                            style={[styles.quickChip, { flex: 1 }]}
+                            onPress={() => handleSend(action.prompt)}
+                        >
+                            <Text style={styles.quickChipText}>{action.label}</Text>
+                        </Pressable>
+                    ))}
+                </View>
+                <Pressable
+                    style={[styles.quickChip, { alignSelf: 'center', paddingHorizontal: 24 }]}
+                    onPress={() => handleSend(QUICK_ACTIONS[4].prompt)}
+                >
+                    <Text style={styles.quickChipText}>{QUICK_ACTIONS[4].label}</Text>
+                </Pressable>
             </View>
         </View>
     );
@@ -438,23 +452,21 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         paddingHorizontal: 32,
     },
-    emptyGlow: {
-        position: 'absolute',
-        top: '20%',
-        width: 280,
-        height: 280,
-        borderRadius: 140,
-    },
     emptyIconWrapper: {
-        width: 64,
-        height: 64,
-        borderRadius: 18,
+        width: 72,
+        height: 72,
+        borderRadius: 22,
         backgroundColor: 'rgba(0, 201, 167, 0.1)',
         borderWidth: 1,
-        borderColor: 'rgba(0, 201, 167, 0.2)',
+        borderColor: 'rgba(0, 201, 167, 0.25)',
         alignItems: 'center',
         justifyContent: 'center',
-        marginBottom: 16,
+        marginBottom: 20,
+        shadowColor: '#00C9A7',
+        shadowOffset: { width: 0, height: 0 },
+        shadowOpacity: 0.45,
+        shadowRadius: 20,
+        elevation: 10,
     },
     emptyTitle: {
         fontSize: 22,
@@ -470,23 +482,28 @@ const styles = StyleSheet.create({
         marginBottom: 32,
     },
     quickActionsContainer: {
+        width: '100%',
+        gap: 8,
+    },
+    quickActionsRow: {
         flexDirection: 'row',
-        flexWrap: 'wrap',
-        justifyContent: 'center',
         gap: 8,
     },
     quickChip: {
-        paddingHorizontal: 14,
-        paddingVertical: 9,
+        paddingHorizontal: 10,
+        paddingVertical: 10,
         borderRadius: 12,
         backgroundColor: 'rgba(255,255,255,0.05)',
         borderWidth: 1,
         borderColor: 'rgba(255,255,255,0.1)',
+        alignItems: 'center',
+        justifyContent: 'center',
     },
     quickChipText: {
-        fontSize: 13,
+        fontSize: 12,
         fontFamily: 'Outfit_500Medium',
         color: 'rgba(255,255,255,0.7)',
+        textAlign: 'center',
     },
 
     /* messages */

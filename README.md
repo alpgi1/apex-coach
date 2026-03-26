@@ -97,7 +97,7 @@ Apex Coach is built around RPE (Rate of Perceived Exertion) — the only metric 
            │  Auth (JWT)                        │ Gemini REST API
            ▼                                    ▼
 ┌──────────────────────────┐         ┌──────────────────────────┐
-│       Supabase           │         │   Google Gemini 2.0      │
+│       Supabase           │         │   Google Gemini 3.1      │
 │  - Auth (email/password) │         │   Flash Lite             │
 │  - PostgreSQL (prod DB)  │         │  (training context +     │
 │  - Session persistence   │         │   conversation history)  │

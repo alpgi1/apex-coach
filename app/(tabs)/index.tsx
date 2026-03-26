@@ -2,7 +2,6 @@ import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
-  ActivityIndicator,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -20,6 +19,7 @@ import Animated, {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AnimatedBackground from '../../src/components/layout/AnimatedBackground';
 import StreakWidget from '../../src/components/dashboard/StreakWidget';
+import SkeletonBox from '../../src/components/ui/SkeletonBox';
 
 import StartWorkoutModal from '../../src/components/workout/StartWorkoutModal';
 import { useWorkoutSession } from '../../src/hooks/useWorkoutSession';
@@ -143,8 +143,28 @@ export default function DashboardScreen() {
     return (
       <View style={styles.root}>
         <AnimatedBackground />
-        <SafeAreaView className="flex-1 justify-center items-center">
-          <ActivityIndicator size="large" color="#FF6000" />
+        <SafeAreaView edges={["top"]} style={{ flex: 1 }}>
+          <ScrollView className="flex-1 px-4" scrollEnabled={false} contentContainerStyle={{ paddingBottom: 110 }}>
+            {/* Header */}
+            <View className="flex-row justify-between items-center mt-6 mb-8">
+              <View>
+                <SkeletonBox width={80} height={12} borderRadius={6} style={{ marginBottom: 8 }} />
+                <SkeletonBox width={150} height={30} borderRadius={8} />
+              </View>
+            </View>
+            {/* Week calendar */}
+            <SkeletonBox height={72} borderRadius={16} style={{ marginBottom: 16 }} />
+            {/* Streak widget */}
+            <SkeletonBox height={60} borderRadius={16} style={{ marginBottom: 24 }} />
+            {/* Hero card */}
+            <SkeletonBox height={160} borderRadius={20} style={{ marginBottom: 16 }} />
+            {/* Start button */}
+            <SkeletonBox height={56} borderRadius={999} style={{ marginBottom: 40 }} />
+            {/* Recent sessions */}
+            <SkeletonBox height={72} borderRadius={20} style={{ marginBottom: 12 }} />
+            <SkeletonBox height={72} borderRadius={20} style={{ marginBottom: 12 }} />
+            <SkeletonBox height={72} borderRadius={20} style={{ marginBottom: 12 }} />
+          </ScrollView>
         </SafeAreaView>
       </View>
     );
@@ -156,7 +176,7 @@ export default function DashboardScreen() {
       <AnimatedBackground />
 
       {/* ── CONTENT ─────────────────────────────────────── */}
-      <SafeAreaView style={{ flex: 1 }}>
+      <SafeAreaView edges={["top"]} style={{ flex: 1 }}>
         <ScrollView
           className="flex-1 px-4"
           contentContainerStyle={{ paddingBottom: 110 }}

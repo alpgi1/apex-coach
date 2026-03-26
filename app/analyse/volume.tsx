@@ -42,7 +42,7 @@ export default function VolumeScreen() {
     return (
         <View style={{ flex: 1, backgroundColor: '#0A0A0A' }}>
             <AnimatedBackground />
-            <SafeAreaView style={{ flex: 1 }}>
+            <SafeAreaView edges={['top']} style={{ flex: 1 }}>
                 <View className="flex-row items-center px-4 pt-3 pb-4">
                     <Pressable
                         onPress={() => router.back()}

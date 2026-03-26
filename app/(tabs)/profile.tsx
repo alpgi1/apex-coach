@@ -165,7 +165,7 @@ export default function ProfileScreen() {
             <AnimatedBackground />
 
             {/* ── CONTENT ───────────────────────────────────── */}
-            <SafeAreaView style={{ flex: 1 }}>
+            <SafeAreaView edges={["top"]} style={{ flex: 1 }}>
                 <ScrollView
                     showsVerticalScrollIndicator={false}
                     contentContainerStyle={styles.scrollContent}
@@ -317,18 +317,6 @@ export default function ProfileScreen() {
                             <View className="flex-row items-center gap-3">
                                 <Ionicons name="trophy-outline" size={20} color="#FFD60A" />
                                 <Text style={styles.rowLabel}>Personal Records</Text>
-                            </View>
-                            <Ionicons name="chevron-forward" size={18} color="rgba(255,255,255,0.4)" />
-                        </Pressable>
-
-                        <Pressable
-                            onPress={() => router.push('/exercises' as any)}
-                            style={styles.divider}
-                            className="flex-row items-center justify-between py-3 active:opacity-70"
-                        >
-                            <View className="flex-row items-center gap-3">
-                                <Ionicons name="fitness-outline" size={20} color="#00C9A7" />
-                                <Text style={styles.rowLabel}>Exercise Library</Text>
                             </View>
                             <Ionicons name="chevron-forward" size={18} color="rgba(255,255,255,0.4)" />
                         </Pressable>
