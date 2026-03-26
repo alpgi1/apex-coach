@@ -75,7 +75,7 @@ Apex Coach is built around RPE (Rate of Perceived Exertion) — the only metric 
 | ORM | Spring Data JPA + Hibernate 7 |
 | Migrations | Flyway (V1–V8) |
 | Auth | Supabase Auth (JWT) + Spring Security OAuth2 Resource Server |
-| AI | Gemini 3.1 Flash Lite (via REST — no SDK) |
+| AI | Gemini 2.5 Flash Lite (via REST — no SDK) |
 | Validation | Jakarta Bean Validation |
 | Testing | JUnit 5 + Mockito + Spring MockMvc (18 tests) |
 | Deployment | Render (Docker) |
@@ -97,7 +97,7 @@ Apex Coach is built around RPE (Rate of Perceived Exertion) — the only metric 
            │  Auth (JWT)                        │ Gemini REST API
            ▼                                    ▼
 ┌──────────────────────────┐         ┌──────────────────────────┐
-│       Supabase           │         │   Google Gemini 3.1      │
+│       Supabase           │         │   Google Gemini 2.5      │
 │  - Auth (email/password) │         │   Flash Lite             │
 │  - PostgreSQL (prod DB)  │         │  (training context +     │
 │  - Session persistence   │         │   conversation history)  │
@@ -380,7 +380,7 @@ Phase 2 — Backend + Cloud Sync
   ✅ JUnit test suite — 18 tests (service unit tests + MockMvc controller tests)
 
 Phase 3 — AI Coach
-  ✅ Gemini 3.1 Flash Lite integration (Spring Boot REST, no SDK)
+  ✅ Gemini 2.5 Flash Lite integration (Spring Boot REST, no SDK)
   ✅ Training context builder (last 14 days of workout data → compact LLM prompt)
   ✅ In-memory rate limiter (sliding window, 14 RPM)
   ✅ AI chat endpoint with conversation history support
