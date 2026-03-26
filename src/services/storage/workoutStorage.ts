@@ -206,7 +206,20 @@ export const upsertWorkoutsFromBackend = async (workouts: WorkoutResponse[]): Pr
             'SELECT id FROM workout_sessions WHERE id = ? OR startTime = ?',
             [w.id, w.startTime]
         );
-        if (existing) continue;
+        if (existing) {
+            // Local UUID didn't match backend UUID, but it's the same workout (created offline).
+            // We MUST rename the local UUID to the backend's UUID so future deletions/edits hit the correct backend ID!
+            if (existing.id !== w.id) {
+                try {
+                    db.execSync('PRAGMA foreign_keys = OFF;');
+                    await db.runAsync(`UPDATE exercise_logs SET sessionId = ? WHERE sessionId = ?`, [w.id, existing.id]);
+                    await db.runAsync(`UPDATE workout_sessions SET id = ? WHERE id = ?`, [w.id, existing.id]);
+                } finally {
+                    db.execSync('PRAGMA foreign_keys = ON;');
+                }
+            }
+            continue;
+        }
 
         await db.runAsync(
             `INSERT OR IGNORE INTO workout_sessions (id, name, startTime, endTime, volumeKg, bodyweightKg, notes, averageRPE)
