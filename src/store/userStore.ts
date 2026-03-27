@@ -19,6 +19,7 @@ interface UserStoreState {
     setProfilePhoto: (uri: string | null) => void;
     setRestTimerDuration: (duration: RestDuration) => void;
     setAutoStartRestTimer: (enabled: boolean) => void;
+    reset: () => void;
 }
 
 export const useUserStore = create<UserStoreState>()(
@@ -37,6 +38,7 @@ export const useUserStore = create<UserStoreState>()(
             setProfilePhoto: (uri: string | null) => set({ profilePhoto: uri }),
             setRestTimerDuration: (duration: RestDuration) => set({ restTimerDuration: duration }),
             setAutoStartRestTimer: (enabled: boolean) => set({ autoStartRestTimer: enabled }),
+            reset: () => set({ name: '', weightUnit: 'KG', targetRIR: 2, profilePhoto: null, restTimerDuration: 90, autoStartRestTimer: true }),
         }),
         {
             name: 'apex-user-storage',

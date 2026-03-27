@@ -1,6 +1,8 @@
 import { Session, Subscription } from '@supabase/supabase-js';
 import { create } from 'zustand';
 import { supabase } from '../lib/supabase';
+import { clearAllData } from '../services/storage/database';
+import { useUserStore } from './userStore';
 
 let authSubscription: Subscription | null = null;
 
@@ -51,6 +53,8 @@ export const useAuthStore = create<AuthState>((set) => ({
     },
 
     signOut: async () => {
+        clearAllData();
+        useUserStore.getState().reset();
         await supabase.auth.signOut();
     },
 }));

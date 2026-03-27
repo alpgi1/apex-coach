@@ -211,6 +211,10 @@ export const clearAllData = (): void => {
         DELETE FROM workout_sessions;
         DELETE FROM personal_records;
         DELETE FROM body_weight_logs;
+        DELETE FROM template_exercises;
+        DELETE FROM workout_templates;
+        DELETE FROM chat_messages;
+        DELETE FROM chat_conversations;
     `);
 };
 

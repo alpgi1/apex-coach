@@ -150,10 +150,9 @@ export default function ProfileScreen() {
                     style: 'destructive',
                     onPress: () => {
                         clearAllData();
-                        setName('');
-                        setWeightUnit('KG');
-                        setTargetRIR(2);
+                        useUserStore.getState().reset();
                         setTotalWorkouts(0);
+                        setTemplates([]);
                     },
                 },
             ]
