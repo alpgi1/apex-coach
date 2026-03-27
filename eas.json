@@ -15,7 +15,12 @@
       "distribution": "internal"
     },
     "production": {
-      "autoIncrement": true
+      "autoIncrement": true,
+      "env": {
+        "EXPO_PUBLIC_SUPABASE_URL": "https://fiafmmecijtjxifbgweb.supabase.co",
+        "EXPO_PUBLIC_SUPABASE_ANON_KEY": "sb_publishable_HBmso9UxOrd3tsUUUyYyVQ_rwjBmg7z",
+        "EXPO_PUBLIC_API_BASE_URL": "https://apex-coach-api.onrender.com"
+      }
     }
   },
   "submit": {
