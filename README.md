@@ -1,6 +1,6 @@
 # Apex Coach
 
-![Status](https://img.shields.io/badge/status-MVP-brightgreen) ![Platform](https://img.shields.io/badge/platform-iOS%20%7C%20Android-lightgrey) ![License](https://img.shields.io/badge/license-MIT-blue) ![Tests](https://img.shields.io/badge/tests-18%20passing-success)
+![Status](https://img.shields.io/badge/status-TestFlight-brightgreen) ![Platform](https://img.shields.io/badge/platform-iOS-lightgrey) ![License](https://img.shields.io/badge/license-MIT-blue) ![Tests](https://img.shields.io/badge/tests-18%20passing-success)
 
 > An offline-first, RPE-driven training app with built-in AI coaching for serious weightlifters.
 
@@ -10,11 +10,14 @@
 
 <table>
   <tr>
-    <td align="center"><img src="assets/screenshots/home.png" width="180"/><br/><sub>Dashboard</sub></td>
-    <td align="center"><img src="assets/screenshots/workout.png" width="180"/><br/><sub>Active Workout</sub></td>
-    <td align="center"><img src="assets/screenshots/analyse.png" width="180"/><br/><sub>Analyse</sub></td>
-    <td align="center"><img src="assets/screenshots/coach.png" width="180"/><br/><sub>Apex AI</sub></td>
-    <td align="center"><img src="assets/screenshots/profile.png" width="180"/><br/><sub>Profile</sub></td>
+    <td align="center"><img src="assets/screenshots/homeScreen.png" width="220"/><br/><sub>Dashboard</sub></td>
+    <td align="center"><img src="assets/screenshots/IMG_7280-portrait.png" width="220"/><br/><sub>Active Workout</sub></td>
+    <td align="center"><img src="assets/screenshots/AI_screen.png" width="220"/><br/><sub>Apex AI</sub></td>
+  </tr>
+  <tr>
+    <td align="center"><img src="assets/screenshots/IMG_7279-portrait.png" width="220"/><br/><sub>Analyse</sub></td>
+    <td align="center"><img src="assets/screenshots/IMG_2CC34E3B6F2B-1-portrait.png" width="220"/><br/><sub>Muscle Split</sub></td>
+    <td align="center"><img src="assets/screenshots/IMG_1EBA598DC603-1-portrait.png" width="220"/><br/><sub>Exercise Detail</sub></td>
   </tr>
 </table>
 
@@ -37,6 +40,7 @@ Apex Coach is built around RPE (Rate of Perceived Exertion) — the only metric 
 | **RPE Tracking** | Log RPE (1–10) per set with half-point precision via iOS-style drum roll picker |
 | **Progressive Overload Engine** | Analyzes last 3–6 sessions per lift. Suggests weight/reps based on RPE trend and target RIR |
 | **Workout Plans** | Create reusable session blueprints with target sets, rep ranges, RPE goals, and pre-fill weights per exercise |
+| **Featured Programs** | 4 built-in programs (PPL, Upper/Lower, Full Body, Beginner) ready to add in one tap |
 | **Personal Records** | Auto-tracked PRs: max weight, estimated 1RM (Epley formula), best set per exercise |
 | **Analyse Dashboard** | Body heat map (last 7 days, front + back) + tappable Volume Trend and Muscle Split detail screens |
 | **Training Reminder** | Local push notification fires 48 hours after last workout — re-arms automatically on each session completion |
@@ -182,6 +186,8 @@ GET    /api/v1/body-weight              Body weight history
 
 POST   /api/v1/ai/chat                  AI chat (message + conversation history)
 POST   /api/v1/ai/insights              AI training insights (day range)
+
+DELETE /api/v1/user/me                  Delete account (cascades all user data)
 ```
 
 ---
@@ -198,7 +204,7 @@ apex-coach/
 │   ├── (tabs)/
 │   │   ├── _layout.tsx               # Tab bar (BlurView glass, floating center AI button)
 │   │   ├── index.tsx                 # Dashboard — last workout, weekly calendar, start button
-│   │   ├── workout.tsx               # Active workout — timer, set editor, progressive overload
+│   │   ├── workout.tsx               # Workout tab — active session, plans, featured programs
 │   │   ├── coach.tsx                 # Apex AI — chat UI, quick actions, conversation history
 │   │   ├── analyse.tsx               # Analyse — body heat map + tappable stat cards + history
 │   │   └── profile.tsx               # Profile — preferences, workout plans, stats, sign out
@@ -206,6 +212,9 @@ apex-coach/
 │   │   ├── _layout.tsx               # Stack layout for detail screens
 │   │   ├── volume.tsx                # Volume Trend detail — bar chart + summary stats
 │   │   └── muscle-split.tsx          # Muscle Split detail — radar chart + ranked breakdown
+│   ├── featured-plan/
+│   │   ├── _layout.tsx               # Stack layout for featured plan screens
+│   │   └── [id].tsx                  # Featured plan detail — sessions, exercises, add to plans
 │   ├── records.tsx                   # Personal records — Est. 1RM (Epley), best set per exercise
 │   ├── workout/[sessionId].tsx       # Session detail view
 │   └── template/
@@ -238,7 +247,7 @@ apex-coach/
     └── src/
         ├── main/java/com/apexcoach/api/
         │   ├── config/               # Security, CORS, GeminiConfig (RestClient bean)
-        │   ├── controller/           # REST controllers (workout, template, exercise, record, AI)
+        │   ├── controller/           # REST controllers (workout, template, exercise, record, AI, user)
         │   ├── service/              # Business logic, GeminiService, AiCoachService, TrainingContextService
         │   ├── repository/           # JPA repositories
         │   ├── entity/               # JPA entities + enums
@@ -246,7 +255,7 @@ apex-coach/
         │   └── exception/            # Global exception handler + Gemini exceptions
         ├── main/resources/
         │   ├── application.yml       # Base config (Gemini model, rate limit)
-        │   ├── application-dev.yml   # Local DB (Docker)
+        │   ├── application-dev.yml   # Local DB (Docker) — not committed
         │   ├── application-prod.yml  # Supabase prod (env vars)
         │   └── db/migration/         # Flyway SQL migrations (V1–V8)
         └── test/java/com/apexcoach/api/
@@ -344,6 +353,7 @@ Phase 1 — Frontend MVP
   ✅ Profile screen (name, weight unit, target RIR, photo)
   ✅ Onboarding screen (first launch)
   ✅ Workout plan system (create, edit, delete, start from plan, pre-fill weights)
+  ✅ Featured programs (PPL, Upper/Lower, Full Body, Beginner)
   ✅ Personal Records screen (Est. 1RM via Epley)
   ✅ RPE drum roll picker (iOS-style scroll picker with snap)
   ✅ Set auto-complete + swipe-to-delete
@@ -377,6 +387,7 @@ Phase 2 — Backend + Cloud Sync
   ✅ Workout read sync (backend → local SQLite merge on login)
   ✅ Template CRUD sync with target weight per exercise
   ✅ Auth gate (session-aware routing, no login flash on restart)
+  ✅ Account deletion (in-app button + backend cascade + Supabase auth removal)
   ✅ JUnit test suite — 18 tests (service unit tests + MockMvc controller tests)
 
 Phase 3 — AI Coach
