@@ -4,6 +4,12 @@
 
 > An offline-first, RPE-driven training app with built-in AI coaching for serious weightlifters.
 
+## Try It
+
+**Available on TestFlight — no invite needed.**
+
+[![Download on TestFlight](https://img.shields.io/badge/TestFlight-Join%20Beta-0A84FF?style=for-the-badge&logo=apple&logoColor=white)](https://testflight.apple.com/join/FcvadCz1)
+
 ---
 
 ## Screenshots
