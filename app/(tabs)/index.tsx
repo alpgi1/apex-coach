@@ -2,6 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
+  Alert,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -26,7 +27,8 @@ import { useWorkoutSession } from '../../src/hooks/useWorkoutSession';
 import { computeInsights, Insight } from '../../src/services/analytics/computeInsights';
 import { getAllExercises } from '../../src/services/storage/exerciseStorage';
 import { calculateStreak, StreakResult } from '../../src/services/storage/streakStorage';
-import { getWorkoutHistory } from '../../src/services/storage/workoutStorage';
+import { getWorkoutHistory, deleteWorkoutSession } from '../../src/services/storage/workoutStorage';
+import { deleteWorkoutFromBackend } from '../../src/services/api/workoutApi';
 import { useUserStore } from '../../src/store/userStore';
 import { ExerciseMetadata } from '../../src/types/exercise.types';
 import { WorkoutSession, WorkoutTemplate } from '../../src/types/workout.types';
@@ -119,6 +121,20 @@ export default function DashboardScreen() {
       }
     }
     router.push('/(tabs)/workout');
+  };
+
+  const handleDeleteSession = (id: string) => {
+    Alert.alert('Delete Workout', 'Are you sure you want to delete this workout?', [
+      { text: 'Cancel', style: 'cancel' },
+      {
+        text: 'Delete', style: 'destructive',
+        onPress: async () => {
+          await deleteWorkoutSession(id).catch(() => {});
+          deleteWorkoutFromBackend(id).catch(() => {});
+          setHistory((prev) => prev.filter((s) => s.id !== id));
+        },
+      },
+    ]);
   };
 
   const lastWorkout = history.length > 0 ? history[0] : null;
@@ -382,7 +398,13 @@ export default function DashboardScreen() {
                       </Text>
                     </View>
                   )}
-                  <Ionicons name="chevron-forward" size={20} color="rgba(255,255,255,0.4)" />
+                  <Pressable
+                    onPress={(e) => { e.stopPropagation(); handleDeleteSession(session.id); }}
+                    hitSlop={8}
+                    style={styles.deleteBtn}
+                  >
+                    <Ionicons name="trash-outline" size={16} color="#FF453A" />
+                  </Pressable>
                 </View>
               </TouchableOpacity>
             ))
@@ -476,6 +498,15 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255,96,0,0.15)',
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  deleteBtn: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: 'rgba(255,69,58,0.12)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginLeft: 4,
   },
   weekCard: {
     backgroundColor: 'rgba(255,255,255,0.07)',

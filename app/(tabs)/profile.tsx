@@ -20,7 +20,6 @@ import { clearAllData } from '../../src/services/storage/database';
 import { deleteAccount } from '../../src/services/api/userApi';
 import { calculateStreak, STREAK_MILESTONES, StreakResult } from '../../src/services/storage/streakStorage';
 import { postBodyWeight } from '../../src/services/api/weightApi';
-import { upsertWeightLogsFromBackend } from '../../src/services/storage/weightStorage';
 import { getAllTemplates, deleteTemplate as deleteTemplateLocal } from '../../src/services/storage/templateStorage';
 import { deleteTemplate as deleteTemplateApi } from '../../src/services/api/templateApi';
 import { useAuthStore } from '../../src/store/authStore';
@@ -68,7 +67,7 @@ export default function ProfileScreen() {
     );
 
     const handleLogWeight = async () => {
-        const kg = parseFloat(draftWeight);
+        const kg = parseFloat(draftWeight.replace(',', '.'));
         if (isNaN(kg) || kg <= 0 || kg > 500) return;
         const today = new Date().toISOString().slice(0, 10);
         await logWeight(kg, today).catch(() => {});

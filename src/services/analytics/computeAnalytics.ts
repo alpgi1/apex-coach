@@ -90,37 +90,60 @@ export interface MuscleHeatmapPoint {
 }
 
 /**
- * Returns muscles worked in the last 7 days with intensity based on completed set count.
- * intensity 1 = 1–4 sets, 2 = 5–9 sets, 3 = 10+ sets
+ * Per-muscle-group weekly volume thresholds (weightKg × reps).
+ * [yellow threshold, red threshold] — between them is orange.
+ * Legs/Back naturally accumulate more volume than Arms/Core.
+ */
+const VOLUME_THRESHOLDS: Partial<Record<MuscleGroup, [number, number]>> = {
+    LEGS:      [800,  5000],
+    BACK:      [600,  3500],
+    CHEST:     [500,  3000],
+    SHOULDERS: [300,  1800],
+    ARMS:      [200,  1200],
+    CORE:      [100,  700],
+};
+
+/**
+ * Returns muscles worked in the last 7 days with intensity based on volume (weightKg × reps).
+ * Sets with weightKg = 0 are excluded entirely.
+ * Thresholds are relative per muscle group so legs/back need more volume to turn red than arms/core.
+ * intensity 1 = yellow, 2 = orange, 3 = red
  */
 export function computeWeeklyMuscleHeatmap(
     sessions: WorkoutSession[],
     exerciseMap: Map<string, ExerciseMetadata>,
 ): MuscleHeatmapPoint[] {
     const sevenDaysAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
-    const slugSetCount: Partial<Record<Slug, number>> = {};
+    const groupVolume: Partial<Record<MuscleGroup, number>> = {};
 
     for (const session of sessions) {
         if (new Date(session.startTime).getTime() < sevenDaysAgo) continue;
         for (const log of session.logs) {
             const ex = exerciseMap.get(log.exerciseId);
             if (!ex) continue;
-            const completedSets = log.sets.filter((s) => s.isCompleted).length;
             const groups: MuscleGroup[] = ex.primaryMuscleGroup === 'FULL_BODY'
                 ? ['CHEST', 'BACK', 'SHOULDERS', 'ARMS', 'LEGS', 'CORE']
                 : [ex.primaryMuscleGroup];
-            for (const group of groups) {
-                for (const slug of (MUSCLE_SLUGS[group] ?? [])) {
-                    slugSetCount[slug] = (slugSetCount[slug] ?? 0) + completedSets;
+            for (const set of log.sets) {
+                if (!set.isCompleted || set.weightKg <= 0) continue;
+                const setVolume = set.weightKg * set.reps;
+                for (const group of groups) {
+                    groupVolume[group] = (groupVolume[group] ?? 0) + setVolume;
                 }
             }
         }
     }
 
-    return (Object.entries(slugSetCount) as [Slug, number][]).map(([slug, count]) => ({
-        slug,
-        intensity: count >= 10 ? 3 : count >= 5 ? 2 : 1,
-    }));
+    const result: MuscleHeatmapPoint[] = [];
+    for (const [group, volume] of Object.entries(groupVolume) as [MuscleGroup, number][]) {
+        if (volume <= 0) continue;
+        const [yellowAt, redAt] = VOLUME_THRESHOLDS[group] ?? [500, 1500];
+        const intensity: 1 | 2 | 3 = volume >= redAt ? 3 : volume >= yellowAt ? 2 : 1;
+        for (const slug of (MUSCLE_SLUGS[group] ?? [])) {
+            result.push({ slug, intensity });
+        }
+    }
+    return result;
 }
 
 /* ─────────────── Muscle Group Split ─────────────── */

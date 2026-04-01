@@ -77,7 +77,13 @@ export default function WorkoutScreen() {
         }, [isWorkoutActive])
     );
 
-    const handleWorkoutStart = (workoutName: string, template?: WorkoutTemplate) => {
+    const handleWorkoutStart = async (workoutName: string, template?: WorkoutTemplate) => {
+        if (template) {
+            const loaded = await Promise.all(template.exercises.map((te) => getExerciseById(te.exerciseId)));
+            const newMap: Record<string, ExerciseMetadata> = {};
+            for (const ex of loaded) { if (ex) newMap[ex.id] = ex; }
+            setExerciseMap((prev) => ({ ...prev, ...newMap }));
+        }
         startWorkout(workoutName);
         if (template) {
             for (const te of template.exercises) {
@@ -88,7 +94,11 @@ export default function WorkoutScreen() {
         setIsStartModalVisible(false);
     };
 
-    const handleStartFromTemplate = (template: WorkoutTemplate) => {
+    const handleStartFromTemplate = async (template: WorkoutTemplate) => {
+        const loaded = await Promise.all(template.exercises.map((te) => getExerciseById(te.exerciseId)));
+        const newMap: Record<string, ExerciseMetadata> = {};
+        for (const ex of loaded) { if (ex) newMap[ex.id] = ex; }
+        setExerciseMap((prev) => ({ ...prev, ...newMap }));
         startWorkout(template.name);
         for (const te of template.exercises) {
             const logId = addExercise(te.exerciseId);
@@ -465,9 +475,6 @@ export default function WorkoutScreen() {
                         </Text>
                     </View>
 
-                    <Pressable style={styles.iconBtn} className="active:opacity-70">
-                        <Ionicons name="ellipsis-horizontal" size={22} color="#FFFFFF" />
-                    </Pressable>
                 </View>
 
                 <ScrollView
