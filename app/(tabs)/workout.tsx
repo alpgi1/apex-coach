@@ -19,7 +19,7 @@ import Animated, {
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import AnimatedBackground from '../../src/components/layout/AnimatedBackground';
 
-import CollapsedExerciseCard from '../../src/components/workout/CollapsedExerciseCard';
+import DraggableExerciseList from '../../src/components/workout/DraggableExerciseList';
 import ExerciseCard, { type SetRowDraft } from '../../src/components/workout/ExerciseCard';
 import ExercisePickerModal from '../../src/components/workout/ExercisePickerModal';
 import StartWorkoutModal from '../../src/components/workout/StartWorkoutModal';
@@ -53,6 +53,7 @@ export default function WorkoutScreen() {
         removeSet,
         finishWorkout,
         setSessionNotes,
+        reorderLogs,
     } = useWorkoutSession();
 
     const { suggestion, fetchSuggestion } = useProgressiveOverload();
@@ -499,39 +500,26 @@ export default function WorkoutScreen() {
                     </View>
 
                     {/* ── SECTION 3 — EXERCISE LIST ────────────────── */}
-                    {activeSession.logs.map((log) => (
-                        <View
-                            key={log.id}
-                            onLayout={(e) => {
-                                cardPositions.current[log.id] = e.nativeEvent.layout.y;
-                            }}
-                        >
-                            {log.id === expandedLogId ? (
-                                <ExerciseCard
-                                    log={log}
-                                    exerciseName={exerciseMap[log.exerciseId]?.name ?? log.exerciseId}
-                                    suggestion={suggestion}
-                                    targetRIR={targetRIR}
-                                    getDraft={getDraft}
-                                    updateDraft={updateDraft}
-                                    tryAutoComplete={tryAutoComplete}
-                                    completeSet={completeSet}
-                                    updateSetValues={updateSetValues}
-                                    removeSet={removeSet}
-                                    addWarmupSet={addWarmupSet}
-                                    addDropSet={addDropSet}
-                                    addEmptySets={addEmptySets}
-                                    onCollapse={() => setExpandedLogId(null)}
-                                />
-                            ) : (
-                                <CollapsedExerciseCard
-                                    log={log}
-                                    exerciseName={exerciseMap[log.exerciseId]?.name ?? log.exerciseId}
-                                    onExpand={() => setExpandedLogId(log.id)}
-                                />
-                            )}
-                        </View>
-                    ))}
+                    <DraggableExerciseList
+                        logs={activeSession.logs}
+                        expandedLogId={expandedLogId}
+                        exerciseMap={exerciseMap}
+                        suggestion={suggestion}
+                        targetRIR={targetRIR}
+                        cardPositions={cardPositions}
+                        getDraft={getDraft}
+                        updateDraft={updateDraft}
+                        tryAutoComplete={tryAutoComplete}
+                        completeSet={completeSet}
+                        updateSetValues={updateSetValues}
+                        removeSet={removeSet}
+                        addWarmupSet={addWarmupSet}
+                        addDropSet={addDropSet}
+                        addEmptySets={addEmptySets}
+                        onExpand={(id) => setExpandedLogId(id)}
+                        onCollapse={() => setExpandedLogId(null)}
+                        onReorder={reorderLogs}
+                    />
 
                     {/* ── Session Notes ─────────────────────────── */}
                     <View className="mt-3 mb-2 rounded-2xl border border-white/10 bg-white/[0.07] p-4">

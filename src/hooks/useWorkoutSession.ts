@@ -206,6 +206,7 @@ export const useWorkoutSession = () => {
         toggleSetType,
         updateSetValues,
         removeSet,
+        reorderLogs: store.reorderLogs,
         setSessionNotes: store.setSessionNotes,
     };
 };

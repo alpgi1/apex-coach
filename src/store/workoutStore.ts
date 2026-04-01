@@ -14,6 +14,7 @@ interface WorkoutStoreState {
     insertSetAtStart: (exerciseLogId: string, set: WorkoutSet) => void;
     updateSet: (exerciseLogId: string, set: WorkoutSet) => void;
     removeSet: (exerciseLogId: string, setId: string) => void;
+    reorderLogs: (fromIndex: number, toIndex: number) => void;
 }
 
 export const useWorkoutStore = create<WorkoutStoreState>((set) => ({
@@ -175,6 +176,17 @@ export const useWorkoutStore = create<WorkoutStoreState>((set) => ({
                     logs: updatedLogs,
                 },
             };
+        });
+    },
+
+    reorderLogs: (fromIndex: number, toIndex: number) => {
+        set((state) => {
+            if (!state.activeSession) return state;
+            const logs = [...state.activeSession.logs];
+            const [moved] = logs.splice(fromIndex, 1);
+            logs.splice(toIndex, 0, moved);
+            const reordered = logs.map((log, i) => ({ ...log, order: i }));
+            return { activeSession: { ...state.activeSession, logs: reordered } };
         });
     },
 }));
