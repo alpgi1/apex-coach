@@ -1,0 +1,802 @@
+[
+  {
+    "backendName": "Smith Machine Bench Press",
+    "backendEquipment": "SMITH_MACHINE",
+    "matchedExerciseDbName": "smith bench press",
+    "gifUrl": "https://static.exercisedb.dev/media/trqKQv2.gif",
+    "method": "jaccard",
+    "score": 0.75
+  },
+  {
+    "backendName": "Low Cable Fly",
+    "backendEquipment": "CABLE",
+    "matchedExerciseDbName": "cable low fly",
+    "gifUrl": "https://static.exercisedb.dev/media/FVmZVhk.gif",
+    "method": "manual",
+    "score": 1
+  },
+  {
+    "backendName": "High Cable Fly",
+    "backendEquipment": "CABLE",
+    "matchedExerciseDbName": "cable upper chest crossovers",
+    "gifUrl": "https://static.exercisedb.dev/media/j7XMAyn.gif",
+    "method": "manual",
+    "score": 1
+  },
+  {
+    "backendName": "Incline Machine Press",
+    "backendEquipment": "MACHINE",
+    "matchedExerciseDbName": "lever incline chest press",
+    "gifUrl": "https://static.exercisedb.dev/media/jHAnWmT.gif",
+    "method": "manual",
+    "score": 1
+  },
+  {
+    "backendName": "Decline Dumbbell Press",
+    "backendEquipment": "DUMBBELL",
+    "matchedExerciseDbName": "dumbbell decline bench press",
+    "gifUrl": "https://static.exercisedb.dev/media/DwhEmmE.gif",
+    "method": "manual",
+    "score": 1
+  },
+  {
+    "backendName": "Incline Dumbbell Fly",
+    "backendEquipment": "DUMBBELL",
+    "matchedExerciseDbName": "dumbbell incline fly",
+    "gifUrl": "https://static.exercisedb.dev/media/ESOd5Pl.gif",
+    "method": "manual",
+    "score": 1
+  },
+  {
+    "backendName": "Smith Machine Incline Press",
+    "backendEquipment": "SMITH_MACHINE",
+    "matchedExerciseDbName": "smith incline bench press",
+    "gifUrl": "https://static.exercisedb.dev/media/5v7KYld.gif",
+    "method": "jaccard",
+    "score": 0.6
+  },
+  {
+    "backendName": "Landmine Press",
+    "backendEquipment": "BARBELL",
+    "matchedExerciseDbName": null,
+    "gifUrl": null,
+    "method": "none",
+    "score": 0
+  },
+  {
+    "backendName": "Wide Grip Lat Pulldown",
+    "backendEquipment": "CABLE",
+    "matchedExerciseDbName": "cable lat pulldown full range of motion",
+    "gifUrl": "https://static.exercisedb.dev/media/LEprlgG.gif",
+    "method": "manual",
+    "score": 1
+  },
+  {
+    "backendName": "Close Grip Lat Pulldown",
+    "backendEquipment": "CABLE",
+    "matchedExerciseDbName": "cable pulldown (pro lat bar)",
+    "gifUrl": "https://static.exercisedb.dev/media/qdRxqCj.gif",
+    "method": "manual",
+    "score": 1
+  },
+  {
+    "backendName": "Reverse Grip Barbell Row",
+    "backendEquipment": "BARBELL",
+    "matchedExerciseDbName": "barbell reverse grip bent over row",
+    "gifUrl": "https://static.exercisedb.dev/media/SzX3uzM.gif",
+    "method": "manual",
+    "score": 1
+  },
+  {
+    "backendName": "Meadows Row",
+    "backendEquipment": "BARBELL",
+    "matchedExerciseDbName": null,
+    "gifUrl": null,
+    "method": "none",
+    "score": 0
+  },
+  {
+    "backendName": "Cable Pullover",
+    "backendEquipment": "CABLE",
+    "matchedExerciseDbName": "cable straight arm pulldown",
+    "gifUrl": "https://static.exercisedb.dev/media/x69MAlq.gif",
+    "method": "manual",
+    "score": 1
+  },
+  {
+    "backendName": "Dumbbell Pullover",
+    "backendEquipment": "DUMBBELL",
+    "matchedExerciseDbName": "dumbbell pullover",
+    "gifUrl": "https://static.exercisedb.dev/media/9XjtHvS.gif",
+    "method": "manual",
+    "score": 1
+  },
+  {
+    "backendName": "Smith Machine Row",
+    "backendEquipment": "SMITH_MACHINE",
+    "matchedExerciseDbName": "smith narrow row",
+    "gifUrl": "https://static.exercisedb.dev/media/JGKowMS.gif",
+    "method": "jaccard",
+    "score": 0.5
+  },
+  {
+    "backendName": "Neutral Grip Pull Up",
+    "backendEquipment": "BODYWEIGHT",
+    "matchedExerciseDbName": "pull up (neutral grip)",
+    "gifUrl": "https://static.exercisedb.dev/media/0V2YQjW.gif",
+    "method": "manual",
+    "score": 1
+  },
+  {
+    "backendName": "Assisted Pull Up",
+    "backendEquipment": "MACHINE",
+    "matchedExerciseDbName": "assisted pull-up",
+    "gifUrl": "https://static.exercisedb.dev/media/kiJ4Z2K.gif",
+    "method": "manual",
+    "score": 1
+  },
+  {
+    "backendName": "Rack Pull",
+    "backendEquipment": "BARBELL",
+    "matchedExerciseDbName": "barbell rack pull",
+    "gifUrl": "https://static.exercisedb.dev/media/za9Ni4z.gif",
+    "method": "manual",
+    "score": 1
+  },
+  {
+    "backendName": "Good Morning",
+    "backendEquipment": "BARBELL",
+    "matchedExerciseDbName": "barbell good morning",
+    "gifUrl": "https://static.exercisedb.dev/media/XlZ4lAC.gif",
+    "method": "manual",
+    "score": 1
+  },
+  {
+    "backendName": "Ring Row",
+    "backendEquipment": "BODYWEIGHT",
+    "matchedExerciseDbName": "inverted row",
+    "gifUrl": "https://static.exercisedb.dev/media/bZGHsAZ.gif",
+    "method": "manual",
+    "score": 1
+  },
+  {
+    "backendName": "Smith Machine Squat",
+    "backendEquipment": "SMITH_MACHINE",
+    "matchedExerciseDbName": "smith squat",
+    "gifUrl": "https://static.exercisedb.dev/media/jFtipLl.gif",
+    "method": "jaccard",
+    "score": 0.6666666666666666
+  },
+  {
+    "backendName": "Barbell Lunge",
+    "backendEquipment": "BARBELL",
+    "matchedExerciseDbName": "barbell lunge",
+    "gifUrl": "https://static.exercisedb.dev/media/t8iSghb.gif",
+    "method": "manual",
+    "score": 1
+  },
+  {
+    "backendName": "Dumbbell Romanian Deadlift",
+    "backendEquipment": "DUMBBELL",
+    "matchedExerciseDbName": "dumbbell romanian deadlift",
+    "gifUrl": "https://static.exercisedb.dev/media/rR0LJzx.gif",
+    "method": "manual",
+    "score": 1
+  },
+  {
+    "backendName": "Step Up",
+    "backendEquipment": "DUMBBELL",
+    "matchedExerciseDbName": "dumbbell step-up",
+    "gifUrl": "https://static.exercisedb.dev/media/aXtJhlg.gif",
+    "method": "jaccard",
+    "score": 0.6666666666666666
+  },
+  {
+    "backendName": "Box Squat",
+    "backendEquipment": "BARBELL",
+    "matchedExerciseDbName": null,
+    "gifUrl": null,
+    "method": "none",
+    "score": 0
+  },
+  {
+    "backendName": "Nordic Hamstring Curl",
+    "backendEquipment": "BODYWEIGHT",
+    "matchedExerciseDbName": null,
+    "gifUrl": null,
+    "method": "none",
+    "score": 0
+  },
+  {
+    "backendName": "Donkey Calf Raise",
+    "backendEquipment": "MACHINE",
+    "matchedExerciseDbName": "lever donkey calf raise",
+    "gifUrl": "https://static.exercisedb.dev/media/C9LuR4A.gif",
+    "method": "manual",
+    "score": 1
+  },
+  {
+    "backendName": "Seated Calf Raise",
+    "backendEquipment": "MACHINE",
+    "matchedExerciseDbName": "lever seated calf raise",
+    "gifUrl": "https://static.exercisedb.dev/media/bOOdeyc.gif",
+    "method": "manual",
+    "score": 1
+  },
+  {
+    "backendName": "Cable Romanian Deadlift",
+    "backendEquipment": "CABLE",
+    "matchedExerciseDbName": "dumbbell romanian deadlift",
+    "gifUrl": "https://static.exercisedb.dev/media/rR0LJzx.gif",
+    "method": "manual",
+    "score": 1
+  },
+  {
+    "backendName": "Single Leg Press",
+    "backendEquipment": "MACHINE",
+    "matchedExerciseDbName": null,
+    "gifUrl": null,
+    "method": "none",
+    "score": 0
+  },
+  {
+    "backendName": "Barbell Hip Thrust",
+    "backendEquipment": "BARBELL",
+    "matchedExerciseDbName": "barbell glute bridge",
+    "gifUrl": "https://static.exercisedb.dev/media/qKBpF7I.gif",
+    "method": "manual",
+    "score": 1
+  },
+  {
+    "backendName": "Dumbbell Hip Thrust",
+    "backendEquipment": "DUMBBELL",
+    "matchedExerciseDbName": "barbell glute bridge",
+    "gifUrl": "https://static.exercisedb.dev/media/qKBpF7I.gif",
+    "method": "manual",
+    "score": 1
+  },
+  {
+    "backendName": "Cable Pull Through",
+    "backendEquipment": "CABLE",
+    "matchedExerciseDbName": "cable pull through (with rope)",
+    "gifUrl": "https://static.exercisedb.dev/media/OM46QHm.gif",
+    "method": "manual",
+    "score": 1
+  },
+  {
+    "backendName": "Reverse Lunge",
+    "backendEquipment": "DUMBBELL",
+    "matchedExerciseDbName": null,
+    "gifUrl": null,
+    "method": "none",
+    "score": 0
+  },
+  {
+    "backendName": "Side Lunge",
+    "backendEquipment": "DUMBBELL",
+    "matchedExerciseDbName": "barbell lateral lunge",
+    "gifUrl": "https://static.exercisedb.dev/media/py1HSzx.gif",
+    "method": "manual",
+    "score": 1
+  },
+  {
+    "backendName": "Leg Press Calf Raise",
+    "backendEquipment": "MACHINE",
+    "matchedExerciseDbName": "sled calf press on leg press",
+    "gifUrl": "https://static.exercisedb.dev/media/ykHcWme.gif",
+    "method": "manual",
+    "score": 1
+  },
+  {
+    "backendName": "Sissy Squat",
+    "backendEquipment": "BODYWEIGHT",
+    "matchedExerciseDbName": "sissy squat",
+    "gifUrl": "https://static.exercisedb.dev/media/xdYPUtE.gif",
+    "method": "manual",
+    "score": 1
+  },
+  {
+    "backendName": "Jefferson Squat",
+    "backendEquipment": "BARBELL",
+    "matchedExerciseDbName": "barbell jefferson squat",
+    "gifUrl": "https://static.exercisedb.dev/media/pkSoCW9.gif",
+    "method": "manual",
+    "score": 1
+  },
+  {
+    "backendName": "Dumbbell Lateral Raise",
+    "backendEquipment": "DUMBBELL",
+    "matchedExerciseDbName": "dumbbell lateral raise",
+    "gifUrl": "https://static.exercisedb.dev/media/DsgkuIt.gif",
+    "method": "manual",
+    "score": 1
+  },
+  {
+    "backendName": "Seated Dumbbell Lateral Raise",
+    "backendEquipment": "DUMBBELL",
+    "matchedExerciseDbName": "dumbbell seated lateral raise",
+    "gifUrl": "https://static.exercisedb.dev/media/hxyTtWj.gif",
+    "method": "manual",
+    "score": 1
+  },
+  {
+    "backendName": "Smith Machine Overhead Press",
+    "backendEquipment": "SMITH_MACHINE",
+    "matchedExerciseDbName": "smith standing military press",
+    "gifUrl": "https://static.exercisedb.dev/media/jjUPrze.gif",
+    "method": "manual",
+    "score": 1
+  },
+  {
+    "backendName": "Push Press",
+    "backendEquipment": "BARBELL",
+    "matchedExerciseDbName": "dumbbell push press",
+    "gifUrl": "https://static.exercisedb.dev/media/FS63wTN.gif",
+    "method": "manual",
+    "score": 1
+  },
+  {
+    "backendName": "Plate Front Raise",
+    "backendEquipment": "OTHER",
+    "matchedExerciseDbName": null,
+    "gifUrl": null,
+    "method": "none",
+    "score": 0
+  },
+  {
+    "backendName": "Dumbbell Front Raise",
+    "backendEquipment": "DUMBBELL",
+    "matchedExerciseDbName": "dumbbell front raise",
+    "gifUrl": "https://static.exercisedb.dev/media/3eGE2JC.gif",
+    "method": "manual",
+    "score": 1
+  },
+  {
+    "backendName": "Cable Front Raise",
+    "backendEquipment": "CABLE",
+    "matchedExerciseDbName": "cable front raise",
+    "gifUrl": "https://static.exercisedb.dev/media/u2X71Np.gif",
+    "method": "manual",
+    "score": 1
+  },
+  {
+    "backendName": "Prone Rear Delt Raise",
+    "backendEquipment": "DUMBBELL",
+    "matchedExerciseDbName": "dumbbell rear delt raise",
+    "gifUrl": "https://static.exercisedb.dev/media/mu5Guxt.gif",
+    "method": "manual",
+    "score": 1
+  },
+  {
+    "backendName": "Dumbbell Upright Row",
+    "backendEquipment": "DUMBBELL",
+    "matchedExerciseDbName": "dumbbell upright row",
+    "gifUrl": "https://static.exercisedb.dev/media/ainizkb.gif",
+    "method": "manual",
+    "score": 1
+  },
+  {
+    "backendName": "Cable Upright Row",
+    "backendEquipment": "CABLE",
+    "matchedExerciseDbName": "cable upright row",
+    "gifUrl": "https://static.exercisedb.dev/media/cALKspW.gif",
+    "method": "manual",
+    "score": 1
+  },
+  {
+    "backendName": "Landmine Lateral Raise",
+    "backendEquipment": "BARBELL",
+    "matchedExerciseDbName": "landmine lateral raise",
+    "gifUrl": "https://static.exercisedb.dev/media/eXMFHww.gif",
+    "method": "manual",
+    "score": 1
+  },
+  {
+    "backendName": "Kettlebell Overhead Press",
+    "backendEquipment": "KETTLEBELL",
+    "matchedExerciseDbName": "kettlebell alternating press",
+    "gifUrl": "https://static.exercisedb.dev/media/5KLbZWx.gif",
+    "method": "jaccard",
+    "score": 0.5
+  },
+  {
+    "backendName": "EZ Bar Skull Crusher",
+    "backendEquipment": "BARBELL",
+    "matchedExerciseDbName": "barbell lying triceps extension skull crusher",
+    "gifUrl": "https://static.exercisedb.dev/media/h8LFzo9.gif",
+    "method": "manual",
+    "score": 1
+  },
+  {
+    "backendName": "Dumbbell Skull Crusher",
+    "backendEquipment": "DUMBBELL",
+    "matchedExerciseDbName": "dumbbell lying triceps extension",
+    "gifUrl": "https://static.exercisedb.dev/media/mpKZGWz.gif",
+    "method": "manual",
+    "score": 1
+  },
+  {
+    "backendName": "Cable Tricep Kickback",
+    "backendEquipment": "CABLE",
+    "matchedExerciseDbName": "cable kickback",
+    "gifUrl": "https://static.exercisedb.dev/media/HEJ6DIX.gif",
+    "method": "manual",
+    "score": 1
+  },
+  {
+    "backendName": "Rope Pushdown",
+    "backendEquipment": "CABLE",
+    "matchedExerciseDbName": "cable pushdown (with rope attachment)",
+    "gifUrl": "https://static.exercisedb.dev/media/dU605di.gif",
+    "method": "manual",
+    "score": 1
+  },
+  {
+    "backendName": "Reverse Grip Pushdown",
+    "backendEquipment": "CABLE",
+    "matchedExerciseDbName": "cable reverse-grip pushdown",
+    "gifUrl": "https://static.exercisedb.dev/media/VjYliFZ.gif",
+    "method": "manual",
+    "score": 1
+  },
+  {
+    "backendName": "Bench Dip",
+    "backendEquipment": "BODYWEIGHT",
+    "matchedExerciseDbName": "weighted bench dip",
+    "gifUrl": "https://static.exercisedb.dev/media/MU9HnE7.gif",
+    "method": "manual",
+    "score": 1
+  },
+  {
+    "backendName": "Tricep Dip",
+    "backendEquipment": "BODYWEIGHT",
+    "matchedExerciseDbName": "weighted tricep dips",
+    "gifUrl": "https://static.exercisedb.dev/media/bZq4bwK.gif",
+    "method": "manual",
+    "score": 1
+  },
+  {
+    "backendName": "Reverse Curl",
+    "backendEquipment": "BARBELL",
+    "matchedExerciseDbName": "barbell reverse curl",
+    "gifUrl": "https://static.exercisedb.dev/media/xNrS20v.gif",
+    "method": "jaccard",
+    "score": 0.6666666666666666
+  },
+  {
+    "backendName": "Wrist Curl",
+    "backendEquipment": "BARBELL",
+    "matchedExerciseDbName": "barbell wrist curl",
+    "gifUrl": "https://static.exercisedb.dev/media/82LxxkW.gif",
+    "method": "manual",
+    "score": 1
+  },
+  {
+    "backendName": "Dumbbell Wrist Curl",
+    "backendEquipment": "DUMBBELL",
+    "matchedExerciseDbName": null,
+    "gifUrl": null,
+    "method": "none",
+    "score": 0
+  },
+  {
+    "backendName": "Drag Curl",
+    "backendEquipment": "BARBELL",
+    "matchedExerciseDbName": "barbell drag curl",
+    "gifUrl": "https://static.exercisedb.dev/media/IENzBdA.gif",
+    "method": "manual",
+    "score": 1
+  },
+  {
+    "backendName": "Spider Curl",
+    "backendEquipment": "BARBELL",
+    "matchedExerciseDbName": "ez barbell spider curl",
+    "gifUrl": "https://static.exercisedb.dev/media/2kattbR.gif",
+    "method": "manual",
+    "score": 1
+  },
+  {
+    "backendName": "Cable Preacher Curl",
+    "backendEquipment": "CABLE",
+    "matchedExerciseDbName": "cable one arm preacher curl",
+    "gifUrl": "https://static.exercisedb.dev/media/eHBlPsa.gif",
+    "method": "manual",
+    "score": 1
+  },
+  {
+    "backendName": "Single Arm Tricep Pushdown",
+    "backendEquipment": "CABLE",
+    "matchedExerciseDbName": "cable one arm tricep pushdown",
+    "gifUrl": "https://static.exercisedb.dev/media/qRZ5S1N.gif",
+    "method": "manual",
+    "score": 1
+  },
+  {
+    "backendName": "Zottman Curl",
+    "backendEquipment": "DUMBBELL",
+    "matchedExerciseDbName": "dumbbell zottman curl",
+    "gifUrl": "https://static.exercisedb.dev/media/kXaIn5A.gif",
+    "method": "manual",
+    "score": 1
+  },
+  {
+    "backendName": "Cross Body Hammer Curl",
+    "backendEquipment": "DUMBBELL",
+    "matchedExerciseDbName": "dumbbell cross body hammer curl",
+    "gifUrl": "https://static.exercisedb.dev/media/Qyk5J3p.gif",
+    "method": "manual",
+    "score": 1
+  },
+  {
+    "backendName": "Bayesian Curl",
+    "backendEquipment": "CABLE",
+    "matchedExerciseDbName": null,
+    "gifUrl": null,
+    "method": "none",
+    "score": 0
+  },
+  {
+    "backendName": "Crunch",
+    "backendEquipment": "BODYWEIGHT",
+    "matchedExerciseDbName": "weighted crunch",
+    "gifUrl": "https://static.exercisedb.dev/media/s8nrDXF.gif",
+    "method": "manual",
+    "score": 1
+  },
+  {
+    "backendName": "Bicycle Crunch",
+    "backendEquipment": "BODYWEIGHT",
+    "matchedExerciseDbName": "band bicycle crunch",
+    "gifUrl": "https://static.exercisedb.dev/media/tZkGYZ9.gif",
+    "method": "manual",
+    "score": 1
+  },
+  {
+    "backendName": "Dragon Flag",
+    "backendEquipment": "BODYWEIGHT",
+    "matchedExerciseDbName": null,
+    "gifUrl": null,
+    "method": "none",
+    "score": 0
+  },
+  {
+    "backendName": "Pallof Press",
+    "backendEquipment": "CABLE",
+    "matchedExerciseDbName": "band horizontal pallof press",
+    "gifUrl": "https://static.exercisedb.dev/media/9pa4H5m.gif",
+    "method": "manual",
+    "score": 1
+  },
+  {
+    "backendName": "Cable Woodchop High to Low",
+    "backendEquipment": "CABLE",
+    "matchedExerciseDbName": "cable twist",
+    "gifUrl": "https://static.exercisedb.dev/media/aVs3BR3.gif",
+    "method": "manual",
+    "score": 1
+  },
+  {
+    "backendName": "Reverse Crunch",
+    "backendEquipment": "BODYWEIGHT",
+    "matchedExerciseDbName": "reverse crunch",
+    "gifUrl": "https://static.exercisedb.dev/media/nCU1Ekp.gif",
+    "method": "manual",
+    "score": 1
+  },
+  {
+    "backendName": "Landmine Twist",
+    "backendEquipment": "BARBELL",
+    "matchedExerciseDbName": "landmine 180",
+    "gifUrl": "https://static.exercisedb.dev/media/QYysSLV.gif",
+    "method": "manual",
+    "score": 1
+  },
+  {
+    "backendName": "Hollow Body Hold",
+    "backendEquipment": "BODYWEIGHT",
+    "matchedExerciseDbName": null,
+    "gifUrl": null,
+    "method": "none",
+    "score": 0
+  },
+  {
+    "backendName": "V-Up",
+    "backendEquipment": "BODYWEIGHT",
+    "matchedExerciseDbName": null,
+    "gifUrl": null,
+    "method": "none",
+    "score": 0
+  },
+  {
+    "backendName": "Toes To Bar",
+    "backendEquipment": "BODYWEIGHT",
+    "matchedExerciseDbName": null,
+    "gifUrl": null,
+    "method": "none",
+    "score": 0
+  },
+  {
+    "backendName": "Weighted Sit Up",
+    "backendEquipment": "OTHER",
+    "matchedExerciseDbName": null,
+    "gifUrl": null,
+    "method": "none",
+    "score": 0
+  },
+  {
+    "backendName": "Cable Oblique Crunch",
+    "backendEquipment": "CABLE",
+    "matchedExerciseDbName": "cable seated crunch",
+    "gifUrl": "https://static.exercisedb.dev/media/8xUv4J7.gif",
+    "method": "jaccard",
+    "score": 0.5
+  },
+  {
+    "backendName": "Plank Hip Dip",
+    "backendEquipment": "BODYWEIGHT",
+    "matchedExerciseDbName": null,
+    "gifUrl": null,
+    "method": "none",
+    "score": 0
+  },
+  {
+    "backendName": "Kettlebell Clean",
+    "backendEquipment": "KETTLEBELL",
+    "matchedExerciseDbName": "kettlebell hang clean",
+    "gifUrl": "https://static.exercisedb.dev/media/LHWF7us.gif",
+    "method": "jaccard",
+    "score": 0.6666666666666666
+  },
+  {
+    "backendName": "Kettlebell Snatch",
+    "backendEquipment": "KETTLEBELL",
+    "matchedExerciseDbName": "kettlebell double snatch",
+    "gifUrl": "https://static.exercisedb.dev/media/M74kdvm.gif",
+    "method": "jaccard",
+    "score": 0.6666666666666666
+  },
+  {
+    "backendName": "Box Jump",
+    "backendEquipment": "BODYWEIGHT",
+    "matchedExerciseDbName": "box jump down with one leg stabilization",
+    "gifUrl": "https://static.exercisedb.dev/media/iPm26QU.gif",
+    "method": "substring",
+    "score": 0.5
+  },
+  {
+    "backendName": "Broad Jump",
+    "backendEquipment": "BODYWEIGHT",
+    "matchedExerciseDbName": null,
+    "gifUrl": null,
+    "method": "none",
+    "score": 0
+  },
+  {
+    "backendName": "Wall Ball",
+    "backendEquipment": "OTHER",
+    "matchedExerciseDbName": null,
+    "gifUrl": null,
+    "method": "none",
+    "score": 0
+  },
+  {
+    "backendName": "Battle Rope Waves",
+    "backendEquipment": "OTHER",
+    "matchedExerciseDbName": null,
+    "gifUrl": null,
+    "method": "none",
+    "score": 0
+  },
+  {
+    "backendName": "Sled Push",
+    "backendEquipment": "OTHER",
+    "matchedExerciseDbName": null,
+    "gifUrl": null,
+    "method": "none",
+    "score": 0
+  },
+  {
+    "backendName": "Tire Flip",
+    "backendEquipment": "OTHER",
+    "matchedExerciseDbName": "tire flip",
+    "gifUrl": "https://static.exercisedb.dev/media/oZjMu1t.gif",
+    "method": "manual",
+    "score": 1
+  },
+  {
+    "backendName": "Turkish Get Up",
+    "backendEquipment": "KETTLEBELL",
+    "matchedExerciseDbName": "kettlebell turkish get up (squat style)",
+    "gifUrl": "https://static.exercisedb.dev/media/Ha7SZ3y.gif",
+    "method": "manual",
+    "score": 1
+  },
+  {
+    "backendName": "Barbell Complex",
+    "backendEquipment": "BARBELL",
+    "matchedExerciseDbName": null,
+    "gifUrl": null,
+    "method": "none",
+    "score": 0
+  },
+  {
+    "backendName": "Dumbbell Thruster",
+    "backendEquipment": "DUMBBELL",
+    "matchedExerciseDbName": null,
+    "gifUrl": null,
+    "method": "none",
+    "score": 0
+  },
+  {
+    "backendName": "Mountain Climber",
+    "backendEquipment": "BODYWEIGHT",
+    "matchedExerciseDbName": "mountain climber",
+    "gifUrl": "https://static.exercisedb.dev/media/RJgzwny.gif",
+    "method": "manual",
+    "score": 1
+  },
+  {
+    "backendName": "Band Pull Apart",
+    "backendEquipment": "OTHER",
+    "matchedExerciseDbName": null,
+    "gifUrl": null,
+    "method": "none",
+    "score": 0
+  },
+  {
+    "backendName": "Inverted Row",
+    "backendEquipment": "BODYWEIGHT",
+    "matchedExerciseDbName": "inverted row",
+    "gifUrl": "https://static.exercisedb.dev/media/bZGHsAZ.gif",
+    "method": "manual",
+    "score": 1
+  },
+  {
+    "backendName": "Cable Face Pull with Rotation",
+    "backendEquipment": "CABLE",
+    "matchedExerciseDbName": "cable rear delt row (with rope)",
+    "gifUrl": "https://static.exercisedb.dev/media/wqNPGCg.gif",
+    "method": "manual",
+    "score": 1
+  },
+  {
+    "backendName": "Trap Bar Deadlift",
+    "backendEquipment": "OTHER",
+    "matchedExerciseDbName": "trap bar deadlift",
+    "gifUrl": "https://static.exercisedb.dev/media/jQGwmxN.gif",
+    "method": "manual",
+    "score": 1
+  },
+  {
+    "backendName": "Seal Row",
+    "backendEquipment": "BARBELL",
+    "matchedExerciseDbName": null,
+    "gifUrl": null,
+    "method": "none",
+    "score": 0
+  },
+  {
+    "backendName": "Adductor Machine",
+    "backendEquipment": "MACHINE",
+    "matchedExerciseDbName": "lever seated hip adduction",
+    "gifUrl": "https://static.exercisedb.dev/media/oHsrypV.gif",
+    "method": "manual",
+    "score": 1
+  },
+  {
+    "backendName": "Abductor Machine",
+    "backendEquipment": "MACHINE",
+    "matchedExerciseDbName": "lever seated hip abduction",
+    "gifUrl": "https://static.exercisedb.dev/media/CHpahtl.gif",
+    "method": "manual",
+    "score": 1
+  },
+  {
+    "backendName": "Glute Bridge",
+    "backendEquipment": "BODYWEIGHT",
+    "matchedExerciseDbName": "barbell glute bridge",
+    "gifUrl": "https://static.exercisedb.dev/media/qKBpF7I.gif",
+    "method": "manual",
+    "score": 1
+  }
+]

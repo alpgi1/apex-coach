@@ -145,6 +145,120 @@ const BACKEND_EXERCISES: BackendExercise[] = [
     { name: 'Burpee', equipment: 'BODYWEIGHT' },
 ];
 
+/* ═══════════════════ V9 exercises (100 new) ═══════════════════ */
+
+const V9_EXERCISES: BackendExercise[] = [
+    // CHEST
+    { name: 'Smith Machine Bench Press',        equipment: 'SMITH_MACHINE' },
+    { name: 'Low Cable Fly',                    equipment: 'CABLE' },
+    { name: 'High Cable Fly',                   equipment: 'CABLE' },
+    { name: 'Incline Machine Press',            equipment: 'MACHINE' },
+    { name: 'Decline Dumbbell Press',           equipment: 'DUMBBELL' },
+    { name: 'Incline Dumbbell Fly',             equipment: 'DUMBBELL' },
+    { name: 'Smith Machine Incline Press',      equipment: 'SMITH_MACHINE' },
+    { name: 'Landmine Press',                   equipment: 'BARBELL' },
+    // BACK
+    { name: 'Wide Grip Lat Pulldown',           equipment: 'CABLE' },
+    { name: 'Close Grip Lat Pulldown',          equipment: 'CABLE' },
+    { name: 'Reverse Grip Barbell Row',         equipment: 'BARBELL' },
+    { name: 'Meadows Row',                      equipment: 'BARBELL' },
+    { name: 'Cable Pullover',                   equipment: 'CABLE' },
+    { name: 'Dumbbell Pullover',                equipment: 'DUMBBELL' },
+    { name: 'Smith Machine Row',                equipment: 'SMITH_MACHINE' },
+    { name: 'Neutral Grip Pull Up',             equipment: 'BODYWEIGHT' },
+    { name: 'Assisted Pull Up',                 equipment: 'MACHINE' },
+    { name: 'Rack Pull',                        equipment: 'BARBELL' },
+    { name: 'Good Morning',                     equipment: 'BARBELL' },
+    { name: 'Ring Row',                         equipment: 'BODYWEIGHT' },
+    // LEGS
+    { name: 'Smith Machine Squat',              equipment: 'SMITH_MACHINE' },
+    { name: 'Barbell Lunge',                    equipment: 'BARBELL' },
+    { name: 'Dumbbell Romanian Deadlift',       equipment: 'DUMBBELL' },
+    { name: 'Step Up',                          equipment: 'DUMBBELL' },
+    { name: 'Box Squat',                        equipment: 'BARBELL' },
+    { name: 'Nordic Hamstring Curl',            equipment: 'BODYWEIGHT' },
+    { name: 'Donkey Calf Raise',                equipment: 'MACHINE' },
+    { name: 'Seated Calf Raise',                equipment: 'MACHINE' },
+    { name: 'Cable Romanian Deadlift',          equipment: 'CABLE' },
+    { name: 'Single Leg Press',                 equipment: 'MACHINE' },
+    { name: 'Barbell Hip Thrust',               equipment: 'BARBELL' },
+    { name: 'Dumbbell Hip Thrust',              equipment: 'DUMBBELL' },
+    { name: 'Cable Pull Through',               equipment: 'CABLE' },
+    { name: 'Reverse Lunge',                    equipment: 'DUMBBELL' },
+    { name: 'Side Lunge',                       equipment: 'DUMBBELL' },
+    { name: 'Leg Press Calf Raise',             equipment: 'MACHINE' },
+    { name: 'Sissy Squat',                      equipment: 'BODYWEIGHT' },
+    { name: 'Jefferson Squat',                  equipment: 'BARBELL' },
+    // SHOULDERS
+    { name: 'Dumbbell Lateral Raise',           equipment: 'DUMBBELL' },
+    { name: 'Seated Dumbbell Lateral Raise',    equipment: 'DUMBBELL' },
+    { name: 'Smith Machine Overhead Press',     equipment: 'SMITH_MACHINE' },
+    { name: 'Push Press',                       equipment: 'BARBELL' },
+    { name: 'Plate Front Raise',                equipment: 'OTHER' },
+    { name: 'Dumbbell Front Raise',             equipment: 'DUMBBELL' },
+    { name: 'Cable Front Raise',                equipment: 'CABLE' },
+    { name: 'Prone Rear Delt Raise',            equipment: 'DUMBBELL' },
+    { name: 'Dumbbell Upright Row',             equipment: 'DUMBBELL' },
+    { name: 'Cable Upright Row',                equipment: 'CABLE' },
+    { name: 'Landmine Lateral Raise',           equipment: 'BARBELL' },
+    { name: 'Kettlebell Overhead Press',        equipment: 'KETTLEBELL' },
+    // ARMS
+    { name: 'EZ Bar Skull Crusher',             equipment: 'BARBELL' },
+    { name: 'Dumbbell Skull Crusher',           equipment: 'DUMBBELL' },
+    { name: 'Cable Tricep Kickback',            equipment: 'CABLE' },
+    { name: 'Rope Pushdown',                    equipment: 'CABLE' },
+    { name: 'Reverse Grip Pushdown',            equipment: 'CABLE' },
+    { name: 'Bench Dip',                        equipment: 'BODYWEIGHT' },
+    { name: 'Tricep Dip',                       equipment: 'BODYWEIGHT' },
+    { name: 'Reverse Curl',                     equipment: 'BARBELL' },
+    { name: 'Wrist Curl',                       equipment: 'BARBELL' },
+    { name: 'Dumbbell Wrist Curl',              equipment: 'DUMBBELL' },
+    { name: 'Drag Curl',                        equipment: 'BARBELL' },
+    { name: 'Spider Curl',                      equipment: 'BARBELL' },
+    { name: 'Cable Preacher Curl',              equipment: 'CABLE' },
+    { name: 'Single Arm Tricep Pushdown',       equipment: 'CABLE' },
+    { name: 'Zottman Curl',                     equipment: 'DUMBBELL' },
+    { name: 'Cross Body Hammer Curl',           equipment: 'DUMBBELL' },
+    { name: 'Bayesian Curl',                    equipment: 'CABLE' },
+    // CORE
+    { name: 'Crunch',                           equipment: 'BODYWEIGHT' },
+    { name: 'Bicycle Crunch',                   equipment: 'BODYWEIGHT' },
+    { name: 'Dragon Flag',                      equipment: 'BODYWEIGHT' },
+    { name: 'Pallof Press',                     equipment: 'CABLE' },
+    { name: 'Cable Woodchop High to Low',       equipment: 'CABLE' },
+    { name: 'Reverse Crunch',                   equipment: 'BODYWEIGHT' },
+    { name: 'Landmine Twist',                   equipment: 'BARBELL' },
+    { name: 'Hollow Body Hold',                 equipment: 'BODYWEIGHT' },
+    { name: 'V-Up',                             equipment: 'BODYWEIGHT' },
+    { name: 'Toes To Bar',                      equipment: 'BODYWEIGHT' },
+    { name: 'Weighted Sit Up',                  equipment: 'OTHER' },
+    { name: 'Cable Oblique Crunch',             equipment: 'CABLE' },
+    { name: 'Plank Hip Dip',                    equipment: 'BODYWEIGHT' },
+    // FULL BODY
+    { name: 'Kettlebell Clean',                 equipment: 'KETTLEBELL' },
+    { name: 'Kettlebell Snatch',                equipment: 'KETTLEBELL' },
+    { name: 'Box Jump',                         equipment: 'BODYWEIGHT' },
+    { name: 'Broad Jump',                       equipment: 'BODYWEIGHT' },
+    { name: 'Wall Ball',                        equipment: 'OTHER' },
+    { name: 'Battle Rope Waves',                equipment: 'OTHER' },
+    { name: 'Sled Push',                        equipment: 'OTHER' },
+    { name: 'Tire Flip',                        equipment: 'OTHER' },
+    { name: 'Turkish Get Up',                   equipment: 'KETTLEBELL' },
+    { name: 'Barbell Complex',                  equipment: 'BARBELL' },
+    { name: 'Dumbbell Thruster',                equipment: 'DUMBBELL' },
+    { name: 'Mountain Climber',                 equipment: 'BODYWEIGHT' },
+    // BACK (additional)
+    { name: 'Band Pull Apart',                  equipment: 'OTHER' },
+    { name: 'Inverted Row',                     equipment: 'BODYWEIGHT' },
+    { name: 'Cable Face Pull with Rotation',    equipment: 'CABLE' },
+    { name: 'Trap Bar Deadlift',                equipment: 'OTHER' },
+    { name: 'Seal Row',                         equipment: 'BARBELL' },
+    // LEGS (additional)
+    { name: 'Adductor Machine',                 equipment: 'MACHINE' },
+    { name: 'Abductor Machine',                 equipment: 'MACHINE' },
+    { name: 'Glute Bridge',                     equipment: 'BODYWEIGHT' },
+];
+
 /* ═══════════════════ Manual overrides ═══════════════════ */
 
 // Backend name (lowercase) → ExerciseDB name (lowercase) for hard-to-match exercises
@@ -224,7 +338,91 @@ const MANUAL_OVERRIDES: Record<string, string> = {
     'dumbbell curl': 'dumbbell biceps curl',
     'side plank': 'bodyweight incline side plank',
     'leg raise': 'hanging straight leg raise',
+
+    // ── V9 overrides ────────────────────────────────────────
+    // CHEST
+    'low cable fly':                    'cable low fly',
+    'high cable fly':                   'cable upper chest crossovers',
+    'incline machine press':            'lever incline chest press',
+    'decline dumbbell press':           'dumbbell decline bench press',
+    'incline dumbbell fly':             'dumbbell incline fly',
+    // BACK
+    'wide grip lat pulldown':           'cable lat pulldown full range of motion',
+    'close grip lat pulldown':          'cable pulldown (pro lat bar)',
+    'reverse grip barbell row':         'barbell reverse grip bent over row',
+    'cable pullover':                   'cable straight arm pulldown',
+    'dumbbell pullover':                'dumbbell pullover',
+    'neutral grip pull up':             'pull up (neutral grip)',
+    'assisted pull up':                 'assisted pull-up',
+    'rack pull':                        'barbell rack pull',
+    'good morning':                     'barbell good morning',
+    'ring row':                         'inverted row',
+    // LEGS
+    'barbell lunge':                    'barbell lunge',
+    'dumbbell romanian deadlift':       'dumbbell romanian deadlift',
+    'donkey calf raise':                'lever donkey calf raise',
+    'seated calf raise':                'lever seated calf raise',
+    'cable romanian deadlift':          'dumbbell romanian deadlift',
+    'barbell hip thrust':               'barbell glute bridge',
+    'dumbbell hip thrust':              'barbell glute bridge',
+    'cable pull through':               'cable pull through (with rope)',
+    'side lunge':                       'barbell lateral lunge',
+    'leg press calf raise':             'sled calf press on leg press',
+    'sissy squat':                      'sissy squat',
+    'jefferson squat':                  'barbell jefferson squat',
+    // SHOULDERS
+    'seated dumbbell lateral raise':    'dumbbell seated lateral raise',
+    'smith machine overhead press':     'smith standing military press',
+    'push press':                       'dumbbell push press',
+    'dumbbell front raise':             'dumbbell front raise',
+    'cable front raise':                'cable front raise',
+    'prone rear delt raise':            'dumbbell rear delt raise',
+    'dumbbell upright row':             'dumbbell upright row',
+    'cable upright row':                'cable upright row',
+    'landmine lateral raise':           'landmine lateral raise',
+    // ARMS
+    'ez bar skull crusher':             'barbell lying triceps extension skull crusher',
+    'dumbbell skull crusher':           'dumbbell lying triceps extension',
+    'cable tricep kickback':            'cable kickback',
+    'rope pushdown':                    'cable pushdown (with rope attachment)',
+    'reverse grip pushdown':            'cable reverse-grip pushdown',
+    'bench dip':                        'weighted bench dip',
+    'tricep dip':                       'weighted tricep dips',
+    'wrist curl':                       'barbell wrist curl',
+    'drag curl':                        'barbell drag curl',
+    'spider curl':                      'ez barbell spider curl',
+    'cable preacher curl':              'cable one arm preacher curl',
+    'single arm tricep pushdown':       'cable one arm tricep pushdown',
+    'zottman curl':                     'dumbbell zottman curl',
+    'cross body hammer curl':           'dumbbell cross body hammer curl',
+    // CORE
+    'crunch':                           'weighted crunch',
+    'bicycle crunch':                   'band bicycle crunch',
+    'pallof press':                     'band horizontal pallof press',
+    'cable woodchop high to low':       'cable twist',
+    'reverse crunch':                   'reverse crunch',
+    'landmine twist':                   'landmine 180',
+    // FULL BODY
+    'tire flip':                        'tire flip',
+    'turkish get up':                   'kettlebell turkish get up (squat style)',
+    'mountain climber':                 'mountain climber',
+    // BACK (additional)
+    'inverted row':                     'inverted row',
+    'cable face pull with rotation':    'cable rear delt row (with rope)',
+    'trap bar deadlift':                'trap bar deadlift',
+    // LEGS (additional)
+    'adductor machine':                 'lever seated hip adduction',
+    'abductor machine':                 'lever seated hip abduction',
+    'glute bridge':                     'barbell glute bridge',
 };
+
+/* ═══════════════════ Force-null list ═══════════════════ */
+// These exercises have no correct ExerciseDB equivalent — auto-matching produces wrong results.
+const FORCE_NULL_EXERCISES = new Set([
+    'dragon flag',         // jaccard matches unrelated "flag" exercise
+    'single leg press',    // jaccard matches "smith leg press" (wrong equipment + movement)
+    'dumbbell wrist curl', // jaccard matches "dumbbell reverse wrist curl" (opposite movement)
+]);
 
 /* ═══════════════════ Helpers ═══════════════════ */
 
@@ -418,48 +616,57 @@ function findMatch(
 
 /* ═══════════════════ Main ═══════════════════ */
 
-async function main() {
-    const dbExercises = await fetchAllExerciseDb();
+function runMatching(exercises: BackendExercise[], dbExercises: ExerciseDbItem[], label: string): MatchResult[] {
     const results: MatchResult[] = [];
-
-    console.log('Matching backend exercises...\n');
-
-    for (const backend of BACKEND_EXERCISES) {
-        const result = findMatch(backend, dbExercises);
+    console.log(`\nMatching ${label}...\n`);
+    for (const backend of exercises) {
+        const forceNull = FORCE_NULL_EXERCISES.has(normalize(backend.name));
+        const result = forceNull
+            ? { backendName: backend.name, backendEquipment: backend.equipment, matchedExerciseDbName: null, gifUrl: null, method: 'none' as const, score: 0 }
+            : findMatch(backend, dbExercises);
         results.push(result);
-
         const icon = result.method === 'none' ? 'X' : 'V';
         console.log(`  [${icon}] ${backend.name} => ${result.matchedExerciseDbName ?? 'NO MATCH'} (${result.method}, ${result.score.toFixed(2)})`);
     }
-
-    // Summary
     const matched = results.filter(r => r.method !== 'none');
     const unmatched = results.filter(r => r.method === 'none');
-    console.log(`\n=== Summary ===`);
+    console.log(`\n=== ${label} Summary ===`);
     console.log(`Matched: ${matched.length}/${results.length}`);
-    console.log(`Unmatched: ${unmatched.length}`);
     if (unmatched.length > 0) {
-        console.log(`Unmatched exercises:`);
+        console.log(`Unmatched:`);
         unmatched.forEach(r => console.log(`  - ${r.backendName}`));
     }
+    return results;
+}
 
-    // Write match-results.json
-    const jsonPath = path.join(__dirname, 'match-results.json');
-    fs.writeFileSync(jsonPath, JSON.stringify(results, null, 2));
-    console.log(`\nWrote ${jsonPath}`);
-
-    // Write SQL
+function writeSql(results: MatchResult[], filePath: string, label: string) {
+    const matched = results.filter(r => r.method !== 'none');
     const sqlLines = matched.map(r => {
         const escapedName = r.backendName.replace(/'/g, "''");
         const escapedUrl = r.gifUrl!.replace(/'/g, "''");
         return `UPDATE exercises SET gif_url = '${escapedUrl}' WHERE name = '${escapedName}';`;
     });
+    const sqlContent = `-- Auto-generated by match-exercise-gifs.ts (${label})\n-- ${matched.length} exercises matched\n-- Review match-results.json before applying!\n\nBEGIN;\n\n${sqlLines.join('\n')}\n\nCOMMIT;\n`;
+    fs.writeFileSync(filePath, sqlContent);
+    console.log(`Wrote ${filePath}`);
+}
 
-    const sqlContent = `-- Auto-generated by match-exercise-gifs.ts\n-- ${matched.length} exercises matched\n-- Review match-results.json before applying!\n\nBEGIN;\n\n${sqlLines.join('\n')}\n\nCOMMIT;\n`;
+async function main() {
+    const dbExercises = await fetchAllExerciseDb();
 
-    const sqlPath = path.join(__dirname, 'update_gif_urls.sql');
-    fs.writeFileSync(sqlPath, sqlContent);
-    console.log(`Wrote ${sqlPath}`);
+    // V2 + V6 (original 85 exercises)
+    const v1Results = runMatching(BACKEND_EXERCISES, dbExercises, 'V2+V6 exercises');
+    const v1JsonPath = path.join(__dirname, 'match-results.json');
+    fs.writeFileSync(v1JsonPath, JSON.stringify(v1Results, null, 2));
+    console.log(`\nWrote ${v1JsonPath}`);
+    writeSql(v1Results, path.join(__dirname, 'update_gif_urls.sql'), 'V2+V6');
+
+    // V9 (100 new exercises)
+    const v9Results = runMatching(V9_EXERCISES, dbExercises, 'V9 exercises');
+    const v9JsonPath = path.join(__dirname, 'match-results-v9.json');
+    fs.writeFileSync(v9JsonPath, JSON.stringify(v9Results, null, 2));
+    console.log(`\nWrote ${v9JsonPath}`);
+    writeSql(v9Results, path.join(__dirname, 'update_gif_urls_v9.sql'), 'V9');
 }
 
 main().catch(err => {

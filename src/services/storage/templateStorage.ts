@@ -214,6 +214,6 @@ export const upsertTemplatesFromBackend = async (templates: BackendTemplate[]): 
             })),
         };
 
-        await saveTemplate(mapped);
+        await saveTemplate(mapped).catch(() => {});
     }
 };

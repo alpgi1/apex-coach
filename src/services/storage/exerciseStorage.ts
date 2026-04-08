@@ -1,6 +1,6 @@
 import { EquipmentType, ExerciseCategory, ExerciseMetadata, MuscleGroup, PersonalRecord, SpecificMuscle } from '../../types/exercise.types';
 import db from './database';
-import { DEFAULT_EXERCISES, EXPECTED_SEED_COUNT } from './defaultExercises';
+import { DEFAULT_EXERCISES } from './defaultExercises';
 
 interface ExerciseRow {
     id: string;
@@ -171,6 +171,11 @@ export const getPersonalRecord = async (exerciseId: string): Promise<PersonalRec
 };
 
 export const upsertPersonalRecord = async (pr: PersonalRecord): Promise<void> => {
+    const exerciseExists = await db.getFirstAsync<{ id: string }>(
+        `SELECT id FROM exercises WHERE id = ?`, [pr.exerciseId]
+    );
+    if (!exerciseExists) return;
+
     await db.runAsync(
         `INSERT INTO personal_records (exerciseId, estimatedOneRepMax, maxWeightKg, repsAtMaxWeight, maxReps, weightAtMaxRepsKg, maxSessionVolumeKg, dateAchieved)
          VALUES (?, ?, ?, ?, ?, ?, ?, ?)
