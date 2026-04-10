@@ -2,6 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { useEffect } from 'react';
 import {
+    Alert,
     Pressable,
     StyleSheet,
     Text,
@@ -53,6 +54,7 @@ interface ExerciseCardProps {
     addDropSet: (logId: string) => void;
     addEmptySets: (logId: string, count: number) => void;
     onCollapse: () => void;
+    onRemoveLog: (logId: string) => void;
 }
 
 /* ──────────────── swipe delete action ────────────────────────── */
@@ -139,7 +141,24 @@ export default function ExerciseCard({
     addDropSet,
     addEmptySets,
     onCollapse,
+    onRemoveLog,
 }: ExerciseCardProps) {
+    const handleRemove = () => {
+        const hasCompletedSets = log.sets.some((s) => s.isCompleted);
+        if (hasCompletedSets) {
+            Alert.alert(
+                'Remove Exercise',
+                'This exercise has completed sets. Remove it anyway?',
+                [
+                    { text: 'Cancel', style: 'cancel' },
+                    { text: 'Remove', style: 'destructive', onPress: () => onRemoveLog(log.id) },
+                ],
+            );
+        } else {
+            onRemoveLog(log.id);
+        }
+    };
+
     return (
         <GestureHandlerRootView className="mb-2">
             <View className="rounded-2xl border border-white/10 bg-white/[0.07] p-4">
@@ -154,10 +173,26 @@ export default function ExerciseCard({
                             {exerciseName}
                         </Text>
                     </View>
-                    <View className="rounded-full px-3 py-1 bg-white/[0.08]">
-                        <Text className="text-[#8E8E93] text-xs font-outfit-semibold">
-                            WORKING
-                        </Text>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                        <View className="rounded-full px-3 py-1 bg-white/[0.08]">
+                            <Text className="text-[#8E8E93] text-xs font-outfit-semibold">
+                                WORKING
+                            </Text>
+                        </View>
+                        <Pressable
+                            onPress={handleRemove}
+                            hitSlop={8}
+                            style={({ pressed }) => ({
+                                width: 28,
+                                height: 28,
+                                borderRadius: 8,
+                                backgroundColor: pressed ? 'rgba(255,59,48,0.2)' : 'rgba(255,255,255,0.06)',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                            })}
+                        >
+                            <Ionicons name="trash-outline" size={14} color="#FF3B30" />
+                        </Pressable>
                     </View>
                 </Pressable>
 

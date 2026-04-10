@@ -51,6 +51,7 @@ export default function WorkoutScreen() {
         completeSet,
         updateSetValues,
         removeSet,
+        removeLog,
         finishWorkout,
         setSessionNotes,
         reorderLogs,
@@ -481,7 +482,7 @@ export default function WorkoutScreen() {
                 <ScrollView
                     ref={scrollRef}
                     className="flex-1"
-                    contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 160 + insets.bottom }}
+                    contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: (isRestTimerRunning ? 230 : 160) + insets.bottom }}
                     showsVerticalScrollIndicator={false}
                     automaticallyAdjustKeyboardInsets
                     keyboardDismissMode="interactive"
@@ -519,6 +520,7 @@ export default function WorkoutScreen() {
                         onExpand={(id) => setExpandedLogId(id)}
                         onCollapse={() => setExpandedLogId(null)}
                         onReorder={reorderLogs}
+                        onRemoveLog={removeLog}
                     />
 
                     {/* ── Session Notes ─────────────────────────── */}

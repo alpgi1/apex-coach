@@ -2,10 +2,10 @@ import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { useRef, useState } from 'react';
 import {
+    Alert,
     LayoutAnimation,
     Platform,
     Pressable,
-    Text,
     UIManager,
     View,
 } from 'react-native';
@@ -39,6 +39,7 @@ interface DraggableExerciseListProps {
     onExpand: (logId: string) => void;
     onCollapse: () => void;
     onReorder: (fromIndex: number, toIndex: number) => void;
+    onRemoveLog: (logId: string) => void;
 }
 
 export default function DraggableExerciseList({
@@ -60,7 +61,23 @@ export default function DraggableExerciseList({
     onExpand,
     onCollapse,
     onReorder,
+    onRemoveLog,
 }: DraggableExerciseListProps) {
+    const handleRemoveLog = (log: ExerciseLog) => {
+        const hasCompletedSets = log.sets.some((s) => s.isCompleted);
+        if (hasCompletedSets) {
+            Alert.alert(
+                'Remove Exercise',
+                'This exercise has completed sets. Remove it anyway?',
+                [
+                    { text: 'Cancel', style: 'cancel' },
+                    { text: 'Remove', style: 'destructive', onPress: () => onRemoveLog(log.id) },
+                ],
+            );
+        } else {
+            onRemoveLog(log.id);
+        }
+    };
     // Tracks which item is being dragged
     const [draggingIndex, setDraggingIndex] = useState<number | null>(null);
     const [hoverIndex, setHoverIndex] = useState<number | null>(null);
@@ -137,6 +154,7 @@ export default function DraggableExerciseList({
                                 addDropSet={addDropSet}
                                 addEmptySets={addEmptySets}
                                 onCollapse={onCollapse}
+                                onRemoveLog={() => handleRemoveLog(log)}
                             />
                         ) : (
                             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
@@ -151,14 +169,7 @@ export default function DraggableExerciseList({
 
                                 {/* Reorder controls */}
                                 {logs.length > 1 && (
-                                    <View
-                                        style={{
-                                            marginLeft: 6,
-                                            marginBottom: 0,
-                                            alignItems: 'center',
-                                            gap: 2,
-                                        }}
-                                    >
+                                    <View style={{ marginLeft: 6, alignItems: 'center', gap: 2 }}>
                                         {/* Move Up */}
                                         <Pressable
                                             onPress={() => handleMoveUp(index)}
