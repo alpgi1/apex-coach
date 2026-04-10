@@ -60,7 +60,7 @@ function detectFatigueTrend(sessions: WorkoutSession[]): Insight[] {
             type: 'fatigue',
             severity: 'warning',
             title: 'Fatigue Trend',
-            message: `Your average RPE has climbed from ${firstRpe} to ${lastRpe} over your last ${rising + 1} sessions. You may be accumulating fatigue.`,
+            message: `Your average RPE has been elevated (${firstRpe} → ${lastRpe}) over your last ${rising + 1} sessions. You may be accumulating fatigue.`,
             icon: 'trending-up',
         }];
     }

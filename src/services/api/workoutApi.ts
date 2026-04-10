@@ -49,9 +49,9 @@ const mapSessionToPayload = (session: WorkoutSession): CreateWorkoutRequest => (
     })),
 });
 
-export const postWorkout = async (session: WorkoutSession): Promise<void> => {
+export const postWorkout = async (session: WorkoutSession): Promise<WorkoutResponse> => {
     const payload = mapSessionToPayload(session);
-    await apiRequest<unknown>('POST', '/api/v1/workouts', payload);
+    return apiRequest<WorkoutResponse>('POST', '/api/v1/workouts', payload);
 };
 
 // ── Read-side types & fetch ──────────────────────────

@@ -1,5 +1,5 @@
 import * as Crypto from 'expo-crypto';
-import { saveWorkoutSession } from '../services/storage/workoutStorage';
+import { saveWorkoutSession, syncWorkoutId } from '../services/storage/workoutStorage';
 import { postWorkout } from '../services/api/workoutApi';
 import { useWorkoutStore } from '../store/workoutStore';
 import { useAuthStore } from '../store/authStore';
@@ -39,10 +39,12 @@ export const useWorkoutSession = () => {
         scheduleWorkoutReminder().catch(() => {});
 
         // Fire-and-forget backend sync — does not block UX
+        // After posting, sync the backend-assigned ID back to local SQLite so
+        // future deletes use the correct ID.
         if (useAuthStore.getState().session) {
-            postWorkout(finalizedSession).catch((err) =>
-                console.warn('Backend workout sync failed (non-blocking):', err)
-            );
+            postWorkout(finalizedSession)
+                .then((res) => syncWorkoutId(finalizedSession.id, res.id).catch(() => {}))
+                .catch((err) => console.warn('Backend workout sync failed (non-blocking):', err));
         }
     };
 

@@ -130,8 +130,8 @@ export default function DashboardScreen() {
         text: 'Delete', style: 'destructive',
         onPress: async () => {
           await deleteWorkoutSession(id).catch(() => {});
-          deleteWorkoutFromBackend(id).catch(() => {});
           setHistory((prev) => prev.filter((s) => s.id !== id));
+          deleteWorkoutFromBackend(id).catch(() => {});
         },
       },
     ]);

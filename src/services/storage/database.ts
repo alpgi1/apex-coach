@@ -171,6 +171,15 @@ export const initializeDatabase = () => {
             createdAt TEXT NOT NULL
         );
         CREATE INDEX IF NOT EXISTS idx_body_weight_logs_date ON body_weight_logs(date);
+
+        -- ==========================================
+        -- DELETED WORKOUT IDS
+        -- (Prevents re-insertion from backend sync after local deletion)
+        -- ==========================================
+        CREATE TABLE IF NOT EXISTS deleted_workout_ids (
+            id TEXT PRIMARY KEY,
+            deletedAt TEXT NOT NULL
+        );
     `);
 
     // Add gifUrl column for existing installs (ALTER TABLE ADD COLUMN fails if already exists)
@@ -216,6 +225,7 @@ export const clearAllData = (): void => {
         DELETE FROM personal_records;
         DELETE FROM workout_sessions;
         DELETE FROM body_weight_logs;
+        DELETE FROM deleted_workout_ids;
         PRAGMA foreign_keys = ON;
     `);
 };

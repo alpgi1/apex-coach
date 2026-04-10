@@ -176,7 +176,24 @@ export const updateWorkoutSession = async (session: WorkoutSession): Promise<voi
     await insertLogsAndSets(session.id, session.logs);
 };
 
+export const syncWorkoutId = async (localId: string, backendId: string): Promise<void> => {
+    if (localId === backendId) return;
+    try {
+        db.execSync('PRAGMA foreign_keys = OFF;');
+        await db.runAsync(`UPDATE exercise_logs SET sessionId = ? WHERE sessionId = ?`, [backendId, localId]);
+        await db.runAsync(`UPDATE workout_sessions SET id = ? WHERE id = ?`, [backendId, localId]);
+    } finally {
+        db.execSync('PRAGMA foreign_keys = ON;');
+    }
+};
+
 export const deleteWorkoutSession = async (id: string): Promise<void> => {
+    // Stamp as deleted FIRST — even if the DELETE below fails,
+    // the sync will not re-insert this workout on the next launch.
+    await db.runAsync(
+        `INSERT OR IGNORE INTO deleted_workout_ids (id, deletedAt) VALUES (?, ?)`,
+        [id, new Date().toISOString()]
+    );
     await db.runAsync(`DELETE FROM workout_sessions WHERE id = ?`, [id]);
 };
 
@@ -201,6 +218,13 @@ export const deduplicateWorkouts = async (): Promise<number> => {
 
 export const upsertWorkoutsFromBackend = async (workouts: WorkoutResponse[]): Promise<void> => {
     for (const w of workouts) {
+        // Skip workouts the user has explicitly deleted locally
+        const isDeleted = await db.getFirstAsync<{ id: string }>(
+            'SELECT id FROM deleted_workout_ids WHERE id = ?',
+            [w.id]
+        );
+        if (isDeleted) continue;
+
         const existing = await db.getFirstAsync<{ id: string }>(
             'SELECT id FROM workout_sessions WHERE id = ? OR startTime = ?',
             [w.id, w.startTime]
