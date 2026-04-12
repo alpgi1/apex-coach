@@ -170,6 +170,13 @@ export const getPersonalRecord = async (exerciseId: string): Promise<PersonalRec
     };
 };
 
+export const updateExerciseInstructions = async (id: string, instructions: string): Promise<void> => {
+    await db.runAsync(
+        `UPDATE exercises SET instructions = ? WHERE id = ?`,
+        [instructions, id]
+    );
+};
+
 export const upsertPersonalRecord = async (pr: PersonalRecord): Promise<void> => {
     const exerciseExists = await db.getFirstAsync<{ id: string }>(
         `SELECT id FROM exercises WHERE id = ?`, [pr.exerciseId]

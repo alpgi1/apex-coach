@@ -22,6 +22,7 @@ Notifications.setNotificationHandler({
 import '../global.css';
 import { initializeDatabase } from '../src/services/storage/database';
 import { seedExercises } from '../src/services/storage/exerciseStorage';
+import { runInstructionsMigration } from '../src/services/storage/instructionsMigration';
 import { syncExercisesFromBackend } from '../src/services/api/exerciseApi';
 import { fetchWorkouts } from '../src/services/api/workoutApi';
 import { fetchTemplates } from '../src/services/api/templateApi';
@@ -71,6 +72,8 @@ export default function RootLayout() {
       try {
         initializeDatabase();
         await seedExercises();
+        // Fetch instructions from free-exercise-db in the background (one-time)
+        runInstructionsMigration().catch(() => {});
         await initialize();
         if (!name || name.trim().length === 0) {
           setShowOnboarding(true);

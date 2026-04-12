@@ -30,6 +30,22 @@ const formatLabel = (raw: string): string =>
         .toLowerCase()
         .replace(/\b\w/g, (c) => c.toUpperCase());
 
+const MUSCLE_GROUP_COLORS: Record<string, string> = {
+    CHEST:     '#E05252',
+    BACK:      '#5B8DEF',
+    LEGS:      '#52B788',
+    SHOULDERS: '#F4A261',
+    ARMS:      '#9B72CF',
+    CORE:      '#E9C46A',
+    FULL_BODY: '#FF6000',
+};
+
+const getInitials = (name: string): string => {
+    const words = name.trim().split(/\s+/);
+    if (words.length === 1) return words[0].slice(0, 2).toUpperCase();
+    return (words[0][0] + words[1][0]).toUpperCase();
+};
+
 /* ────────────────────────── component ─────────────────────── */
 
 export default function ExercisesScreen() {
@@ -102,7 +118,10 @@ export default function ExercisesScreen() {
     const renderItem = ({ item }: { item: ExerciseMetadata }) => (
         <Pressable onPress={() => handlePress(item)} style={styles.row}>
             {/* Circular GIF or fallback icon */}
-            <View style={styles.thumbWrapper}>
+            <View style={[
+                styles.thumbWrapper,
+                { backgroundColor: item.gifUrl ? '#F5F5F5' : (MUSCLE_GROUP_COLORS[item.primaryMuscleGroup] ?? '#3A3A3C') },
+            ]}>
                 {item.gifUrl ? (
                     <Image
                         source={{ uri: item.gifUrl }}
@@ -111,7 +130,9 @@ export default function ExercisesScreen() {
                     />
                 ) : (
                     <View style={styles.thumbFallback}>
-                        <Ionicons name="barbell-outline" size={22} color="rgba(255,255,255,0.3)" />
+                        <Text style={styles.thumbInitials}>
+                            {getInitials(item.name)}
+                        </Text>
                     </View>
                 )}
             </View>
@@ -278,14 +299,20 @@ const styles = StyleSheet.create({
     },
     thumbWrapper: {
         width: 52, height: 52, borderRadius: 26,
-        overflow: 'hidden', backgroundColor: '#F5F5F5',
+        overflow: 'hidden', backgroundColor: 'transparent',
         borderWidth: 1, borderColor: 'rgba(255,255,255,0.08)',
     },
     thumb: { width: 52, height: 52 },
     thumbFallback: {
         width: 52, height: 52,
-        backgroundColor: '#1A1A1A',
         alignItems: 'center', justifyContent: 'center',
+    },
+    thumbInitials: {
+        color: 'rgba(255,255,255,0.92)',
+        fontSize: 17,
+        fontWeight: '700',
+        fontFamily: 'Outfit_700Bold',
+        letterSpacing: 0.5,
     },
     rowInfo: { flex: 1, marginLeft: 14, marginRight: 8 },
     rowName: {

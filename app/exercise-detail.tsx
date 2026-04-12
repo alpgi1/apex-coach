@@ -14,7 +14,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import AnimatedBackground from '../src/components/layout/AnimatedBackground';
 import SkeletonBox from '../src/components/ui/SkeletonBox';
-import { searchExercisesDb } from '../src/services/api/exerciseDbApi';
+import { getExerciseById } from '../src/services/storage/exerciseStorage';
 import { ExerciseMetadata } from '../src/types/exercise.types';
 
 /* ────────────────────────── helpers ────────────────────────── */
@@ -40,22 +40,20 @@ export default function ExerciseDetailScreen() {
         catch { return null; }
     }, [rawExercise]);
 
-    // Lazy-loaded instructions from ExerciseDB API
+    // Instructions loaded from local SQLite DB
     const [apiInstructions, setApiInstructions] = useState<string[] | null>(null);
     const [instructionsLoading, setInstructionsLoading] = useState(false);
     const fetchedRef = useRef(false);
 
-    const fetchInstructions = useCallback(async (name: string) => {
+    const fetchInstructions = useCallback(async (exerciseId: string) => {
         if (fetchedRef.current) return;
         fetchedRef.current = true;
         setInstructionsLoading(true);
         try {
-            const res = await searchExercisesDb(name, 0, 5);
-            const match = res.data.find(
-                (e) => e.name.toLowerCase() === name.toLowerCase()
-            ) ?? res.data[0];
-            if (match?.instructions?.length) {
-                setApiInstructions(match.instructions);
+            const fresh = await getExerciseById(exerciseId);
+            const raw = fresh?.instructions;
+            if (raw && raw.trim().length > 0) {
+                setApiInstructions(raw.split('\n\n').filter(Boolean));
             } else {
                 setApiInstructions([]);
             }
@@ -106,7 +104,7 @@ export default function ExerciseDetailScreen() {
                             onPress={() => {
                                 setActiveTab(tab);
                                 if (tab === 'instructions' && exercise) {
-                                    fetchInstructions(exercise.name);
+                                    fetchInstructions(exercise.id);
                                 }
                             }}
                             style={[styles.tab, activeTab === tab && styles.tabActive]}
