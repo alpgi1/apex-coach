@@ -508,6 +508,18 @@ export default function ProfileScreen() {
                     <View style={styles.card} className="mb-4">
                         <Text style={styles.sectionLabel} className="mb-3">App</Text>
 
+                        <Pressable
+                            onPress={() => router.push('/connected-apps' as never)}
+                            style={styles.divider}
+                            className="flex-row items-center justify-between py-3 active:opacity-70"
+                        >
+                            <View className="flex-row items-center gap-3">
+                                <Ionicons name="link-outline" size={20} color="rgba(255,255,255,0.5)" />
+                                <Text style={styles.rowLabel}>Connected Apps</Text>
+                            </View>
+                            <Ionicons name="chevron-forward" size={18} color="rgba(255,255,255,0.4)" />
+                        </Pressable>
+
                         <View style={styles.divider} className="flex-row items-center justify-between py-3">
                             <View className="flex-row items-center gap-3">
                                 <Ionicons name="information-circle-outline" size={20} color="rgba(255,255,255,0.5)" />
