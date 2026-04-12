@@ -1,6 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import * as Clipboard from 'expo-clipboard';
 import { useFocusEffect, useRouter } from 'expo-router';
+import * as SecureStore from 'expo-secure-store';
 import { useCallback, useState } from 'react';
 import {
     ActivityIndicator,
@@ -23,18 +24,19 @@ import {
     revokeApiKey,
 } from '../src/services/api/apiKeyApi';
 
+const secureKey = (id: string) => `apex_api_key_${id}`;
+
 export default function ConnectedAppsScreen() {
     const router = useRouter();
     const [keys, setKeys] = useState<ApiKeyResponse[]>([]);
     const [loading, setLoading] = useState(true);
 
-    // Generate modal state
     const [showGenerateModal, setShowGenerateModal] = useState(false);
     const [keyName, setKeyName] = useState('');
     const [generating, setGenerating] = useState(false);
 
-    // Reveal modal state
     const [revealedKey, setRevealedKey] = useState<string | null>(null);
+    const [revealedKeyName, setRevealedKeyName] = useState('');
     const [copied, setCopied] = useState(false);
 
     useFocusEffect(
@@ -62,9 +64,15 @@ export default function ConnectedAppsScreen() {
         setGenerating(true);
         try {
             const res = await generateApiKey(name);
+            const { id, key } = res.data;
+
+            // Store plaintext key securely on device so user can view it again
+            await SecureStore.setItemAsync(secureKey(id), key);
+
             setShowGenerateModal(false);
             setKeyName('');
-            setRevealedKey(res.data.key);
+            setRevealedKeyName(name);
+            setRevealedKey(key);
             setCopied(false);
             await loadKeys();
         } catch (e: unknown) {
@@ -72,6 +80,21 @@ export default function ConnectedAppsScreen() {
             Alert.alert('Error', `Failed to generate API key.\n\n${msg}`);
         } finally {
             setGenerating(false);
+        }
+    };
+
+    const handleViewKey = async (key: ApiKeyResponse) => {
+        const stored = await SecureStore.getItemAsync(secureKey(key.id));
+        if (stored) {
+            setRevealedKeyName(key.name);
+            setRevealedKey(stored);
+            setCopied(false);
+        } else {
+            Alert.alert(
+                'Key Not Available',
+                'This key was generated on another device or before secure storage was enabled. Revoke it and generate a new one.',
+                [{ text: 'OK' }]
+            );
         }
     };
 
@@ -93,6 +116,7 @@ export default function ConnectedAppsScreen() {
                     onPress: async () => {
                         try {
                             await revokeApiKey(key.id);
+                            await SecureStore.deleteItemAsync(secureKey(key.id));
                             setKeys((prev) => prev.filter((k) => k.id !== key.id));
                         } catch {
                             Alert.alert('Error', 'Failed to revoke key. Please try again.');
@@ -158,10 +182,11 @@ export default function ConnectedAppsScreen() {
                             </Text>
                         ) : (
                             keys.map((key, index) => (
-                                <View
+                                <Pressable
                                     key={key.id}
+                                    onPress={() => handleViewKey(key)}
                                     style={index < keys.length - 1 ? styles.divider : undefined}
-                                    className="flex-row items-center justify-between py-3"
+                                    className="flex-row items-center justify-between py-3 active:opacity-70"
                                 >
                                     <View style={{ flex: 1 }}>
                                         <Text style={styles.keyName}>{key.name}</Text>
@@ -170,13 +195,16 @@ export default function ConnectedAppsScreen() {
                                         </Text>
                                         <Text style={styles.keyMeta}>{formatLastUsed(key.lastUsedAt)}</Text>
                                     </View>
-                                    <Pressable
-                                        onPress={() => handleRevoke(key)}
-                                        className="w-8 h-8 items-center justify-center active:opacity-70"
-                                    >
-                                        <Ionicons name="trash-outline" size={18} color="#FF3B30" />
-                                    </Pressable>
-                                </View>
+                                    <View className="flex-row items-center gap-3">
+                                        <Ionicons name="eye-outline" size={18} color="rgba(255,255,255,0.3)" />
+                                        <Pressable
+                                            onPress={(e) => { e.stopPropagation(); handleRevoke(key); }}
+                                            className="w-8 h-8 items-center justify-center active:opacity-70"
+                                        >
+                                            <Ionicons name="trash-outline" size={18} color="#FF3B30" />
+                                        </Pressable>
+                                    </View>
+                                </Pressable>
                             ))
                         )}
                     </View>
@@ -265,9 +293,9 @@ export default function ConnectedAppsScreen() {
                             </View>
                         </View>
 
-                        <Text style={styles.modalTitle}>Save Your Key</Text>
-                        <Text style={[styles.modalSubtitle, { color: '#FF9500', marginBottom: 16 }]}>
-                            This key will not be shown again. Copy it now.
+                        <Text style={styles.modalTitle}>{revealedKeyName}</Text>
+                        <Text style={[styles.modalSubtitle, { marginBottom: 16 }]}>
+                            Tap the key to copy it to clipboard.
                         </Text>
 
                         <Pressable onPress={handleCopy} style={styles.keyBox} className="active:opacity-80">
@@ -287,7 +315,7 @@ export default function ConnectedAppsScreen() {
 
                         <Pressable
                             onPress={() => setRevealedKey(null)}
-                            style={[styles.modalBtn, styles.modalBtnGenerate, { marginTop: 16 }]}
+                            style={styles.doneBtn}
                             className="active:opacity-70"
                         >
                             <Text style={styles.modalBtnGenerateText}>Done</Text>
@@ -397,7 +425,6 @@ const styles = StyleSheet.create({
         fontFamily: 'monospace',
         fontSize: 12,
     },
-    /* modals */
     modalOverlay: {
         flex: 1,
         backgroundColor: 'rgba(0,0,0,0.75)',
@@ -459,6 +486,14 @@ const styles = StyleSheet.create({
         color: 'white',
         fontSize: 15,
         fontWeight: '700',
+    },
+    doneBtn: {
+        marginTop: 16,
+        paddingVertical: 13,
+        borderRadius: 12,
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: '#FF6000',
     },
     keyIcon: {
         width: 60,
